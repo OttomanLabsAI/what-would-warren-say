@@ -1,0 +1,14 @@
+{
+  "name": "what-would-warren-say",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chapter list from Warren Buffett and the Interpretation of Financial Statements, served as a static site on Cloudflare Workers.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "wrangler deploy --dry-run"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
