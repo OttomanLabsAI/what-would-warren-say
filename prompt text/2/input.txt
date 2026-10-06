@@ -1,7 +1,0 @@
-ok, make it a html file
-
-each chapter needs its own page with a summary box for me to type into
-
-I also want a notes box under that
-
-i need an import and export function to import/export the information i put it so i can continue next time

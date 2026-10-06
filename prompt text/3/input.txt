@@ -1,0 +1,3 @@
+ok good, can you make it look a bit nicer. like a financial newspaper styling, font and colour
+
+it should be a tabbed app that allows me to choose the section from a dropdown and the chapters from there

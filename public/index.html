@@ -4,53 +4,130 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>What Would Warren Say</title>
-  <meta name="description" content="A reading companion for Warren Buffett and the Interpretation of Financial Statements: every chapter on its own page, with a summary box and a notes box that save as you type, and export and import of everything written.">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="A reading companion for Warren Buffett and the Interpretation of Financial Statements: pick a section, open a chapter, write its summary and your notes, and export or import everything written.">
+  <meta name="theme-color" content="#FFF1E5">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin>
   <style>
-    body { margin: 0 auto; max-width: 60rem; padding: 1rem; line-height: 1.45; }
-    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .5rem 1rem; border-bottom: 1px solid #ccc; padding-bottom: .5rem; }
-    header h1 { margin: 0; font-size: 1.5rem; }
-    header h1 a { color: inherit; text-decoration: none; }
-    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
-    button { font: inherit; padding: .35rem .8rem; cursor: pointer; }
+    @font-face { font-family: 'Playfair Display'; font-style: normal; font-weight: 700 900; font-display: swap; src: url(assets/fonts/playfair-display-latin.woff2) format('woff2'); }
+    @font-face { font-family: 'Playfair Display'; font-style: italic; font-weight: 700; font-display: swap; src: url(assets/fonts/playfair-display-latin-italic.woff2) format('woff2'); }
+    @font-face { font-family: 'Newsreader'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(assets/fonts/newsreader-latin.woff2) format('woff2'); }
+    @font-face { font-family: 'Newsreader'; font-style: italic; font-weight: 400; font-display: swap; src: url(assets/fonts/newsreader-latin-italic.woff2) format('woff2'); }
+
+    :root {
+      --paper: #FFF1E5;
+      --paper-deep: #F2DFCE;
+      --white: #FFFCFA;
+      --ink: #33302E;
+      --ink-70: #4D4845;
+      --ink-60: #66605C;
+      --ink-40: #999189;
+      --rule: #CCC1B7;
+      --rule-light: #E6D9CE;
+      --claret: #990F3D;
+      --teal: #0D7680;
+      --display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --text: 'Newsreader', Georgia, 'Times New Roman', serif;
+      --sans: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+
+    html { background: var(--paper); }
+    body { margin: 0; color: var(--ink); font-family: var(--text); font-size: 1.125rem; line-height: 1.5; }
+    .wrap { max-width: 64rem; margin: 0 auto; padding: 0 1rem; }
+    a { color: var(--teal); }
+
+    /* masthead */
+    .masthead { padding: 1rem 1rem .75rem; border-bottom: 3px double var(--ink); text-align: center; }
+    .dateline { display: flex; justify-content: space-between; gap: 1rem; font-family: var(--sans); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); border-bottom: 1px solid var(--rule); padding-bottom: .45rem; margin-bottom: .9rem; }
+    .masthead h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(2.1rem, 6.5vw, 3.6rem); line-height: 1.05; letter-spacing: .005em; }
+    .masthead h1 a { color: inherit; text-decoration: none; }
+    .tagline { margin: .4rem 0 0; font-style: italic; color: var(--ink-70); font-size: 1.05rem; }
+
+    /* controls */
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; padding: .7rem 1rem; border-bottom: 1px solid var(--rule); font-family: var(--sans); }
+    .controls label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    select { font-family: var(--sans); font-size: .95rem; color: var(--ink); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2333302E' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right .65rem center; border: 1px solid var(--ink); border-radius: 0; padding: .45rem 2rem .45rem .65rem; appearance: none; -webkit-appearance: none; max-width: 100%; }
+    select:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .spacer { flex: 1; }
+    button { font-family: var(--sans); font-size: .82rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .5rem .9rem; border: 1px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
+    button.secondary { background: transparent; color: var(--ink); }
+    button:hover, button:focus-visible { background: var(--claret); border-color: var(--claret); color: #fff; outline: none; }
     #import-file { display: none; }
-    .status { color: #555; font-size: .9rem; }
-    .mark { font-size: .8rem; color: #555; margin-left: .4rem; border: 1px solid #bbb; border-radius: .25rem; padding: 0 .3rem; white-space: nowrap; }
-    .part { color: #555; margin: 1rem 0 0; }
-    .part + h2 { margin-top: .25rem; }
-    #app li { margin: .2rem 0; }
-    .field { margin: 1rem 0; }
-    .field label { display: block; font-weight: bold; margin-bottom: .3rem; }
-    textarea { display: block; width: 100%; box-sizing: border-box; font: inherit; line-height: 1.45; padding: .6rem; resize: vertical; }
-    .pager { display: flex; justify-content: space-between; gap: 1rem; margin: 1.5rem 0; }
+    .status { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); }
+
+    /* chapter tabs */
+    .tabs-wrap { padding: .6rem 1rem; border-bottom: 1px solid var(--rule); }
+    .tabs-wrap[hidden] { display: none; }
+    .tabs { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .tab { position: relative; min-width: 2.5rem; padding: .35rem .6rem; font-family: var(--sans); font-size: .85rem; font-weight: 600; text-align: center; color: var(--ink-70); text-decoration: none; border: 1px solid var(--rule); background: transparent; }
+    .tab:hover { border-color: var(--ink); color: var(--ink); }
+    .tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+    .tab.written::after { content: ''; position: absolute; top: .22rem; right: .22rem; width: .38rem; height: .38rem; border-radius: 50%; background: var(--claret); }
+    .tab[aria-selected="true"].written::after { background: var(--paper); }
+
+    /* chapter page */
+    .article { padding: 1.6rem 1rem 2rem; }
+    .kicker { margin: 0 0 .5rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .headline { margin: 0 0 1.25rem; font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 3.8vw, 2.5rem); line-height: 1.15; }
+    .field { margin: 1.25rem 0; }
+    .field label { display: block; margin-bottom: .4rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    textarea { display: block; width: 100%; box-sizing: border-box; font-family: var(--text); font-size: 1.125rem; line-height: 1.55; padding: .85rem 1rem; color: var(--ink); background: var(--white); border: 1px solid var(--rule); border-radius: 0; resize: vertical; }
+    textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(13, 118, 128, .22); }
+    textarea::placeholder { color: var(--ink-40); font-style: italic; }
+    .saved { min-height: 1.2em; font-family: var(--sans); font-size: .8rem; color: var(--ink-60); }
+    .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--rule); font-size: 1rem; }
+    .pager a { max-width: 48%; color: var(--teal); text-decoration: none; }
+    .pager a:hover { text-decoration: underline; }
     .pager a:last-child { margin-left: auto; text-align: right; }
+
+    /* contents */
+    .contents { padding: 1.4rem 1rem 2rem; }
+    .count { margin: .5rem 0 1.25rem; padding: .5rem 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); font-family: var(--sans); font-size: .85rem; color: var(--ink-60); }
+    .section { margin-bottom: 1.4rem; break-inside: avoid; }
+    .section h3 { margin: 0 0 .4rem; padding-bottom: .3rem; border-bottom: 2px solid var(--ink); font-family: var(--sans); font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .section ol { margin: 0; padding: 0; list-style: none; }
+    .section li { display: flex; gap: .6rem; padding: .3rem 0; border-bottom: 1px dotted var(--rule-light); font-size: 1.05rem; line-height: 1.35; }
+    .num { flex: 0 0 1.7rem; padding-top: .2rem; font-family: var(--sans); font-size: .74rem; font-weight: 700; color: var(--ink-40); text-align: right; }
+    .section a { color: var(--ink); text-decoration: none; }
+    .section a:hover { color: var(--claret); text-decoration: underline; }
+    .mark { margin-left: .4rem; padding: 0 .3rem; border: 1px solid var(--claret); font-family: var(--sans); font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--claret); white-space: nowrap; vertical-align: middle; }
+    @media (min-width: 50rem) { .grid { columns: 2; column-gap: 2.5rem; } }
+
+    footer { margin-top: 1rem; padding: 1rem 1rem 2rem; border-top: 3px double var(--ink); font-family: var(--sans); font-size: .74rem; letter-spacing: .04em; color: var(--ink-60); text-align: center; }
   </style>
 </head>
 <body>
-  <header>
+  <header class="masthead wrap">
+    <div class="dateline"><span>A reading companion</span><span id="today"></span></div>
     <h1><a href="#">What Would Warren Say</a></h1>
-    <div class="toolbar">
-      <button type="button" id="export">Export</button>
-      <button type="button" id="import">Import</button>
-      <input type="file" id="import-file" accept="application/json,.json">
-      <span class="status" id="status" role="status" aria-live="polite"></span>
-    </div>
+    <p class="tagline">Warren Buffett and the Interpretation of Financial Statements &middot; Mary Buffett and David Clark</p>
   </header>
 
-  <main id="app"></main>
+  <div class="controls wrap">
+    <label for="section">Section</label>
+    <select id="section" aria-label="Section of the book"></select>
+    <span class="spacer"></span>
+    <button type="button" id="export">Export</button>
+    <button type="button" id="import" class="secondary">Import</button>
+    <input type="file" id="import-file" accept="application/json,.json">
+    <span class="status" id="status" role="status" aria-live="polite"></span>
+  </div>
+
+  <nav class="tabs-wrap wrap" id="tabs-wrap" aria-label="Chapters in this section" hidden>
+    <div class="tabs" id="tabs" role="tablist"></div>
+  </nav>
+
+  <main class="wrap" id="app"></main>
+
+  <footer class="wrap">Everything you write stays in this browser. Export to keep a copy, import to carry on elsewhere.</footer>
 
   <script>
   (function () {
     'use strict';
 
-    var BOOK = {
-      title: 'Warren Buffett and the Interpretation of Financial Statements',
-      subtitle: 'The Search for the Company with a Durable Competitive Advantage',
-      authors: 'Mary Buffett and David Clark'
-    };
-
     var PARTS = [
-      '',
+      'Opening chapters',
       'The Income Statement',
       'The Balance Sheet',
       'The Cash Flow Statement',
@@ -122,7 +199,8 @@
       TITLES.map(function (t, i) { return { id: String(i + 1), num: i + 1, title: t[1], part: t[0] }; })
     );
     var byId = {};
-    CHAPTERS.forEach(function (ch, i) { ch.index = i; byId[ch.id] = ch; });
+    var partChapters = PARTS.map(function () { return []; });
+    CHAPTERS.forEach(function (ch, i) { ch.index = i; byId[ch.id] = ch; partChapters[ch.part].push(ch); });
 
     // ---- storage -----------------------------------------------------------
     // entries: { [chapter id]: { summary, notes, updated } }, kept in localStorage.
@@ -172,7 +250,11 @@
     // ---- helpers -----------------------------------------------------------
     var app = document.getElementById('app');
     var statusEl = document.getElementById('status');
+    var sectionEl = document.getElementById('section');
+    var tabsWrap = document.getElementById('tabs-wrap');
+    var tabsEl = document.getElementById('tabs');
     var statusTimer = null;
+    var lastInPart = {};
 
     function esc(s) {
       return String(s).replace(/[&<>"]/g, function (c) {
@@ -209,29 +291,48 @@
              (e.notes ? ' <span class="mark">notes</span>' : '');
     }
 
+    // ---- section dropdown + chapter tabs ----------------------------------
+    sectionEl.innerHTML = '<option value="">Contents</option>' + PARTS.map(function (name, i) {
+      return '<option value="' + i + '">' + esc(name) + '</option>';
+    }).join('');
+
+    sectionEl.addEventListener('change', function () {
+      var v = sectionEl.value;
+      if (v === '') { window.location.hash = ''; return; }
+      var id = lastInPart[v] || partChapters[v][0].id;
+      if (window.location.hash === '#' + id) route(); else window.location.hash = id;
+    });
+
+    function renderTabs(part, currentId) {
+      tabsEl.innerHTML = partChapters[part].map(function (ch) {
+        var selected = ch.id === currentId;
+        return '<a class="tab' + (entries[ch.id] ? ' written' : '') + '" role="tab" href="#' + ch.id + '"' +
+          ' aria-selected="' + (selected ? 'true' : 'false') + '"' +
+          ' title="' + esc(ch.title) + '" aria-label="' + esc(label(ch)) + '">' +
+          (ch.num ? ch.num : 'Intro') + '</a>';
+      }).join('');
+      tabsWrap.hidden = false;
+    }
+
+    function hideTabs() {
+      tabsEl.innerHTML = '';
+      tabsWrap.hidden = true;
+    }
+
     // ---- views -------------------------------------------------------------
-    function renderList() {
-      var html = '<h2>' + esc(BOOK.title) + '</h2>' +
-        '<p>' + esc(BOOK.subtitle) + '<br>' + esc(BOOK.authors) + '</p>' +
-        '<p class="status">' + writtenCount() + ' of ' + CHAPTERS.length +
-        ' pages have something written. Open a chapter to write its summary and your notes.</p>' +
-        '<h3>Chapters</h3>';
-      var open = false, lastPart = -1;
-      CHAPTERS.forEach(function (ch) {
-        if (ch.num === 0) {
-          html += '<p><a href="#' + ch.id + '">' + esc(ch.title) + '</a>' + marks(ch) + '</p>';
-          return;
-        }
-        if (ch.part !== lastPart) {
-          if (open) html += '</ol>';
-          if (PARTS[ch.part]) html += '<h4>' + esc(PARTS[ch.part]) + '</h4>';
-          html += '<ol start="' + ch.num + '">';
-          open = true;
-          lastPart = ch.part;
-        }
-        html += '<li><a href="#' + ch.id + '">' + esc(ch.title) + '</a>' + marks(ch) + '</li>';
+    function renderContents() {
+      var html = '<section class="contents"><p class="kicker">Contents</p>' +
+        '<p class="count">' + writtenCount() + ' of ' + CHAPTERS.length +
+        ' pages have something written. Choose a section above, or open a chapter from the list.</p><div class="grid">';
+      PARTS.forEach(function (name, part) {
+        html += '<div class="section"><h3>' + esc(name) + '</h3><ol>';
+        partChapters[part].forEach(function (ch) {
+          html += '<li><span class="num">' + (ch.num ? ch.num : '') + '</span><span><a href="#' + ch.id + '">' +
+            esc(ch.title) + '</a>' + marks(ch) + '</span></li>';
+        });
+        html += '</ol></div>';
       });
-      if (open) html += '</ol>';
+      html += '</div></section>';
       app.innerHTML = html;
     }
 
@@ -242,18 +343,18 @@
       var prev = CHAPTERS[ch.index - 1];
       var next = CHAPTERS[ch.index + 1];
       app.innerHTML =
-        '<p><a href="#">All chapters</a></p>' +
-        (PARTS[ch.part] ? '<p class="part">' + esc(PARTS[ch.part]) + '</p>' : '') +
-        '<h2>' + esc(label(ch)) + '</h2>' +
+        '<article class="article">' +
+        '<p class="kicker">' + esc(PARTS[ch.part]) + ' &middot; ' + (ch.num ? 'Chapter ' + ch.num : 'Introduction') + '</p>' +
+        '<h2 class="headline">' + esc(ch.title) + '</h2>' +
         '<div class="field"><label for="summary">Summary</label>' +
         '<textarea id="summary" rows="8" placeholder="What this chapter says, in your own words."></textarea></div>' +
         '<div class="field"><label for="notes">Notes</label>' +
         '<textarea id="notes" rows="12" placeholder="Your notes: questions, examples, companies to check."></textarea></div>' +
-        '<p class="status" id="saved"></p>' +
+        '<p class="saved" id="saved"></p>' +
         '<nav class="pager">' +
         (prev ? '<a href="#' + prev.id + '">&larr; ' + esc(label(prev)) + '</a>' : '<span></span>') +
         (next ? '<a href="#' + next.id + '">' + esc(label(next)) + ' &rarr;</a>' : '<span></span>') +
-        '</nav>';
+        '</nav></article>';
 
       var summary = document.getElementById('summary');
       var notes = document.getElementById('notes');
@@ -269,6 +370,8 @@
         else delete entries[ch.id];
         var ok = saveEntries();
         saved.textContent = ok ? 'Saved ' + timeNow() : 'Not saved: this browser is blocking storage. Export before you leave.';
+        var tab = tabsEl.querySelector('a[href="#' + ch.id + '"]');
+        if (tab) tab.classList.toggle('written', !!entries[ch.id]);
       }
       function onInput() {
         saved.textContent = 'Saving…';
@@ -289,8 +392,18 @@
       if (pendingFlush) { pendingFlush(); pendingFlush = null; }
       var id = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
       var ch = byId[id];
-      if (ch) renderChapter(ch); else renderList();
-      document.title = ch ? label(ch) + ' - What Would Warren Say' : 'What Would Warren Say';
+      if (ch) {
+        lastInPart[ch.part] = ch.id;
+        sectionEl.value = String(ch.part);
+        renderTabs(ch.part, ch.id);
+        renderChapter(ch);
+        document.title = label(ch) + ' - What Would Warren Say';
+      } else {
+        sectionEl.value = '';
+        hideTabs();
+        renderContents();
+        document.title = 'What Would Warren Say';
+      }
       window.scrollTo(0, 0);
     }
 
@@ -301,7 +414,7 @@
         app: 'what-would-warren-say',
         version: 1,
         exportedAt: new Date().toISOString(),
-        book: BOOK.title,
+        book: 'Warren Buffett and the Interpretation of Financial Statements',
         entries: entries
       };
       var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -357,6 +470,10 @@
       reader.readAsText(file);
     });
 
+    // ---- boot --------------------------------------------------------------
+    document.getElementById('today').textContent = new Date().toLocaleDateString('en-GB', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
     window.addEventListener('hashchange', route);
     window.addEventListener('beforeunload', function () { if (pendingFlush) pendingFlush(); });
     route();
