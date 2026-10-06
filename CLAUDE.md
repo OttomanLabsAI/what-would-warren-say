@@ -11,7 +11,7 @@ production**.
 
 ```
 public/            everything served
-  index.html       the chapter list
+  index.html       the chapter list and chapter pages, one self-contained file
   404.html
   favicon.svg
   _headers         security + caching headers
@@ -20,6 +20,16 @@ wrangler.jsonc     assets-only config, no Worker script
 package.json       wrangler devDependency + dev/deploy/check scripts
 prompt text/       the records behind the version in service (see below)
 ```
+
+## How the page works
+
+`index.html` is a single file with its styles and script inline: hash routes
+(`#` list, `#intro`, `#1` to `#57`), a summary box and a notes box per chapter,
+autosave to local storage under `wwws.entries.v1`, and Export/Import of a JSON
+file named `what-would-warren-say-YYYY-MM-DD.json`. Import merges: a chapter
+from the file replaces the one here unless the one here is newer, and chapters
+absent from the file are left alone. Keep it a single file; `_headers` caches
+`/assets/*` as immutable, so anything moved there needs a fingerprinted name.
 
 ## Local development
 
@@ -34,6 +44,9 @@ npm run dev          # wrangler dev
 2. Serve `public/`, render it with headless Chromium, and inspect the
    screenshots: styles applied, fonts loaded, layout intact. In the cloud
    container Chromium lives at `/opt/pw-browsers/chromium`.
+3. For a change to the script, drive the page in a headless browser: open a
+   chapter, type into both boxes, reload, export, clear storage, import, and
+   check the text comes back. `playwright-core` with that Chromium does it.
 
 Never leave pushed work unverified or half-finished. Work in small, complete
 batches: implement, verify, commit, push.
@@ -90,3 +103,4 @@ design are their own release, requested deliberately.
 | Version | Title | Description |
 | --- | --- | --- |
 | v1.0 | The chapter list goes up, plain and unstyled | The site now exists and lists all fifty-seven chapters of Warren Buffett and the Interpretation of Financial Statements, grouped the way the book groups them: the opening chapters, then the income statement, the balance sheet, the cash flow statement and valuation. It is deliberately bare for now, a plain list with no styling, so the words are up first and the look can follow. |
+| v1.1 | Every chapter gets a page to write in | Each chapter of the book now opens on its own page with a summary box and a notes box beneath it, and what you type is kept in your browser as you go. Export saves everything you have written to a file, and Import brings it back, so you can pick up where you left off on another day or another device. |

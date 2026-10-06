@@ -4,98 +4,363 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>What Would Warren Say</title>
-  <meta name="description" content="Chapter list for Warren Buffett and the Interpretation of Financial Statements by Mary Buffett and David Clark.">
+  <meta name="description" content="A reading companion for Warren Buffett and the Interpretation of Financial Statements: every chapter on its own page, with a summary box and a notes box that save as you type, and export and import of everything written.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <style>
+    body { margin: 0 auto; max-width: 60rem; padding: 1rem; line-height: 1.45; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .5rem 1rem; border-bottom: 1px solid #ccc; padding-bottom: .5rem; }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    header h1 a { color: inherit; text-decoration: none; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+    button { font: inherit; padding: .35rem .8rem; cursor: pointer; }
+    #import-file { display: none; }
+    .status { color: #555; font-size: .9rem; }
+    .mark { font-size: .8rem; color: #555; margin-left: .4rem; border: 1px solid #bbb; border-radius: .25rem; padding: 0 .3rem; white-space: nowrap; }
+    .part { color: #555; margin: 1rem 0 0; }
+    .part + h2 { margin-top: .25rem; }
+    #app li { margin: .2rem 0; }
+    .field { margin: 1rem 0; }
+    .field label { display: block; font-weight: bold; margin-bottom: .3rem; }
+    textarea { display: block; width: 100%; box-sizing: border-box; font: inherit; line-height: 1.45; padding: .6rem; resize: vertical; }
+    .pager { display: flex; justify-content: space-between; gap: 1rem; margin: 1.5rem 0; }
+    .pager a:last-child { margin-left: auto; text-align: right; }
+  </style>
 </head>
 <body>
   <header>
-    <h1>What Would Warren Say</h1>
+    <h1><a href="#">What Would Warren Say</a></h1>
+    <div class="toolbar">
+      <button type="button" id="export">Export</button>
+      <button type="button" id="import">Import</button>
+      <input type="file" id="import-file" accept="application/json,.json">
+      <span class="status" id="status" role="status" aria-live="polite"></span>
+    </div>
   </header>
 
-  <main>
-    <h2>Warren Buffett and the Interpretation of Financial Statements</h2>
-    <p>The Search for the Company with a Durable Competitive Advantage<br>
-    Mary Buffett and David Clark</p>
+  <main id="app"></main>
 
-    <h3>Chapters</h3>
+  <script>
+  (function () {
+    'use strict';
 
-    <p>Introduction</p>
+    var BOOK = {
+      title: 'Warren Buffett and the Interpretation of Financial Statements',
+      subtitle: 'The Search for the Company with a Durable Competitive Advantage',
+      authors: 'Mary Buffett and David Clark'
+    };
 
-    <ol start="1">
-      <li>Two Great Revelations That Made Warren the Richest Person in the World</li>
-      <li>The Kind of Business That Will Make Warren Superrich</li>
-      <li>Where Warren Starts His Search for the Exceptional Company</li>
-      <li>Durability Is Warren's Ticket to Riches</li>
-      <li>Financial Statement Overview: Where the Gold Is Hidden</li>
-      <li>Where Warren Goes to Find Financial Information</li>
-    </ol>
+    var PARTS = [
+      '',
+      'The Income Statement',
+      'The Balance Sheet',
+      'The Cash Flow Statement',
+      'Valuing the Company with a Durable Competitive Advantage'
+    ];
 
-    <h4>The Income Statement</h4>
-    <ol start="7">
-      <li>Where Warren Starts: The Income Statement</li>
-      <li>Revenue: Where the Money Comes In</li>
-      <li>Cost of Goods Sold: For Warren the Lower the Better</li>
-      <li>Gross Profit/Gross Profit Margin: Key Numbers for Warren in His Search for Long-Term Gold</li>
-      <li>Operating Expenses: Where Warren Keeps a Careful Eye</li>
-      <li>Selling, General, and Administrative Expenses</li>
-      <li>Research and Development: Why Warren Stays Away from It</li>
-      <li>Depreciation: A Cost Warren Can't Ignore</li>
-      <li>Interest Expense: What Warren Doesn't Want</li>
-      <li>Gain (or Loss) on Sale of Assets and Other</li>
-      <li>Income Before Tax: The Number That Warren Uses</li>
-      <li>Income Taxes Paid: How Warren Knows Who Is Telling the Truth</li>
-      <li>Net Earnings: What Warren Is Looking For</li>
-      <li>Per-Share Earnings: How Warren Tells the Winners from the Losers</li>
-    </ol>
+    // [part index, title], in book order. Chapter numbers follow from position.
+    var TITLES = [
+      [0, 'Two Great Revelations That Made Warren the Richest Person in the World'],
+      [0, 'The Kind of Business That Will Make Warren Superrich'],
+      [0, 'Where Warren Starts His Search for the Exceptional Company'],
+      [0, "Durability Is Warren's Ticket to Riches"],
+      [0, 'Financial Statement Overview: Where the Gold Is Hidden'],
+      [0, 'Where Warren Goes to Find Financial Information'],
+      [1, 'Where Warren Starts: The Income Statement'],
+      [1, 'Revenue: Where the Money Comes In'],
+      [1, 'Cost of Goods Sold: For Warren the Lower the Better'],
+      [1, 'Gross Profit/Gross Profit Margin: Key Numbers for Warren in His Search for Long-Term Gold'],
+      [1, 'Operating Expenses: Where Warren Keeps a Careful Eye'],
+      [1, 'Selling, General, and Administrative Expenses'],
+      [1, 'Research and Development: Why Warren Stays Away from It'],
+      [1, "Depreciation: A Cost Warren Can't Ignore"],
+      [1, "Interest Expense: What Warren Doesn't Want"],
+      [1, 'Gain (or Loss) on Sale of Assets and Other'],
+      [1, 'Income Before Tax: The Number That Warren Uses'],
+      [1, 'Income Taxes Paid: How Warren Knows Who Is Telling the Truth'],
+      [1, 'Net Earnings: What Warren Is Looking For'],
+      [1, 'Per-Share Earnings: How Warren Tells the Winners from the Losers'],
+      [2, 'Balance Sheet in General'],
+      [2, 'Assets'],
+      [2, 'Current Asset Cycle: How the Money Is Made'],
+      [2, "Cash and Cash Equivalents: Warren's Pile of Loot"],
+      [2, 'Inventory: What the Company Needs to Buy and What the Company Needs to Sell'],
+      [2, 'Net Receivables: Money Owed to the Company'],
+      [2, 'Prepaid Expenses/Other Current Assets'],
+      [2, 'Total Current Assets and the Current Ratio'],
+      [2, 'Property, Plant, and Equipment: For Warren Not Having Them Can Be a Good Thing'],
+      [2, 'Goodwill'],
+      [2, 'Intangible Assets: Measuring the Unmeasurable'],
+      [2, "Long-Term Investments: One of the Secrets to Warren's Success"],
+      [2, 'Other Long-Term Assets'],
+      [2, 'Total Assets and the Return on Total Assets'],
+      [2, 'Current Liabilities'],
+      [2, 'Accounts Payable, Accrued Expenses, and Other Current Liabilities'],
+      [2, 'Short-Term Debt: How It Can Kill a Financial Institution'],
+      [2, 'Long-Term Debt Coming Due and the Trouble It Can Cause'],
+      [2, 'Total Current Liabilities and the Current Ratio'],
+      [2, "Long-Term Debt: Something That Great Companies Don't Have a Lot Of"],
+      [2, 'Deferred Income Tax, Minority Interest, and Other Liabilities'],
+      [2, "Total Liabilities and the Debt to Shareholders' Equity Ratio"],
+      [2, "Shareholders' Equity/Book Value"],
+      [2, 'Preferred and Common Stock: Additional Paid in Capital'],
+      [2, "Retained Earnings: Warren's Secret for Getting Superrich"],
+      [2, 'Treasury Stock: Warren Likes to See This on the Balance Sheet'],
+      [2, "Return on Shareholders' Equity: Part One"],
+      [2, "Return on Shareholders' Equity: Part Two"],
+      [2, 'The Problem with Leverage and the Tricks It Can Play on You'],
+      [3, 'The Cash Flow Statement: Where Warren Goes to Find the Cash'],
+      [3, 'Capital Expenditures: Not Having Them Is One of the Secrets to Getting Rich'],
+      [3, "Stock Buybacks: Warren's Tax-Free Way to Increase Shareholder Wealth"],
+      [4, "Warren's Revolutionary Idea of the Equity Bond and How It Has Made Him Superrich"],
+      [4, 'The Ever-Increasing Yield Created by the Durable Competitive Advantage'],
+      [4, 'More Ways to Value a Company with a Durable Competitive Advantage'],
+      [4, 'How Warren Determines the Right Time to Buy a Fantastic Business'],
+      [4, 'How Warren Determines It Is Time to Sell']
+    ];
 
-    <h4>The Balance Sheet</h4>
-    <ol start="21">
-      <li>Balance Sheet in General</li>
-      <li>Assets</li>
-      <li>Current Asset Cycle: How the Money Is Made</li>
-      <li>Cash and Cash Equivalents: Warren's Pile of Loot</li>
-      <li>Inventory: What the Company Needs to Buy and What the Company Needs to Sell</li>
-      <li>Net Receivables: Money Owed to the Company</li>
-      <li>Prepaid Expenses/Other Current Assets</li>
-      <li>Total Current Assets and the Current Ratio</li>
-      <li>Property, Plant, and Equipment: For Warren Not Having Them Can Be a Good Thing</li>
-      <li>Goodwill</li>
-      <li>Intangible Assets: Measuring the Unmeasurable</li>
-      <li>Long-Term Investments: One of the Secrets to Warren's Success</li>
-      <li>Other Long-Term Assets</li>
-      <li>Total Assets and the Return on Total Assets</li>
-      <li>Current Liabilities</li>
-      <li>Accounts Payable, Accrued Expenses, and Other Current Liabilities</li>
-      <li>Short-Term Debt: How It Can Kill a Financial Institution</li>
-      <li>Long-Term Debt Coming Due and the Trouble It Can Cause</li>
-      <li>Total Current Liabilities and the Current Ratio</li>
-      <li>Long-Term Debt: Something That Great Companies Don't Have a Lot Of</li>
-      <li>Deferred Income Tax, Minority Interest, and Other Liabilities</li>
-      <li>Total Liabilities and the Debt to Shareholders' Equity Ratio</li>
-      <li>Shareholders' Equity/Book Value</li>
-      <li>Preferred and Common Stock: Additional Paid in Capital</li>
-      <li>Retained Earnings: Warren's Secret for Getting Superrich</li>
-      <li>Treasury Stock: Warren Likes to See This on the Balance Sheet</li>
-      <li>Return on Shareholders' Equity: Part One</li>
-      <li>Return on Shareholders' Equity: Part Two</li>
-      <li>The Problem with Leverage and the Tricks It Can Play on You</li>
-    </ol>
+    var CHAPTERS = [{ id: 'intro', num: 0, title: 'Introduction', part: 0 }].concat(
+      TITLES.map(function (t, i) { return { id: String(i + 1), num: i + 1, title: t[1], part: t[0] }; })
+    );
+    var byId = {};
+    CHAPTERS.forEach(function (ch, i) { ch.index = i; byId[ch.id] = ch; });
 
-    <h4>The Cash Flow Statement</h4>
-    <ol start="50">
-      <li>The Cash Flow Statement: Where Warren Goes to Find the Cash</li>
-      <li>Capital Expenditures: Not Having Them Is One of the Secrets to Getting Rich</li>
-      <li>Stock Buybacks: Warren's Tax-Free Way to Increase Shareholder Wealth</li>
-    </ol>
+    // ---- storage -----------------------------------------------------------
+    // entries: { [chapter id]: { summary, notes, updated } }, kept in localStorage.
+    var STORAGE_KEY = 'wwws.entries.v1';
+    var entries = loadEntries();
+    var storageOk = true;
 
-    <h4>Valuing the Company with a Durable Competitive Advantage</h4>
-    <ol start="53">
-      <li>Warren's Revolutionary Idea of the Equity Bond and How It Has Made Him Superrich</li>
-      <li>The Ever-Increasing Yield Created by the Durable Competitive Advantage</li>
-      <li>More Ways to Value a Company with a Durable Competitive Advantage</li>
-      <li>How Warren Determines the Right Time to Buy a Fantastic Business</li>
-      <li>How Warren Determines It Is Time to Sell</li>
-    </ol>
-  </main>
+    function cleanEntries(obj) {
+      var out = {};
+      if (!obj || typeof obj !== 'object') return out;
+      CHAPTERS.forEach(function (ch) {
+        var e = obj[ch.id];
+        if (!e || typeof e !== 'object') return;
+        var summary = typeof e.summary === 'string' ? e.summary : '';
+        var notes = typeof e.notes === 'string' ? e.notes : '';
+        if (!summary && !notes) return;
+        out[ch.id] = { summary: summary, notes: notes, updated: typeof e.updated === 'string' ? e.updated : '' };
+      });
+      return out;
+    }
+
+    function loadEntries() {
+      try {
+        var raw = window.localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {};
+        var parsed = JSON.parse(raw);
+        return cleanEntries(parsed && parsed.entries);
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveEntries() {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, entries: entries }));
+        storageOk = true;
+      } catch (e) {
+        storageOk = false;
+      }
+      return storageOk;
+    }
+
+    function writtenCount() {
+      return Object.keys(entries).length;
+    }
+
+    // ---- helpers -----------------------------------------------------------
+    var app = document.getElementById('app');
+    var statusEl = document.getElementById('status');
+    var statusTimer = null;
+
+    function esc(s) {
+      return String(s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+
+    function label(ch) {
+      return ch.num ? ch.num + '. ' + ch.title : ch.title;
+    }
+
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+    function timeNow() {
+      var d = new Date();
+      return pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function dateStamp() {
+      var d = new Date();
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+      clearTimeout(statusTimer);
+      if (msg) statusTimer = setTimeout(function () { statusEl.textContent = ''; }, 8000);
+    }
+
+    function marks(ch) {
+      var e = entries[ch.id];
+      if (!e) return '';
+      return (e.summary ? ' <span class="mark">summary</span>' : '') +
+             (e.notes ? ' <span class="mark">notes</span>' : '');
+    }
+
+    // ---- views -------------------------------------------------------------
+    function renderList() {
+      var html = '<h2>' + esc(BOOK.title) + '</h2>' +
+        '<p>' + esc(BOOK.subtitle) + '<br>' + esc(BOOK.authors) + '</p>' +
+        '<p class="status">' + writtenCount() + ' of ' + CHAPTERS.length +
+        ' pages have something written. Open a chapter to write its summary and your notes.</p>' +
+        '<h3>Chapters</h3>';
+      var open = false, lastPart = -1;
+      CHAPTERS.forEach(function (ch) {
+        if (ch.num === 0) {
+          html += '<p><a href="#' + ch.id + '">' + esc(ch.title) + '</a>' + marks(ch) + '</p>';
+          return;
+        }
+        if (ch.part !== lastPart) {
+          if (open) html += '</ol>';
+          if (PARTS[ch.part]) html += '<h4>' + esc(PARTS[ch.part]) + '</h4>';
+          html += '<ol start="' + ch.num + '">';
+          open = true;
+          lastPart = ch.part;
+        }
+        html += '<li><a href="#' + ch.id + '">' + esc(ch.title) + '</a>' + marks(ch) + '</li>';
+      });
+      if (open) html += '</ol>';
+      app.innerHTML = html;
+    }
+
+    var pendingFlush = null;
+
+    function renderChapter(ch) {
+      var e = entries[ch.id] || { summary: '', notes: '' };
+      var prev = CHAPTERS[ch.index - 1];
+      var next = CHAPTERS[ch.index + 1];
+      app.innerHTML =
+        '<p><a href="#">All chapters</a></p>' +
+        (PARTS[ch.part] ? '<p class="part">' + esc(PARTS[ch.part]) + '</p>' : '') +
+        '<h2>' + esc(label(ch)) + '</h2>' +
+        '<div class="field"><label for="summary">Summary</label>' +
+        '<textarea id="summary" rows="8" placeholder="What this chapter says, in your own words."></textarea></div>' +
+        '<div class="field"><label for="notes">Notes</label>' +
+        '<textarea id="notes" rows="12" placeholder="Your notes: questions, examples, companies to check."></textarea></div>' +
+        '<p class="status" id="saved"></p>' +
+        '<nav class="pager">' +
+        (prev ? '<a href="#' + prev.id + '">&larr; ' + esc(label(prev)) + '</a>' : '<span></span>') +
+        (next ? '<a href="#' + next.id + '">' + esc(label(next)) + ' &rarr;</a>' : '<span></span>') +
+        '</nav>';
+
+      var summary = document.getElementById('summary');
+      var notes = document.getElementById('notes');
+      var saved = document.getElementById('saved');
+      summary.value = e.summary;
+      notes.value = e.notes;
+
+      var timer = null;
+      function commit() {
+        timer = null;
+        var s = summary.value, n = notes.value;
+        if (s || n) entries[ch.id] = { summary: s, notes: n, updated: new Date().toISOString() };
+        else delete entries[ch.id];
+        var ok = saveEntries();
+        saved.textContent = ok ? 'Saved ' + timeNow() : 'Not saved: this browser is blocking storage. Export before you leave.';
+      }
+      function onInput() {
+        saved.textContent = 'Saving…';
+        clearTimeout(timer);
+        timer = setTimeout(commit, 400);
+      }
+      function flush() {
+        if (timer) { clearTimeout(timer); commit(); }
+      }
+      summary.addEventListener('input', onInput);
+      notes.addEventListener('input', onInput);
+      summary.addEventListener('blur', flush);
+      notes.addEventListener('blur', flush);
+      pendingFlush = flush;
+    }
+
+    function route() {
+      if (pendingFlush) { pendingFlush(); pendingFlush = null; }
+      var id = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
+      var ch = byId[id];
+      if (ch) renderChapter(ch); else renderList();
+      document.title = ch ? label(ch) + ' - What Would Warren Say' : 'What Would Warren Say';
+      window.scrollTo(0, 0);
+    }
+
+    // ---- export / import ---------------------------------------------------
+    function exportEntries() {
+      if (pendingFlush) pendingFlush();
+      var payload = {
+        app: 'what-would-warren-say',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        book: BOOK.title,
+        entries: entries
+      };
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'what-would-warren-say-' + dateStamp() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      var n = writtenCount();
+      setStatus('Exported ' + n + ' page' + (n === 1 ? '' : 's') + ' to ' + a.download);
+    }
+
+    function importText(text) {
+      var parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (e) {
+        setStatus('Could not import: that is not a JSON export from this site.');
+        return;
+      }
+      var incoming = cleanEntries(parsed && parsed.entries ? parsed.entries : parsed);
+      var ids = Object.keys(incoming);
+      if (!ids.length) {
+        setStatus('Nothing to import: no chapter entries found in that file.');
+        return;
+      }
+      var imported = 0, kept = 0;
+      ids.forEach(function (id) {
+        var mine = entries[id], theirs = incoming[id];
+        if (mine && mine.updated && theirs.updated && mine.updated > theirs.updated) { kept++; return; }
+        entries[id] = theirs;
+        imported++;
+      });
+      saveEntries();
+      setStatus('Imported ' + imported + ' page' + (imported === 1 ? '' : 's') +
+        (kept ? ', kept ' + kept + ' that ' + (kept === 1 ? 'was' : 'were') + ' newer here' : '') + '.');
+      route();
+    }
+
+    var fileInput = document.getElementById('import-file');
+    document.getElementById('export').addEventListener('click', exportEntries);
+    document.getElementById('import').addEventListener('click', function () { fileInput.click(); });
+    fileInput.addEventListener('change', function () {
+      var file = fileInput.files && fileInput.files[0];
+      fileInput.value = '';
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () { importText(reader.result); };
+      reader.onerror = function () { setStatus('Could not read that file.'); };
+      reader.readAsText(file);
+    });
+
+    window.addEventListener('hashchange', route);
+    window.addEventListener('beforeunload', function () { if (pendingFlush) pendingFlush(); });
+    route();
+  })();
+  </script>
 </body>
 </html>

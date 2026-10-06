@@ -1,7 +1,0 @@
-can you get me a list of the chapters in warren buffet interpretation of financial statements? and list them on the page
-
-this is a website hosted on cloudflare. for now, you are just listing, dont worry about css, fonts, etc
-
-follow all of the git skills i gave you for this repo as i get you to build it
-
-make sure you are using the git-ai-instruction-prompt skill
