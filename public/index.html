@@ -71,7 +71,19 @@
     .kicker { margin: 0 0 .5rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .headline { margin: 0 0 1.25rem; font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 3.8vw, 2.5rem); line-height: 1.15; }
     .field { margin: 1.25rem 0; }
-    .field label { display: block; margin-bottom: .4rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    .field > label { display: block; margin-bottom: .4rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    fieldset.field { border: 0; padding: 0; margin: 1.25rem 0; min-width: 0; }
+    fieldset.field legend { padding: 0; margin-bottom: .4rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    .types { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .type { display: inline-flex; align-items: center; gap: .5rem; margin: 0; padding: .45rem .8rem; border: 1px solid var(--rule); background: var(--white); cursor: pointer; font-family: var(--sans); font-size: .85rem; letter-spacing: normal; text-transform: none; color: var(--ink-60); }
+    .type input { margin: 0; accent-color: var(--claret); }
+    .type b { font-weight: 700; color: var(--ink); }
+    .type:hover { border-color: var(--ink); }
+    .type.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+    .type.on b { color: var(--paper); }
+    .type.on input { accent-color: var(--paper); }
+    .type:focus-within { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .mark.type-tag { color: var(--teal); border-color: var(--teal); }
     textarea { display: block; width: 100%; box-sizing: border-box; font-family: var(--text); font-size: 1.125rem; line-height: 1.55; padding: .85rem 1rem; color: var(--ink); background: var(--white); border: 1px solid var(--rule); border-radius: 0; resize: vertical; }
     textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(13, 118, 128, .22); }
     textarea::placeholder { color: var(--ink-40); font-style: italic; }
@@ -202,6 +214,15 @@
     var partChapters = PARTS.map(function () { return []; });
     CHAPTERS.forEach(function (ch, i) { ch.index = i; byId[ch.id] = ch; partChapters[ch.part].push(ch); });
 
+    // What kind of chapter it is, chosen by the reader on each chapter page.
+    var TYPES = [
+      { value: 'overview', name: 'Overview', hint: 'introduces a run of chapters' },
+      { value: 'metric', name: 'Metric', hint: 'direct information on one metric' },
+      { value: 'background', name: 'Background', hint: 'information only, no metric' }
+    ];
+    var TYPE_NAMES = {};
+    TYPES.forEach(function (t) { TYPE_NAMES[t.value] = t.name; });
+
     // ---- storage -----------------------------------------------------------
     // entries: { [chapter id]: { summary, notes, updated } }, kept in localStorage.
     var STORAGE_KEY = 'wwws.entries.v1';
@@ -216,8 +237,9 @@
         if (!e || typeof e !== 'object') return;
         var summary = typeof e.summary === 'string' ? e.summary : '';
         var notes = typeof e.notes === 'string' ? e.notes : '';
-        if (!summary && !notes) return;
-        out[ch.id] = { summary: summary, notes: notes, updated: typeof e.updated === 'string' ? e.updated : '' };
+        var type = TYPE_NAMES.hasOwnProperty(e.type) ? e.type : '';
+        if (!summary && !notes && !type) return;
+        out[ch.id] = { summary: summary, notes: notes, type: type, updated: typeof e.updated === 'string' ? e.updated : '' };
       });
       return out;
     }
@@ -243,8 +265,12 @@
       return storageOk;
     }
 
+    function hasText(e) {
+      return !!(e && (e.summary || e.notes));
+    }
+
     function writtenCount() {
-      return Object.keys(entries).length;
+      return Object.keys(entries).filter(function (id) { return hasText(entries[id]); }).length;
     }
 
     // ---- helpers -----------------------------------------------------------
@@ -287,7 +313,8 @@
     function marks(ch) {
       var e = entries[ch.id];
       if (!e) return '';
-      return (e.summary ? ' <span class="mark">summary</span>' : '') +
+      return (e.type ? ' <span class="mark type-tag">' + esc(TYPE_NAMES[e.type]) + '</span>' : '') +
+             (e.summary ? ' <span class="mark">summary</span>' : '') +
              (e.notes ? ' <span class="mark">notes</span>' : '');
     }
 
@@ -306,7 +333,7 @@
     function renderTabs(part, currentId) {
       tabsEl.innerHTML = partChapters[part].map(function (ch) {
         var selected = ch.id === currentId;
-        return '<a class="tab' + (entries[ch.id] ? ' written' : '') + '" role="tab" href="#' + ch.id + '"' +
+        return '<a class="tab' + (hasText(entries[ch.id]) ? ' written' : '') + '" role="tab" href="#' + ch.id + '"' +
           ' aria-selected="' + (selected ? 'true' : 'false') + '"' +
           ' title="' + esc(ch.title) + '" aria-label="' + esc(label(ch)) + '">' +
           (ch.num ? ch.num : 'Intro') + '</a>';
@@ -339,13 +366,20 @@
     var pendingFlush = null;
 
     function renderChapter(ch) {
-      var e = entries[ch.id] || { summary: '', notes: '' };
+      var e = entries[ch.id] || { summary: '', notes: '', type: '' };
       var prev = CHAPTERS[ch.index - 1];
       var next = CHAPTERS[ch.index + 1];
       app.innerHTML =
         '<article class="article">' +
         '<p class="kicker">' + esc(PARTS[ch.part]) + ' &middot; ' + (ch.num ? 'Chapter ' + ch.num : 'Introduction') + '</p>' +
         '<h2 class="headline">' + esc(ch.title) + '</h2>' +
+        '<fieldset class="field types-field"><legend>Chapter type</legend><div class="types">' +
+        TYPES.map(function (t) {
+          var on = e.type === t.value;
+          return '<label class="type' + (on ? ' on' : '') + '"><input type="radio" name="ctype" value="' + t.value + '"' +
+            (on ? ' checked' : '') + '><b>' + t.name + '</b><span>' + t.hint + '</span></label>';
+        }).join('') +
+        '</div></fieldset>' +
         '<div class="field"><label for="summary">Summary</label>' +
         '<textarea id="summary" rows="8" placeholder="What this chapter says, in your own words."></textarea></div>' +
         '<div class="field"><label for="notes">Notes</label>' +
@@ -359,19 +393,25 @@
       var summary = document.getElementById('summary');
       var notes = document.getElementById('notes');
       var saved = document.getElementById('saved');
+      var typeInputs = Array.prototype.slice.call(app.querySelectorAll('input[name="ctype"]'));
       summary.value = e.summary;
       notes.value = e.notes;
+
+      function currentType() {
+        for (var i = 0; i < typeInputs.length; i++) if (typeInputs[i].checked) return typeInputs[i].value;
+        return '';
+      }
 
       var timer = null;
       function commit() {
         timer = null;
-        var s = summary.value, n = notes.value;
-        if (s || n) entries[ch.id] = { summary: s, notes: n, updated: new Date().toISOString() };
+        var s = summary.value, n = notes.value, t = currentType();
+        if (s || n || t) entries[ch.id] = { summary: s, notes: n, type: t, updated: new Date().toISOString() };
         else delete entries[ch.id];
         var ok = saveEntries();
         saved.textContent = ok ? 'Saved ' + timeNow() : 'Not saved: this browser is blocking storage. Export before you leave.';
         var tab = tabsEl.querySelector('a[href="#' + ch.id + '"]');
-        if (tab) tab.classList.toggle('written', !!entries[ch.id]);
+        if (tab) tab.classList.toggle('written', hasText(entries[ch.id]));
       }
       function onInput() {
         saved.textContent = 'Saving…';
@@ -385,6 +425,13 @@
       notes.addEventListener('input', onInput);
       summary.addEventListener('blur', flush);
       notes.addEventListener('blur', flush);
+      typeInputs.forEach(function (input) {
+        input.addEventListener('change', function () {
+          typeInputs.forEach(function (other) { other.parentNode.classList.toggle('on', other.checked); });
+          clearTimeout(timer);
+          commit();
+        });
+      });
       pendingFlush = flush;
     }
 
@@ -426,7 +473,7 @@
       a.click();
       a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-      var n = writtenCount();
+      var n = Object.keys(entries).length;
       setStatus('Exported ' + n + ' page' + (n === 1 ? '' : 's') + ' to ' + a.download);
     }
 

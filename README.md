@@ -34,9 +34,14 @@ CLAUDE.md          standing policy for working in this repo
 - `#` shows the contents; `#intro` and `#1` to `#57` show a chapter page. The
   section dropdown and the tab row follow whichever chapter is open, and the
   dropdown remembers the last chapter visited in each section.
+- Each chapter page starts with a chapter type, one of three: Overview for a
+  chapter that introduces a run of chapters, Metric for one with direct
+  information on a single metric, or Background for information only, such as
+  the Introduction. The choice shows as a tag beside the chapter in the contents.
 - What you type is saved in the browser's local storage under the key
-  `wwws.entries.v1`, one entry per chapter with `summary`, `notes` and an
-  `updated` timestamp. Nothing is sent anywhere.
+  `wwws.entries.v1`, one entry per chapter with `summary`, `notes`, `type`
+  (`overview`, `metric`, `background` or empty) and an `updated` timestamp.
+  Nothing is sent anywhere.
 - Export downloads `what-would-warren-say-YYYY-MM-DD.json`. Import reads such
   a file and merges it in: a chapter from the file replaces the one here unless
   the one here was written more recently, and chapters absent from the file are

@@ -1,0 +1,1 @@
+good, now add a checkbox up top. this chapter is more of an introduction to other chapters, i need a binary to state if it is one of these, or one of those chapters with direct information on a specific metric. name it accordingly. additionally, add another option for neither, where it is for information purposes only, such as the introduction etc
