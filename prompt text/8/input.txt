@@ -1,0 +1,7 @@
+make the bottom scroll for the table always shown, also, make the headings always on show as i scroll down
+
+also, when i click a year heading, it should expand and show the quarterly numbers for that year
+
+the table should start on the far right so the user can see the latest year
+
+yout know waht, flip the table, make the latest on the left and the earliest to the right

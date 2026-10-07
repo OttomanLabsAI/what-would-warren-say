@@ -42,8 +42,18 @@ add fields, never rename or remove them, and change them only with a migration.
 
 The Numbers view (`#numbers`, `#numbers/<SYMBOL>`) fetches EODHD fundamentals
 through the relay with the reader's own token in an `X-Api-Token` header,
-keeps the extracted company under `wwws.numbers.v1` (eight most recent) and
-the token under `wwws.eodhd.token` only when "remember" is ticked. The export
+keeps the extracted company under `wwws.numbers.v1` (eight most recent; yearly
+statements plus the last `MAX_QUARTERS` = 40 quarters as `incomeQ`, `balanceQ`,
+`cashflowQ`, `sharesQ`, `epsQ`) and the token under `wwws.eodhd.token` only
+when "remember" is ticked. The table is a scroll frame (`.table-wrap`,
+`max-height` of the window less 7rem, `overflow-x: scroll` so the bar is
+always drawn, sticky `thead th` and sticky `.item` cells, `border-collapse:
+separate` so the sticky borders hold). Columns run newest first: the "to
+date" column, then each year with its quarters, newest first, to its right. A
+year heading with quarters is a `button.yr`; `columnsFor` builds the columns,
+`quarterData` the quarter values, and rows flagged `annual: true` use
+`trailingFour` sums in quarter columns. A "to date" column (`date: 'todate'`)
+carries quarters after the last year end. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
 the book's lines to EODHD field names, several candidates per line, with the
 chapter and the book's rule of thumb; "Every field EODHD reports" shows the
@@ -122,8 +132,9 @@ the same push that releases the version: remove the previous version's
 folder(s) and add `prompt text/N/` containing `input.txt` (the prompt, byte for
 byte), `output.txt` (the reply that shipped it, byte for byte), `ai model.txt`
 (three lines: Anthropic / Claude / Fable 5 Max unless the owner directs
-otherwise) and any input images or files the owner provided. The files are
-owner-supplied records: never edit, reformat, trim or regenerate them.
+otherwise) and every input image and file the owner provided, each under its
+own name. The files are owner-supplied records: never edit, reformat, trim or
+regenerate them.
 
 The version number N is the count of prompts that have shipped, one more than
 the folder in service. It is not the release tag: a push that ships no new
@@ -146,3 +157,4 @@ design are their own release, requested deliberately.
 | v1.4 | The book's numbers, fetched for any company | A Numbers tab now sits beside Chapters: give it a ticker and your own EODHD key and it lays out the company's full yearly history of the figures the book walks through, statement by statement with the chapter beside each line and the book's rule of thumb under each ratio, from gross margin to the years of earnings it would take to clear the long-term debt. Companies you fetch are kept on your device, the table downloads as a spreadsheet, and the key never leaves your browser. The line above the masthead is gone. |
 | v1.5 | The page holds still between views | Switching between Chapters and Numbers no longer nudges the page: the column keeps its width and position whether or not a scrollbar is showing, and the row of controls keeps one height in both views, so the masthead, the buttons and the text below stay exactly where they were. |
 | v1.6 | The book's rules of thumb now read in claret | Under each ratio in the Numbers table, the book's rule of thumb now sits in the same claret as the negative figures, so the book's voice stands apart from the data at a glance. |
+| v1.7 | Pinned headings, open quarters, latest year first | The Numbers table now runs newest first, the latest year at the left, and sits in its own frame: the year headings stay pinned as you scroll down, the line names as you scroll across, and the scrollbars are always drawn. Click any year heading and its quarters unfold beside it, newest first, with the ratios that need a full year's earnings built on the trailing four quarters, and a "to date" column carries the quarters reported since the last year end. |

@@ -73,6 +73,17 @@ CLAUDE.md          standing policy for working in this repo
   the device under `wwws.numbers.v1` (the eight most recent) and shown again
   without a call. The token is kept under `wwws.eodhd.token` only when
   "Remember" is ticked.
+- The table runs newest first, the latest year at the left, and sits in its
+  own frame no taller than the window: the year headings stay pinned as you
+  scroll down, the line names as you scroll across, and both scrollbars are
+  always drawn.
+- Each fetch also keeps the last forty quarters. Click a year heading and its
+  quarters unfold beside it; a "to date" column holds the quarters reported
+  since the last year end. In quarter columns the four ratios built on a full
+  year's earnings (return on assets, years to clear long-term debt, return on
+  equity, capital expenditure against earnings) use the trailing four quarters
+  and show a dash until four are available. Companies fetched before quarters
+  were kept need fetching again. The CSV follows the columns on show.
 - Each line tries the EODHD field names in turn (for example
   `cashAndEquivalents` then `cash`) and shows a dash when none carries a
   number. "Every field EODHD reports" lists the raw statements, so a line that

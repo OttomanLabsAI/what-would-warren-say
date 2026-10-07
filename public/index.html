@@ -83,12 +83,23 @@
     .kept a { color: var(--teal); text-decoration: none; }
     .kept a:hover { text-decoration: underline; }
     .units { font-family: var(--sans); font-size: .75rem; color: var(--ink-60); margin: 0 0 .4rem; }
-    .table-wrap { overflow-x: auto; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); }
-    .ntable { border-collapse: collapse; font-family: var(--sans); font-size: .8rem; min-width: 100%; }
+    .table-wrap { overflow-x: scroll; overflow-y: auto; max-height: calc(100vh - 7rem); border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); scrollbar-width: auto; scrollbar-color: var(--ink-40) var(--paper-deep); }
+    .table-wrap::-webkit-scrollbar { width: 12px; height: 12px; }
+    .table-wrap::-webkit-scrollbar-track { background: var(--paper-deep); }
+    .table-wrap::-webkit-scrollbar-thumb { background: var(--ink-40); border: 2px solid var(--paper-deep); border-radius: 6px; }
+    .table-wrap::-webkit-scrollbar-thumb:hover { background: var(--ink-60); }
+    .table-wrap::-webkit-scrollbar-corner { background: var(--paper-deep); }
+    .ntable { border-collapse: separate; border-spacing: 0; font-family: var(--sans); font-size: .8rem; min-width: 100%; }
     .ntable th, .ntable td { padding: .35rem .6rem; border-bottom: 1px solid var(--rule-light); white-space: nowrap; vertical-align: top; }
-    .ntable thead th { text-align: right; font-weight: 700; color: var(--ink-70); border-bottom: 1px solid var(--ink); }
+    .ntable thead th { position: sticky; top: 0; z-index: 2; background: var(--paper); text-align: right; font-weight: 700; color: var(--ink-70); border-bottom: 1px solid var(--ink); }
     .ntable th.item, .ntable td.item { position: sticky; left: 0; z-index: 1; background: var(--paper); text-align: left; font-weight: 600; color: var(--ink); min-width: 14rem; max-width: 22rem; white-space: normal; border-right: 1px solid var(--rule); }
-    .ntable thead th.item { text-align: left; }
+    .ntable thead th.item { text-align: left; z-index: 3; }
+    .ntable thead th.q { background: var(--paper-deep); color: var(--ink-60); font-weight: 600; font-size: .74rem; }
+    .ntable td.q { background: var(--paper-deep); }
+    .ntable button.yr { background: none; border: 0; padding: 0; margin: 0; color: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; letter-spacing: normal; text-transform: none; cursor: pointer; white-space: nowrap; }
+    .ntable button.yr:hover, .ntable button.yr:focus-visible { background: none; color: var(--claret); outline: none; text-decoration: underline; }
+    .ntable button.yr[aria-expanded="true"] { color: var(--claret); }
+    .ntable button.yr .caret { display: inline-block; margin-left: .3rem; font-size: .7em; color: var(--ink-40); }
     .ntable td.v { text-align: right; font-variant-numeric: tabular-nums; }
     .ntable td.neg { color: var(--claret); }
     .ntable td.none { color: var(--ink-40); }
@@ -593,14 +604,50 @@
       });
     }
 
-    function yearlyOf(section) {
-      var y = section && typeof section === 'object' && section.yearly;
+    var MAX_QUARTERS = 40;
+
+    function datedRows(obj) {
       var out = {};
-      if (!y || typeof y !== 'object') return out;
-      Object.keys(y).forEach(function (d) {
-        if (/^\d{4}-\d{2}-\d{2}$/.test(d) && y[d] && typeof y[d] === 'object') out[d] = y[d];
+      if (!obj || typeof obj !== 'object') return out;
+      Object.keys(obj).forEach(function (d) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d) && obj[d] && typeof obj[d] === 'object') out[d] = obj[d];
       });
       return out;
+    }
+
+    function yearlyOf(section) {
+      return datedRows(section && typeof section === 'object' && section.yearly);
+    }
+
+    // the most recent MAX_QUARTERS quarters only, to keep the device's storage in bounds
+    function quarterlyOf(section) {
+      var all = datedRows(section && typeof section === 'object' && section.quarterly);
+      var keep = Object.keys(all).sort().slice(-MAX_QUARTERS);
+      var out = {};
+      keep.forEach(function (d) { out[d] = all[d]; });
+      return out;
+    }
+
+    function readShares(src, into) {
+      if (!src || typeof src !== 'object') return;
+      Object.keys(src).forEach(function (k) {
+        var r = src[k];
+        if (!r || typeof r !== 'object') return;
+        var d = r.dateFormatted || r.date;
+        var n = num(r.shares);
+        if (n === null && r.sharesMln !== undefined) { var m = num(r.sharesMln); n = m === null ? null : m * 1e6; }
+        if (d && n) into[String(d)] = n;
+      });
+    }
+
+    function readEps(src, into) {
+      if (!src || typeof src !== 'object') return;
+      Object.keys(src).forEach(function (k) {
+        var r = src[k];
+        if (!r || typeof r !== 'object' || !r.date) return;
+        var e = num(r.epsActual);
+        if (e !== null) into[String(r.date)] = e;
+      });
     }
 
     function extractCompany(symbol, data) {
@@ -621,29 +668,18 @@
         income: yearlyOf(fin.Income_Statement),
         balance: yearlyOf(fin.Balance_Sheet),
         cashflow: yearlyOf(fin.Cash_Flow),
+        incomeQ: quarterlyOf(fin.Income_Statement),
+        balanceQ: quarterlyOf(fin.Balance_Sheet),
+        cashflowQ: quarterlyOf(fin.Cash_Flow),
         shares: {},
-        eps: {}
+        sharesQ: {},
+        eps: {},
+        epsQ: {}
       };
-      var os = data.outstandingShares && data.outstandingShares.annual;
-      if (os && typeof os === 'object') {
-        Object.keys(os).forEach(function (k) {
-          var r = os[k];
-          if (!r || typeof r !== 'object') return;
-          var d = r.dateFormatted || r.date;
-          var n = num(r.shares);
-          if (n === null && r.sharesMln !== undefined) { var m = num(r.sharesMln); n = m === null ? null : m * 1e6; }
-          if (d && n) c.shares[String(d)] = n;
-        });
-      }
-      var ea = data.Earnings && data.Earnings.Annual;
-      if (ea && typeof ea === 'object') {
-        Object.keys(ea).forEach(function (k) {
-          var r = ea[k];
-          if (!r || typeof r !== 'object' || !r.date) return;
-          var e = num(r.epsActual);
-          if (e !== null) c.eps[String(r.date)] = e;
-        });
-      }
+      readShares(data.outstandingShares && data.outstandingShares.annual, c.shares);
+      readShares(data.outstandingShares && data.outstandingShares.quarterly, c.sharesQ);
+      readEps(data.Earnings && data.Earnings.Annual, c.eps);
+      readEps(data.Earnings && data.Earnings.History, c.epsQ);
       return c;
     }
 
@@ -680,6 +716,99 @@
         shares: sharesFor(c, d),
         eps: Object.prototype.hasOwnProperty.call(c.eps, d) ? c.eps[d] : null
       };
+    }
+
+    function quarterDates(c) {
+      var seen = {};
+      [c.incomeQ || {}, c.balanceQ || {}, c.cashflowQ || {}].forEach(function (st) { Object.keys(st).forEach(function (d) { seen[d] = true; }); });
+      return Object.keys(seen).sort();
+    }
+
+    function shiftYear(date, years) {
+      return String(parseInt(date.slice(0, 4), 10) + years) + date.slice(4);
+    }
+
+    function daysBetween(a, b) {
+      return Math.abs(new Date(a) - new Date(b)) / 86400000;
+    }
+
+    function quarterLabel(q) {
+      var m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][parseInt(q.slice(5, 7), 10) - 1] || q.slice(5, 7);
+      return m + ' ' + q.slice(0, 4);
+    }
+
+    // The columns of the table: each fiscal year, its quarters when opened, and a
+    // "to date" column for quarters reported since the last year end.
+    function columnsFor(c, expanded) {
+      var dates = yearList(c), labels = yearLabels(dates), qd = quarterDates(c), cols = [];
+      function between(after, upTo) { return qd.filter(function (q) { return q > after && (!upTo || q <= upTo); }); }
+      function pushYear(col) {
+        cols.push(col);
+        if (expanded[col.date] && col.quarters.length) {
+          col.quarters.slice().reverse().forEach(function (q) { cols.push({ kind: 'quarter', date: q, label: quarterLabel(q), year: col.date }); });
+        }
+      }
+      if (dates.length) {
+        var tail = between(dates[dates.length - 1], null);
+        if (tail.length) pushYear({ kind: 'year', date: 'todate', label: tail[tail.length - 1].slice(0, 4) + ' to date', todate: true, quarters: tail });
+      }
+      for (var i = dates.length - 1; i >= 0; i--) {
+        pushYear({ kind: 'year', date: dates[i], label: labels[i], index: i, quarters: between(i > 0 ? dates[i - 1] : shiftYear(dates[i], -1), dates[i]) });
+      }
+      return cols;
+    }
+
+    function sumRows(rows) {
+      var keys = {}, out = {};
+      rows.forEach(function (r) { Object.keys(r).forEach(function (k) { keys[k] = true; }); });
+      Object.keys(keys).forEach(function (k) {
+        var total = 0, complete = true;
+        rows.forEach(function (r) { var n = num(r[k]); if (n === null) complete = false; else total += n; });
+        if (complete) out[k] = total;
+      });
+      return out;
+    }
+
+    // the four quarters ending at q, summed, or null when they are not all there
+    function trailingFour(c, q) {
+      var qd = quarterDates(c).filter(function (d) { return d <= q; });
+      if (qd.length < 4) return null;
+      var four = qd.slice(-4);
+      if (daysBetween(four[0], q) > 300) return null;
+      var inc = four.map(function (d) { return (c.incomeQ || {})[d]; });
+      var cf = four.map(function (d) { return (c.cashflowQ || {})[d]; });
+      if (inc.some(function (r) { return !r; }) || cf.some(function (r) { return !r; })) return null;
+      return { inc: sumRows(inc), cf: sumRows(cf) };
+    }
+
+    function sharesForQ(c, q) {
+      var row = (c.balanceQ || {})[q];
+      var n = row ? num(row.commonStockSharesOutstanding) : null;
+      if (n) return n;
+      return (c.sharesQ || {})[q] || null;
+    }
+
+    function quarterData(c, q, annual) {
+      var qd = quarterDates(c), i = qd.indexOf(q);
+      var base = {
+        date: q,
+        inc: (c.incomeQ || {})[q] || {},
+        bal: (c.balanceQ || {})[q] || {},
+        cf: (c.cashflowQ || {})[q] || {},
+        prevBal: i > 0 ? ((c.balanceQ || {})[qd[i - 1]] || {}) : {},
+        shares: sharesForQ(c, q),
+        eps: Object.prototype.hasOwnProperty.call(c.epsQ || {}, q) ? c.epsQ[q] : null
+      };
+      if (!annual) return base;
+      var t = trailingFour(c, q);
+      if (!t) return null;
+      return { date: q, inc: t.inc, bal: base.bal, cf: t.cf, prevBal: base.prevBal, shares: base.shares, eps: base.eps };
+    }
+
+    function cellValue(c, dates, col, r) {
+      if (col.kind === 'year') return col.todate ? null : r.value(yearData(c, dates, col.index));
+      var y = quarterData(c, col.date, !!r.annual);
+      return y ? r.value(y) : null;
     }
 
     // first field that carries a number
@@ -737,14 +866,14 @@
       { label: 'Long-term investments', ch: '32', unit: 'money', value: function (y) { return v(y.bal, 'longTermInvestments'); } },
       { label: 'Other long-term assets', ch: '33', unit: 'money', value: function (y) { return v(y.bal, 'nonCurrrentAssetsOther', 'nonCurrentAssetsOther', 'otherAssets'); } },
       { label: 'Total assets', ch: '34', unit: 'money', value: function (y) { return v(y.bal, 'totalAssets'); } },
-      { label: 'Return on total assets', ch: '34', unit: 'pct', ratio: true, rule: 'High is good, but a very high return on a small asset base can mean the moat is easy to cross.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalAssets')); } },
+      { label: 'Return on total assets', ch: '34', unit: 'pct', ratio: true, annual: true, rule: 'High is good, but a very high return on a small asset base can mean the moat is easy to cross.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalAssets')); } },
       { label: 'Accounts payable', ch: '36', unit: 'money', value: function (y) { return v(y.bal, 'accountsPayable'); } },
       { label: 'Accrued and other current liabilities', ch: '36', unit: 'money', value: function (y) { return v(y.bal, 'otherCurrentLiab'); } },
       { label: 'Short-term debt', ch: '37', unit: 'money', value: function (y) { return v(y.bal, 'shortTermDebt', 'shortLongTermDebt'); } },
       { label: 'Long-term debt coming due', ch: '38', unit: 'money', value: function (y) { return v(y.bal, 'shortLongTermDebt'); } },
       { label: 'Total current liabilities', ch: '39', unit: 'money', value: function (y) { return v(y.bal, 'totalCurrentLiabilities'); } },
       { label: 'Long-term debt', ch: '40', unit: 'money', value: function (y) { return v(y.bal, 'longTermDebt', 'longTermDebtTotal'); } },
-      { label: 'Years of net earnings to clear long-term debt', ch: '40', unit: 'years', ratio: true, rule: 'A durable business could pay it all off within three or four years.', value: function (y) { return div(v(y.bal, 'longTermDebt', 'longTermDebtTotal'), v(y.inc, 'netIncome')); } },
+      { label: 'Years of net earnings to clear long-term debt', ch: '40', unit: 'years', ratio: true, annual: true, rule: 'A durable business could pay it all off within three or four years.', value: function (y) { return div(v(y.bal, 'longTermDebt', 'longTermDebtTotal'), v(y.inc, 'netIncome')); } },
       { label: 'Deferred taxes and other long-term liabilities', ch: '41', unit: 'money', value: function (y) { return v(y.bal, 'deferredLongTermLiab'); } },
       { label: 'Minority interest', ch: '41', unit: 'money', value: function (y) { return v(y.bal, 'noncontrollingInterestInConsolidatedEntity', 'minorityInterest'); } },
       { label: 'Total liabilities', ch: '42', unit: 'money', value: function (y) { return v(y.bal, 'totalLiab'); } },
@@ -757,11 +886,11 @@
       { label: 'Retained earnings', ch: '45', unit: 'money', value: function (y) { return v(y.bal, 'retainedEarnings'); } },
       { label: 'Retained earnings growth', ch: '45', unit: 'pct', ratio: true, rule: 'The pile should grow year after year; a shrinking one is a warning.', value: function (y) { var now = v(y.bal, 'retainedEarnings'), prev = v(y.prevBal, 'retainedEarnings'); return (now !== null && prev) ? (now - prev) / Math.abs(prev) : null; } },
       { label: 'Treasury stock', ch: '46', unit: 'money', rule: 'Its presence is a good sign: cash was spare enough to buy the shares back.', value: function (y) { return v(y.bal, 'treasuryStock'); } },
-      { label: 'Return on shareholders\u2019 equity', ch: '47', unit: 'pct', ratio: true, rule: 'High and consistent is the mark; equity near zero after big buybacks makes the figure meaningless.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalStockholderEquity')); } },
+      { label: 'Return on shareholders\u2019 equity', ch: '47', unit: 'pct', ratio: true, annual: true, rule: 'High and consistent is the mark; equity near zero after big buybacks makes the figure meaningless.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalStockholderEquity')); } },
       { group: 'Cash flow statement' },
       { label: 'Cash from operations', ch: '50', unit: 'money', value: function (y) { return v(y.cf, 'totalCashFromOperatingActivities'); } },
       { label: 'Capital expenditures', ch: '51', unit: 'money', value: capex },
-      { label: 'Capital expenditures as a share of net earnings', ch: '51', unit: 'pct', ratio: true, rule: 'Under 50% is good; under 25% is where durable advantages usually sit.', value: function (y) { return div(capex(y), v(y.inc, 'netIncome')); } },
+      { label: 'Capital expenditures as a share of net earnings', ch: '51', unit: 'pct', ratio: true, annual: true, rule: 'Under 50% is good; under 25% is where durable advantages usually sit.', value: function (y) { return div(capex(y), v(y.inc, 'netIncome')); } },
       { label: 'Stock bought back, net', ch: '52', unit: 'money', rule: 'Buybacks raise your share of the business without a tax bill.', value: function (y) { var s = v(y.cf, 'salePurchaseOfStock'); return s === null ? null : -s; } },
       { label: 'Dividends paid', ch: '52', unit: 'money', value: function (y) { var d = v(y.cf, 'dividendsPaid'); return d === null ? null : Math.abs(d); } },
       { label: 'Free cash flow', ch: '51', unit: 'money', value: function (y) { var f = v(y.cf, 'freeCashFlow'); if (f !== null) return f; var o = v(y.cf, 'totalCashFromOperatingActivities'), c = capex(y); return (o !== null && c !== null) ? o - c : null; } }
@@ -802,11 +931,14 @@
 
     function companyCsv(c) {
       var dates = yearList(c);
-      var lines = [['Line item', 'Chapter', 'Unit'].concat(dates)];
+      var cols = columnsFor(c, expandedFor(c.symbol));
+      var lines = [['Line item', 'Chapter', 'Unit'].concat(cols.map(function (col) {
+        return col.kind === 'quarter' ? col.date + ' (quarter)' : (col.todate ? col.label : col.date);
+      }))];
       NUMBER_ROWS.forEach(function (r) {
         if (r.group) { lines.push([r.group]); return; }
-        lines.push([r.label, r.ch, unitName(r.unit, c.meta.currency)].concat(dates.map(function (d, i) {
-          return csvValue(r.value(yearData(c, dates, i)), r.unit);
+        lines.push([r.label, r.ch, unitName(r.unit, c.meta.currency)].concat(cols.map(function (col) {
+          return csvValue(cellValue(c, dates, col, r), r.unit);
         })));
       });
       return lines.map(function (l) { return l.map(csvCell).join(','); }).join('\r\n') + '\r\n';
@@ -829,30 +961,64 @@
       return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
+    var expandedYears = {};
+    function expandedFor(symbol) {
+      if (!expandedYears[symbol]) expandedYears[symbol] = {};
+      return expandedYears[symbol];
+    }
+
+    function unitsHtml(c) {
+      var hasQ = quarterDates(c).length > 0;
+      return '<p class="units">Money in millions of ' + esc(c.meta.currency || 'the reporting currency') + '; shares in millions. ' +
+        'Blank means EODHD reported nothing for that line. The chapter number is where the book discusses the line. ' +
+        (hasQ ? 'Click a year to open its quarters; in quarter columns, the ratios built on a year\u2019s earnings use the trailing four quarters.'
+              : 'No quarterly figures are kept for this company yet: Fetch again pulls them if EODHD has them.') + '</p>';
+    }
+
     function tableHtml(c) {
       var dates = yearList(c);
-      var labels = yearLabels(dates);
-      var html = '<p class="units">Money in millions of ' + esc(c.meta.currency || 'the reporting currency') + '; shares in millions. ' +
-        'Blank means EODHD reported nothing for that line. The chapter number is where the book discusses the line.</p>' +
-        '<div class="table-wrap"><table class="ntable"><thead><tr><th class="item" scope="col">Line item</th>' +
-        dates.map(function (d, i) { return '<th scope="col" title="' + esc(d) + '">' + esc(labels[i]) + '</th>'; }).join('') +
-        '</tr></thead><tbody>';
-      var years = dates.map(function (d, i) { return yearData(c, dates, i); });
+      var expanded = expandedFor(c.symbol);
+      var cols = columnsFor(c, expanded);
+      var html = '<div class="table-wrap"><table class="ntable"><thead><tr><th class="item" scope="col">Line item</th>' +
+        cols.map(function (col) {
+          if (col.kind === 'quarter') return '<th class="q" scope="col" title="Quarter ending ' + esc(col.date) + '">' + esc(col.label) + '</th>';
+          if (!col.quarters.length) return '<th scope="col" title="' + esc(col.date) + '">' + esc(col.label) + '</th>';
+          var open = !!expanded[col.date];
+          return '<th scope="col"><button type="button" class="yr" data-date="' + esc(col.date) + '" aria-expanded="' + (open ? 'true' : 'false') +
+            '" title="' + (open ? 'Hide' : 'Show') + ' the quarters of ' + esc(col.label) + '">' + esc(col.label) +
+            '<span class="caret" aria-hidden="true">' + (open ? '\u25BE' : '\u25B8') + '</span></button></th>';
+        }).join('') + '</tr></thead><tbody>';
       NUMBER_ROWS.forEach(function (r) {
         if (r.group) {
-          html += '<tr class="group"><th class="item" colspan="' + (dates.length + 1) + '">' + esc(r.group) + '</th></tr>';
+          html += '<tr class="group"><th class="item" colspan="' + (cols.length + 1) + '">' + esc(r.group) + '</th></tr>';
           return;
         }
         html += '<tr' + (r.ratio ? ' class="ratio"' : '') + '><th class="item" scope="row">' + esc(r.label) +
           '<span class="ref">ch. ' + esc(r.ch) + '</span>' + (r.rule ? '<span class="rule">' + esc(r.rule) + '</span>' : '') + '</th>';
-        years.forEach(function (y) {
-          var val = r.value(y);
+        cols.forEach(function (col) {
+          var val = cellValue(c, dates, col, r);
           var text = fmtValue(val, r.unit);
-          html += '<td class="v' + (text === '' ? ' none' : (val < 0 ? ' neg' : '')) + '">' + (text === '' ? '\u2014' : text) + '</td>';
+          html += '<td class="v' + (col.kind === 'quarter' ? ' q' : '') + (text === '' ? ' none' : (val < 0 ? ' neg' : '')) + '">' + (text === '' ? '\u2014' : text) + '</td>';
         });
         html += '</tr>';
       });
       return html + '</tbody></table></div>';
+    }
+
+    function toggleYear(c, date) {
+      var expanded = expandedFor(c.symbol);
+      if (expanded[date]) delete expanded[date]; else expanded[date] = true;
+      var wrap = app.querySelector('.numbers > .table-wrap');
+      if (!wrap) return;
+      var left = wrap.scrollLeft, top = wrap.scrollTop;
+      var holder = document.createElement('div');
+      holder.innerHTML = tableHtml(c);
+      var fresh = holder.firstElementChild;
+      wrap.parentNode.replaceChild(fresh, wrap);
+      fresh.scrollLeft = left;
+      fresh.scrollTop = top;
+      var btn = fresh.querySelector('button.yr[data-date="' + date + '"]');
+      if (btn) btn.focus({ preventScroll: true });
     }
 
     function rawTableHtml(title, stmt, dates, labels) {
@@ -906,6 +1072,7 @@
       if (m.fiscalYearEnd) bits.push('Fiscal year ends ' + m.fiscalYearEnd);
       if (m.sector) bits.push(m.sector + (m.industry ? ', ' + m.industry : ''));
       var dates = yearList(c), labels = yearLabels(dates);
+      var newest = dates.slice().reverse(), newestLabels = labels.slice().reverse();
       return '<p class="kicker">Company numbers \u00b7 ' + esc(c.symbol) + '</p>' +
         '<h2 class="headline">' + esc(m.name) + '</h2>' +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
@@ -914,11 +1081,11 @@
         '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
         '<button type="button" class="linkbtn" id="forget">Forget this company</button></p>' +
         keptHtml(c.symbol) +
-        (dates.length ? tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
+        (dates.length ? unitsHtml(c) + tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
         (dates.length ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
-          rawTableHtml('Income statement', c.income, dates, labels) +
-          rawTableHtml('Balance sheet', c.balance, dates, labels) +
-          rawTableHtml('Cash flow statement', c.cashflow, dates, labels) + '</details>' : '');
+          rawTableHtml('Income statement', c.income, newest, newestLabels) +
+          rawTableHtml('Balance sheet', c.balance, newest, newestLabels) +
+          rawTableHtml('Cash flow statement', c.cashflow, newest, newestLabels) + '</details>' : '');
     }
 
     function renderNumbers(fromHash) {
@@ -928,6 +1095,7 @@
       app.innerHTML = '<section class="numbers">' + formHtml(symbol) +
         '<p class="status" id="numbers-status" role="status" aria-live="polite"></p>' +
         (company ? companyHtml(company) : keptHtml('')) + '</section>';
+      currentCompany = company || null;
       if (company) numbers.last = symbol;
 
       var form = document.getElementById('fetch-form');
@@ -979,6 +1147,11 @@
       }
     }
 
+    var currentCompany = null;
+    app.addEventListener('click', function (ev) {
+      var btn = ev.target.closest ? ev.target.closest('button.yr') : null;
+      if (btn && currentCompany) { ev.preventDefault(); toggleYear(currentCompany, btn.getAttribute('data-date')); }
+    });
     var viewChapters = document.getElementById('view-chapters');
     var viewNumbers = document.getElementById('view-numbers');
     var sectionPick = document.getElementById('section-pick');
