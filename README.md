@@ -2,7 +2,8 @@
 
 A Cloudflare Workers site: a reading companion for *Warren Buffett and the
 Interpretation of Financial Statements* by Mary Buffett and David Clark,
-styled like a financial newspaper. Three views sit under the masthead.
+styled like a financial newspaper. Three views sit under the masthead, and
+the site opens on Companies.
 
 **Chapters.** A section dropdown narrows the book to one part, a row of
 numbered tabs picks the chapter, and the contents page lists every chapter in
@@ -11,12 +12,14 @@ that save as you type. Export writes everything you have written to a JSON
 file, and Import reads one back, so you can carry on another day or on another
 device.
 
-**Numbers.** Give it a ticker and your own EODHD API token and it fetches the
-company's fundamentals and lays out the full yearly history of the figures the
-book walks through: every statement line with the chapter beside it, and the
-book's ratios with its rule of thumb under each. Fetched companies are kept
-on the device, the table downloads as CSV, and an expandable section lists
-every field EODHD reported.
+**Companies.** Eighty companies come with the site as sample data, pulled
+by the owner and read from the site itself, no calls needed. For any other
+ticker, give it your own EODHD API token and it fetches the company's
+fundamentals. Either way it lays out the full yearly history of the figures
+the book walks through: every statement line with the chapter beside it, and
+the book's ratios with its rule of thumb under each. Fetched companies are
+kept on the device, the table downloads as CSV, and an expandable section
+lists every field EODHD reported.
 
 **Watchlists.** Named lists of companies, each company with its EODHD ticker:
 a generic list and a set of custom lists come filled in, and lists can be
@@ -33,7 +36,8 @@ static asset by that Worker's assets binding.
 
 ```
 public/
-  index.html       all three views: contents, dropdown, chapter tabs, chapter pages, numbers, watchlists (one file, hash routes)
+  index.html       all three views: companies, watchlists, contents, dropdown, chapter tabs, chapter pages (one file, hash routes)
+  data/            sample data: index.json and companies/<SYMBOL>.json, written by tools/bundle-samples.mjs
   404.html         not-found page in the same style, links back home
   favicon.svg
   robots.txt
@@ -48,11 +52,18 @@ CLAUDE.md          standing policy for working in this repo
 
 ## How the page works
 
-- `#` shows the contents; `#intro` and `#1` to `#57` show a chapter page. The
-  section dropdown and the tab row follow whichever chapter is open, and the
-  dropdown remembers the last chapter visited in each section.
-- `#numbers` shows the Numbers view, `#numbers/KO.US` a kept company (or the
-  form filled in, if that company has not been fetched yet).
+- `#` and `#companies` show the Companies view, `#companies/KO.US` a company:
+  the kept copy if you fetched it, else the sample file if there is one, else
+  the form filled in. `#numbers` and `#numbers/KO.US` still work as the old
+  addresses.
+- `#chapters` shows the contents; `#intro` and `#1` to `#57` show a chapter
+  page. The section dropdown and the tab row follow whichever chapter is
+  open, and the dropdown remembers the last chapter visited in each section.
+- The sample data lives under `public/data/`: `index.json` lists the
+  companies and `companies/<SYMBOL>.json` holds each one in the shape the
+  page keeps. `npm run bundle-samples` rebuilds both from a pull in `data/`.
+  A sample company's page says so, offers "Fetch a live copy", and a fetched
+  copy then takes its place.
 - `#watchlists` shows the list opened most recently, `#watchlists/chips` a
   list by its id. Lists are kept under `wwws.watchlists.v1`; until that key
   exists the page shows the starting lists built into it, and "Restore the
@@ -73,7 +84,7 @@ CLAUDE.md          standing policy for working in this repo
   more recently. The export holds notes and watchlists only: no company
   numbers, no API token.
 
-## The Numbers view and EODHD
+## The Companies view and EODHD
 
 - The page calls `/api/eodhd/fundamentals/<SYMBOL>` on its own origin with the
   token in an `X-Api-Token` header. The Worker forwards that to

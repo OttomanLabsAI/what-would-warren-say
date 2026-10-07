@@ -56,7 +56,7 @@
     #import-file { display: none; }
     .status { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); }
 
-    /* view nav: Chapters | Numbers | Watchlists */
+    /* view nav: Companies | Watchlists | Chapters */
     .views { display: flex; gap: .15rem; }
     .view { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .7rem; border-bottom: 3px solid transparent; }
     .view:hover { color: var(--ink); }
@@ -82,6 +82,8 @@
     .kept { font-family: var(--sans); font-size: .82rem; color: var(--ink-60); margin: 0 0 1rem; }
     .kept a { color: var(--teal); text-decoration: none; }
     .kept a:hover { text-decoration: underline; }
+    .kept.samples { margin-top: -.6rem; }
+    .kept.samples b { margin-right: .4rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .units { font-family: var(--sans); font-size: .75rem; color: var(--ink-60); margin: 0 0 .4rem; }
     .table-frame { position: relative; }
     .table-wrap { overflow-x: auto; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); scrollbar-width: none; }
@@ -241,9 +243,9 @@
 
   <div class="controls wrap">
     <nav class="views" aria-label="Views">
-      <a class="view" id="view-chapters" href="#">Chapters</a>
-      <a class="view" id="view-numbers" href="#numbers">Numbers</a>
+      <a class="view" id="view-numbers" href="#companies">Companies</a>
       <a class="view" id="view-watchlists" href="#watchlists">Watchlists</a>
+      <a class="view" id="view-chapters" href="#chapters">Chapters</a>
     </nav>
     <div class="section-pick" id="section-pick">
       <label for="section">Section</label>
@@ -455,7 +457,7 @@
 
     sectionEl.addEventListener('change', function () {
       var v = sectionEl.value;
-      if (v === '') { window.location.hash = ''; return; }
+      if (v === '') { window.location.hash = 'chapters'; return; }
       var id = lastInPart[v] || partChapters[v][0].id;
       if (window.location.hash === '#' + id) route(); else window.location.hash = id;
     });
@@ -1053,14 +1055,6 @@
       return expandedYears[symbol];
     }
 
-    function unitsHtml(c) {
-      var hasQ = quarterDates(c).length > 0;
-      return '<p class="units">Money in millions of ' + esc(c.meta.currency || 'the reporting currency') + '; shares in millions. ' +
-        'Blank means EODHD reported nothing for that line. The chapter number is where the book discusses the line. ' +
-        (hasQ ? 'Click a year to open its quarters; in quarter columns, the ratios built on a year\u2019s earnings use the trailing four quarters.'
-              : 'No quarterly figures are kept for this company yet: Fetch again pulls them if EODHD has them.') + '</p>';
-    }
-
     function tableHtml(c) {
       var dates = yearList(c);
       var expanded = expandedFor(c.symbol);
@@ -1188,7 +1182,7 @@
       if (!ids.length) return except ? '' : '<p class="kept">Nothing fetched yet. Each company you fetch is kept on this device.</p>';
       return '<p class="kept">' + (except ? 'Also kept on this device: ' : 'Kept on this device: ') + ids.map(function (id) {
         var co = numbers.companies[id];
-        return '<a href="#numbers/' + esc(id) + '">' + esc(co.meta && co.meta.name ? co.meta.name : id) + ' (' + esc(id) + ')</a>';
+        return '<a href="#companies/' + esc(id) + '">' + esc(co.meta && co.meta.name ? co.meta.name : id) + ' (' + esc(id) + ')</a>';
       }).join(' \u00b7 ') + '</p>';
     }
 
@@ -1218,26 +1212,80 @@
         '<h2 class="headline">' + esc(m.name) + '</h2>' +
         nextReportHtml(c) +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
-        '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>' +
-        '<button type="button" class="linkbtn" id="refresh">Fetch again</button>' +
+        (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
+        '<button type="button" class="linkbtn" id="refresh">' + (c.sample ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
         '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
-        '<button type="button" class="linkbtn" id="forget">Forget this company</button>' + addToHtml(c) + '</p>' +
-        keptHtml(c.symbol) +
-        (dates.length ? unitsHtml(c) + tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
+        (c.sample ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + addToHtml(c) + '</p>' +
+        (dates.length ? tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
         (dates.length ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
           rawTableHtml('Income statement', c.income, newest, newestLabels) +
           rawTableHtml('Balance sheet', c.balance, newest, newestLabels) +
           rawTableHtml('Cash flow statement', c.cashflow, newest, newestLabels) + '</details>' : '');
     }
 
+    // Sample data: companies pulled by the owner and bundled with the site under
+    // data/, read from there instead of EODHD. The index lists them; a company's
+    // file is fetched on first view and kept for the session.
+    var samples = { index: null, byId: {}, cache: {}, failed: {} };
+
+    function loadSamples() {
+      window.fetch('data/index.json').then(function (res) { return res.ok ? res.json() : null; }).then(function (d) {
+        if (!d || !Array.isArray(d.companies)) return;
+        samples.index = d;
+        d.companies.forEach(function (c) { if (c && c.symbol) samples.byId[String(c.symbol)] = c; });
+        var id = window.location.hash.replace(/^#\/?/, '');
+        if (/^(companies|numbers|watchlists)/i.test(id) || id === '') route();
+      }).catch(function () {});
+    }
+
+    function loadSample(symbol) {
+      window.fetch('data/companies/' + encodeURIComponent(symbol) + '.json').then(function (res) {
+        if (!res.ok) throw new Error('status ' + res.status);
+        return res.json();
+      }).then(function (c) {
+        if (!c || typeof c !== 'object' || !c.income) throw new Error('not a company file');
+        c.sample = true;
+        samples.cache[symbol] = c;
+      }).catch(function () {
+        samples.failed[symbol] = true;
+      }).then(function () {
+        var id = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
+        var m = /^(?:numbers|companies)\/(.*)$/i.exec(id);
+        if (m && normaliseSymbol(m[1]) === symbol) route();
+      });
+    }
+
+    var VENUE_NAMES = { NASDAQ: 'NASDAQ', NYSE: 'New York', US: 'United States', LSE: 'London', PA: 'Paris', XETRA: 'Xetra', SHG: 'Shanghai', SHE: 'Shenzhen', KO: 'Korea', KQ: 'KOSDAQ' };
+
+    function samplesHtml() {
+      var d = samples.index;
+      if (!d || !d.companies.length) return '';
+      var byVenue = {};
+      d.companies.forEach(function (c) { (byVenue[c.exchange] = byVenue[c.exchange] || []).push(c); });
+      var html = '<p class="kept">Sample data on file for ' + d.companies.length + ' companies, pulled ' + esc(fmtDate(d.pulledUpTo)) + ': no calls needed to open them.</p>';
+      Object.keys(byVenue).sort().forEach(function (venue) {
+        var list = byVenue[venue].slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+        html += '<p class="kept samples"><b>' + esc(VENUE_NAMES[venue] || venue) + '</b> ' + list.map(function (c) {
+          return '<a href="#companies/' + esc(c.symbol) + '">' + esc(c.name) + ' (' + esc(c.symbol) + ')</a>';
+        }).join(' \u00b7 ') + '</p>';
+      });
+      return html;
+    }
+
     function renderNumbers(fromHash) {
       showView('numbers');
       var symbol = fromHash ? normaliseSymbol(fromHash) : (numbers.last || '');
       var company = symbol ? numbers.companies[symbol] : null;
+      var sample = null, loading = false;
+      if (!company && symbol && samples.byId[symbol] && !samples.failed[symbol]) {
+        sample = samples.cache[symbol] || null;
+        if (!sample) { loading = true; loadSample(symbol); }
+      }
+      var shown = company || sample;
       app.innerHTML = '<section class="numbers">' + formHtml(symbol) +
         '<p class="status" id="numbers-status" role="status" aria-live="polite"></p>' +
-        (company ? companyHtml(company) : keptHtml('')) + '</section>';
-      currentCompany = company || null;
+        (shown ? companyHtml(shown) : (loading ? '<p class="kept">Opening the sample data for ' + esc(symbol) + '\u2026</p>' : samplesHtml() + keptHtml(''))) + '</section>';
+      currentCompany = shown || null;
       if (company) numbers.last = symbol;
 
       var form = document.getElementById('fetch-form');
@@ -1249,7 +1297,8 @@
 
       function say(msg) { statusLine.textContent = msg; }
       if (pendingNumbersStatus) { say(pendingNumbersStatus); pendingNumbersStatus = ''; }
-      else if (symbol && !company) say('Not fetched yet. Press Fetch to pull ' + symbol + ' from EODHD.');
+      else if (symbol && samples.failed[symbol] && !company) say('The sample file for ' + symbol + ' could not be opened. Press Fetch to pull it from EODHD.');
+      else if (symbol && !shown && !loading) say('Not fetched yet. Press Fetch to pull ' + symbol + ' from EODHD.');
 
       function go(sym) {
         var token = tokenInput.value.trim();
@@ -1263,7 +1312,7 @@
           numbers.last = sym;
           var kept = saveNumbers();
           pendingNumbersStatus = 'Fetched ' + sym + ' at ' + timeNow() + (kept ? '.' : ', but it could not be kept on this device.');
-          if (window.location.hash === '#numbers/' + sym) route(); else window.location.hash = 'numbers/' + sym;
+          if (window.location.hash === '#companies/' + sym) route(); else window.location.hash = 'companies/' + sym;
         }).catch(function (e) {
           button.disabled = false;
           say(e && e.message ? e.message : 'Something went wrong.');
@@ -1273,18 +1322,20 @@
       form.addEventListener('submit', function (ev) { ev.preventDefault(); go(normaliseSymbol(symbolInput.value)); });
       rememberBox.addEventListener('change', function () { setToken(tokenInput.value.trim(), rememberBox.checked); });
 
-      if (company) {
+      if (shown) {
+        var company = shown;
         document.getElementById('refresh').addEventListener('click', function () { go(company.symbol); });
         document.getElementById('csv').addEventListener('click', function () {
           downloadText(companyCsv(company), 'what-would-warren-say-' + company.symbol + '-numbers.csv', 'text/csv');
           say('Downloaded the table for ' + company.symbol + ' as a CSV file.');
         });
-        document.getElementById('forget').addEventListener('click', function () {
+        var forget = document.getElementById('forget');
+        if (forget) forget.addEventListener('click', function () {
           delete numbers.companies[company.symbol];
           if (numbers.last === company.symbol) numbers.last = '';
           saveNumbers();
           pendingNumbersStatus = 'Forgot ' + company.symbol + '.';
-          if (window.location.hash === '#numbers') route(); else window.location.hash = 'numbers';
+          if (window.location.hash === '#companies') route(); else window.location.hash = 'companies';
         });
         var addTo = document.getElementById('addto');
         if (addTo) addTo.addEventListener('change', function () {
@@ -1496,17 +1547,19 @@
     }
 
     function listHtml(list) {
-      var kept = 0;
+      var kept = 0, sampledCount = 0;
       var rows = list.items.map(function (it, i) {
         var has = !!numbers.companies[it.symbol];
         if (has) kept++;
-        return '<li><span class="num">' + (i + 1) + '</span><span class="who"><a href="#numbers/' + esc(it.symbol) + '" title="Open the numbers for ' + esc(it.name) + '">' + esc(it.name) + '</a>' +
-          '<span class="sym">' + esc(it.symbol) + '</span>' + (has ? ' <span class="mark">numbers kept</span>' : '') + '</span>' +
+        var sampled = !has && !!samples.byId[it.symbol];
+        if (sampled) sampledCount++;
+        return '<li><span class="num">' + (i + 1) + '</span><span class="who"><a href="#companies/' + esc(it.symbol) + '" title="Open the numbers for ' + esc(it.name) + '">' + esc(it.name) + '</a>' +
+          '<span class="sym">' + esc(it.symbol) + '</span>' + (has ? ' <span class="mark">numbers kept</span>' : (sampled ? ' <span class="mark type-tag">sample data</span>' : '')) + '</span>' +
           '<button type="button" class="linkbtn remove" data-symbol="' + esc(it.symbol) + '" aria-label="Remove ' + esc(it.name) + ' from this list">Remove</button></li>';
       }).join('');
       return '<p class="kicker">Watchlist</p>' +
         '<h2 class="headline">' + esc(list.name) + '</h2>' +
-        '<p class="company-meta"><span>' + countText(list.items.length) + (kept ? ', ' + kept + ' with numbers kept on this device' : '') + '</span>' + listActionsHtml(list) + '</p>' +
+        '<p class="company-meta"><span>' + countText(list.items.length) + (kept ? ', ' + kept + ' with numbers kept on this device' : '') + (sampledCount ? ', ' + sampledCount + ' with sample data' : '') + '</span>' + listActionsHtml(list) + '</p>' +
         '<div id="name-slot"></div>' +
         (rows ? '<ol class="wlist">' + rows + '</ol>' : '<p class="hint">Nothing in this list yet. Add a company below.</p>') +
         '<form class="add-form" id="add-form" autocomplete="off">' +
@@ -1995,11 +2048,11 @@
     function route() {
       if (pendingFlush) { pendingFlush(); pendingFlush = null; }
       var id = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
-      var numbersMatch = /^numbers(?:\/(.*))?$/i.exec(id);
-      if (numbersMatch) {
-        renderNumbers(numbersMatch[1] || '');
-        var co = numbers.last && numbers.companies[numbers.last];
-        document.title = (co && numbersMatch[1] ? co.meta.name + ' - ' : '') + 'Numbers - What Would Warren Say';
+      var numbersMatch = /^(?:numbers|companies)(?:\/(.*))?$/i.exec(id);
+      if (id === '' || numbersMatch) {
+        var wanted = numbersMatch ? numbersMatch[1] || '' : '';
+        renderNumbers(wanted);
+        document.title = (currentCompany && wanted ? currentCompany.meta.name + ' - Companies - ' : (wanted ? 'Companies - ' : '')) + 'What Would Warren Say';
         window.scrollTo(0, 0);
         bindFrames();
         return;
@@ -2024,7 +2077,7 @@
         sectionEl.value = '';
         hideTabs();
         renderContents();
-        document.title = 'What Would Warren Say';
+        document.title = 'Chapters - What Would Warren Say';
       }
       window.scrollTo(0, 0);
       bindFrames();
@@ -2122,6 +2175,7 @@
     window.addEventListener('hashchange', route);
     window.addEventListener('beforeunload', function () { if (pendingFlush) pendingFlush(); });
     route();
+    loadSamples();
   })();
   </script>
 </body>

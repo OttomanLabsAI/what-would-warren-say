@@ -12,7 +12,8 @@ Builds, so **every push to `main` deploys to production**.
 
 ```
 public/            everything served as assets
-  index.html       all three views (contents, dropdown, chapter tabs, chapter pages, numbers, watchlists): one file
+  index.html       all three views (companies, watchlists, contents, dropdown, chapter tabs, chapter pages): one file
+  data/            sample data: index.json + companies/<SYMBOL>.json, from tools/bundle-samples.mjs (git-tracked, EODHD-derived)
   404.html         same masthead and palette as index.html
   favicon.svg
   _headers         security + caching headers
@@ -24,14 +25,17 @@ package.json       wrangler devDependency + dev/deploy/check/pull scripts
 tools/lib/pull.mjs  the pull engine: lists, fetches, extracts, screens; mirrors the page's extraction
 tools/pull-fundamentals.mjs  the command line over the engine: whole exchanges into data/, apart from the site
 tools/pull-app.mjs  a local page over the engine: market or sample-watchlist dropdowns, Start, Stop, calls spent
+tools/bundle-samples.mjs  copies a pull's companies into public/data/ as the site's sample data
 data/              the pull's output: git-ignored, EODHD-licensed, never committed
 prompt text/       the records behind the version in service (see below)
 ```
 
 ## How the page works
 
-`index.html` is a single file with its styles and script inline: hash routes
-(`#` contents, `#intro`, `#1` to `#57`), a section dropdown whose change opens
+`index.html` is a single file with its styles and script inline. The site
+opens on the Companies view: `#` and `#companies` (and `#numbers`, the old
+name, kept as an alias) show it, `#companies/<SYMBOL>` a company. Chapters
+are at `#chapters` (the contents), `#intro`, `#1` to `#57`; a section dropdown whose change opens
 that section's first chapter (or the last one visited there), a tab row of
 chapter numbers for the open section, a chapter-type choice (Overview,
 Metric or Background, stored as `type`: `overview`, `metric`, `background` or
@@ -44,8 +48,9 @@ and chapters absent from the file are left alone; an unknown `type` is dropped.
 The storage key and the export shape are a contract with existing exports:
 add fields, never rename or remove them, and change them only with a migration.
 
-The Numbers view (`#numbers`, `#numbers/<SYMBOL>`) fetches EODHD fundamentals
-through the relay with the reader's own token in an `X-Api-Token` header,
+The Companies view (the tab is labelled Companies; the code still calls it
+numbers: `renderNumbers`, `view-numbers`, `wwws.numbers.v1`) fetches EODHD
+fundamentals through the relay with the reader's own token in an `X-Api-Token` header,
 keeps the extracted company under `wwws.numbers.v1` (eight most recent; yearly
 statements plus the last `MAX_QUARTERS` = 40 quarters as `incomeQ`, `balanceQ`,
 `cashflowQ`, `sharesQ`, `epsQ`) and the token under `wwws.eodhd.token` only
@@ -84,7 +89,15 @@ from elsewhere. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
 the book's lines to EODHD field names, several candidates per line, with the
 chapter and the book's rule of thumb; "Every field EODHD reports" shows the
-raw statements. The relay forwards only `fundamentals/<symbol>` on GET, holds
+raw statements. Sample data: `public/data/index.json` lists companies the
+owner pulled and `public/data/companies/<SYMBOL>.json` holds each in the
+page's shape (`tools/bundle-samples.mjs` writes both from `data/`); the page
+loads the index at boot (`loadSamples`), opens a company's file on first view
+(`loadSample`, kept for the session with `sample: true`), and a kept copy
+takes precedence over the sample. A sample company's page says "Sample data
+pulled", offers "Fetch a live copy" and has no Forget. The company page
+carries no "also kept" line and no units paragraph: the owner had them
+removed. The relay forwards only `fundamentals/<symbol>` on GET, holds
 no secret, caches nothing, and passes EODHD's status and body straight back.
 
 The Watchlists view (`#watchlists`, `#watchlists/<list id>`) holds named lists
@@ -233,3 +246,4 @@ design are their own release, requested deliberately.
 | v1.12 | Korea and Germany join the exchanges pulled | The puller now takes the Korea Stock Exchange, KOSDAQ and Germany's Xetra alongside the United States, London, Shanghai and Shenzhen, around seventeen thousand companies in all, still within two days of the daily allowance. |
 | v1.13 | The next report date, and a graph for every line | A company's page now says when its next report is due, before or after the market and with the analysts' estimate, right under its name. Every line of the Numbers table has a small graph button that opens a popup chart of that line, as a line or bars, by year or by quarter, over any range or the last 5 or 10 years, with an optional trend line or mean band and the figures beneath it: mean, median, standard deviation, variance, how steady the trend is, growth, and how often and how far the line fell. |
 | v1.14 | A page on your own machine to pull markets and watchlists | A local page now does the pulling: choose a market from a dropdown, or one of the sample watchlists from another, paste your EODHD token once, press Start, and watch the companies come in with the calls spent this run and EODHD's own count of calls used today. Stop ends a run cleanly and the next Start carries on. Everything lands in the data folder as before, with a spreadsheet file for each market alongside the site's own. |
+| v1.15 | Companies first, with eighty of them already on file | The site now opens on the company page, renamed Companies, with Chapters moved to its own tab. Eighty companies from the owner's own pull come with the site as sample data, from Apple to Zscaler and the London, Paris and Xetra names in the watchlists, so they open at once without spending a call, and a live copy is one click away. The company page lost its "also kept" line and the paragraph about units and quarters. |
