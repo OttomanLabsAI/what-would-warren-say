@@ -97,6 +97,19 @@ CLAUDE.md          standing policy for working in this repo
   equity, capital expenditure against earnings) use the trailing four quarters
   and show a dash until four are available. Companies fetched before quarters
   were kept need fetching again. The CSV follows the columns on show.
+- Under the company's name a line gives the next report EODHD lists: the
+  date, whether it comes before or after the market, the quarter it covers
+  and the analysts' estimate; a date that has passed says so.
+- Every line of the table has a small graph button. It opens a popup chart of
+  that line: line or bar, by fiscal year or by quarter (year-based ratios use
+  the trailing four quarters), with a from-to range, presets for the last 5
+  and 10 years, an optional straight trend line or a mean band one standard
+  deviation wide, a hover readout, and under the chart the figures for the
+  period shown: mean, median, standard deviation, variance, coefficient of
+  variation, low and high, trend per period and its fit, change first to
+  last, compound growth a year, falls on the period before and the largest
+  fall. The chart is drawn as inline SVG, so the page still loads nothing
+  from elsewhere.
 - Each line tries the EODHD field names in turn (for example
   `cashAndEquivalents` then `cash`) and shows a dash when none carries a
   number. "Every field EODHD reports" lists the raw statements, so a line that

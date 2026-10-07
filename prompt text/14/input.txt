@@ -1,0 +1,11 @@
+make it add that next date to the top
+
+also add a graph button that creates a popup graph showing the statistic in question
+
+options for line/bar chart
+
+range and quartely/annual
+
+also, add analytic numbers and trendline options, stadard deviation and variance and anything else associated to stability. add an option for the alst 5 years, last 10 years and the shown period
+
+mean too

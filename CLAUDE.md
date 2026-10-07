@@ -61,7 +61,24 @@ date" column, then each year with its quarters, newest first, to its right. A
 year heading with quarters is a `button.yr`; `columnsFor` builds the columns,
 `quarterData` the quarter values, and rows flagged `annual: true` use
 `trailingFour` sums in quarter columns. A "to date" column (`date: 'todate'`)
-carries quarters after the last year end. The export
+carries quarters after the last year end. A company also keeps `next`, the
+earliest report still to come from EODHD's `Earnings.History` (`date`,
+`quarter`, `when`, `estimate`, or `null`; `nextReport` finds it), shown under
+the headline by `nextReportHtml`; a company kept before `next` existed shows
+a "fetch again" line. Every line of the table carries a `button.graph`
+(`data-row` is its index in `NUMBER_ROWS`) that opens one `<dialog
+class="graph-dialog">`, built once by `ensureGraphDialog`: `graphPeriods` and
+`graphValues` give the series (yearly, or quarterly through `quarterData` so
+`annual: true` rows use the trailing four quarters), `graphStats` the
+figures (mean, median, sample variance and deviation, coefficient of
+variation, low, high, least-squares slope and R² on the period index,
+change, compound growth a year, falls and the largest fall), `chartSvg` draws
+the inline SVG (grid, axis, line or bar marks, the optional trend line or
+mean band, the last value labelled, hit bands for the hover readout) and
+`figuresHtml` the list under it. The window presets set the from-to range to
+the last 5 or 10 years (times four for quarters) and a hand-set range turns
+the window back to "shown". No chart library: the page still loads nothing
+from elsewhere. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
 the book's lines to EODHD field names, several candidates per line, with the
 chapter and the book's rule of thumb; "Every field EODHD reports" shows the
@@ -93,8 +110,9 @@ gzipped), `companies/` (each company in the Numbers page's shape), `rows/`
 (the book's ratios for the latest year) and `screen/<VENUE>.json` (the rows per
 venue, for screening in the browser). The token comes from `EODHD_TOKEN` and
 never enters the repository or the site. It stops on EODHD's 402 and resumes
-next run. Its company shape and ratio formulas mirror `extractCompany` and
-`NUMBER_ROWS` in `index.html`: change them together. Nothing on the site reads
+next run. Its company shape, next-report rule and ratio formulas mirror
+`extractCompany`, `nextReport` and `NUMBER_ROWS` in `index.html`: change them
+together. Nothing on the site reads
 the pull yet; the plan is an R2 bucket the Worker serves from, gated with
 Cloudflare Access because EODHD's personal plans forbid redistribution, then
 the Numbers page reading it and a screen view.
@@ -202,3 +220,4 @@ design are their own release, requested deliberately.
 | v1.10 | One long table, the sideways bar always in view | The Numbers table no longer scrolls inside a box of its own: it runs the full length of the page, with the year headings staying at the top of the window as you scroll down and the line names at the left as you scroll across. The sideways scrollbar now sits at the foot of the window for as long as the table is in view, so the earlier years are always one drag away. |
 | v1.11 | Whole exchanges pulled from EODHD, off the site | A new tool pulls every company's fundamentals for the United States, London, Shanghai and Shenzhen from EODHD on your own machine, apart from the site, keeping each reply, each company in the shape the Numbers page uses, and a row of the book's ratios per company for screening. It stops when the day's calls run out and carries on next time. The site itself is unchanged; the parts that will read the pull come next. |
 | v1.12 | Korea and Germany join the exchanges pulled | The puller now takes the Korea Stock Exchange, KOSDAQ and Germany's Xetra alongside the United States, London, Shanghai and Shenzhen, around seventeen thousand companies in all, still within two days of the daily allowance. |
+| v1.13 | The next report date, and a graph for every line | A company's page now says when its next report is due, before or after the market and with the analysts' estimate, right under its name. Every line of the Numbers table has a small graph button that opens a popup chart of that line, as a line or bars, by year or by quarter, over any range or the last 5 or 10 years, with an optional trend line or mean band and the figures beneath it: mean, median, standard deviation, variance, how steady the trend is, growth, and how often and how far the line fell. |

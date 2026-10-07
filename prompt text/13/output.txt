@@ -1,7 +1,0 @@
-v1.12 is released: the puller now takes Korea and Germany as well.
-
-**The lists.** By default it now pulls the Korea Stock Exchange and KOSDAQ, EODHD's codes KO and KQ, and Xetra for Germany, alongside NASDAQ, NYSE, London, Shanghai and Shenzhen: seven lists, around seventeen thousand companies, still two days of your allowance. Xetra is where German companies' primary listings and their fundamentals are; the Frankfurt floor and the regional German exchanges mostly repeat them, so they are left out, and can be added by name if you ever want them. KOSDAQ alone has around 1,850 tickers, so Korea adds a good day's worth on its own.
-
-**Verified.** The mock EODHD now serves the seven lists and the harness pulls them all, with the Korean and German companies landing in their own screen files; the five checks pass. The site is unchanged; the wrangler dry-run passed and the render check is clean.
-
-**Git.** Committed as Fid, pushed to the working branch, main fast-forwarded and pushed. No tags pushed. The ledger has the v1.12 line, and prompt archive 13 replaces archive 12 in the same commit.

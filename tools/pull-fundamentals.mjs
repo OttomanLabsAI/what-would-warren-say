@@ -35,8 +35,8 @@
 //   screen/<VENUE>.json     the rows of one venue, for screening in the browser
 //   screen/index.json       the screen files, their counts and dates
 //
-// The company shape and the ratio formulas mirror extractCompany and
-// NUMBER_ROWS in public/index.html: change them together.
+// The company shape, the next-report rule and the ratio formulas mirror
+// extractCompany, nextReport and NUMBER_ROWS in public/index.html: change them together.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -279,6 +279,20 @@ function readEps(src, into) {
   }
 }
 
+// the earliest report still to come: a History entry with a report date and no actual figure yet
+function nextReport(src) {
+  if (!src || typeof src !== 'object') return null;
+  let best = null;
+  for (const k of Object.keys(src)) {
+    const r = src[k];
+    if (!r || typeof r !== 'object' || !r.reportDate || num(r.epsActual) !== null) continue;
+    if (!best || String(r.reportDate) < best.date) {
+      best = { date: String(r.reportDate), quarter: String(r.date || ''), when: String(r.beforeAfterMarket || ''), estimate: num(r.epsEstimate) };
+    }
+  }
+  return best;
+}
+
 function extractCompany(symbol, data) {
   const fin = data.Financials || {};
   const g = data.General && typeof data.General === 'object' ? data.General : {};
@@ -303,12 +317,14 @@ function extractCompany(symbol, data) {
     shares: {},
     sharesQ: {},
     eps: {},
-    epsQ: {}
+    epsQ: {},
+    next: null
   };
   readShares(data.outstandingShares && data.outstandingShares.annual, c.shares);
   readShares(data.outstandingShares && data.outstandingShares.quarterly, c.sharesQ);
   readEps(data.Earnings && data.Earnings.Annual, c.eps);
   readEps(data.Earnings && data.Earnings.History, c.epsQ);
+  c.next = nextReport(data.Earnings && data.Earnings.History);
   return c;
 }
 
@@ -359,7 +375,7 @@ function epsOf(y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y
 
 function screenRow(m, c) {
   const dates = yearList(c);
-  const row = { symbol: c.symbol, name: m.name, exchange: m.exchange, currency: c.meta.currency, sector: c.meta.sector, industry: c.meta.industry, fiscalYearEnd: c.meta.fiscalYearEnd, pulledAt: m.pulledAt, year: null, years: dates.length };
+  const row = { symbol: c.symbol, name: m.name, exchange: m.exchange, currency: c.meta.currency, sector: c.meta.sector, industry: c.meta.industry, fiscalYearEnd: c.meta.fiscalYearEnd, pulledAt: m.pulledAt, nextReport: c.next ? c.next.date : null, nextReportWhen: c.next ? c.next.when : null, nextEpsEstimate: c.next ? c.next.estimate : null, year: null, years: dates.length };
   if (!dates.length) return row;
   const i = dates.length - 1, y = yearData(c, dates, i), start = Math.max(0, dates.length - 10);
   const gp = grossProfit(y), rev = v(y.inc, 'totalRevenue'), ni = v(y.inc, 'netIncome');

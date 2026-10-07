@@ -116,6 +116,54 @@
     @media (max-width: 40rem) { .fetch-form { grid-template-columns: 1fr; } }
     .addto { display: inline-flex; align-items: center; gap: .4rem; }
     .addto select { font-size: .82rem; padding: .25rem 1.8rem .25rem .5rem; }
+    .next-report { margin: -.7rem 0 1rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
+    .next-report b { margin-right: .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .ntable button.graph { display: inline-block; vertical-align: middle; margin-left: .35rem; padding: .1rem .2rem; border: 0; background: none; color: var(--ink-40); line-height: 0; cursor: pointer; }
+    .ntable button.graph:hover, .ntable button.graph:focus-visible { background: none; color: var(--claret); outline: none; }
+    .ntable button.graph svg { display: block; }
+
+    /* graphs: a line of the table drawn in a popup */
+    dialog.graph-dialog { width: min(94vw, 62rem); max-width: none; padding: 0; border: 1px solid var(--ink); border-radius: 0; background: var(--paper); color: var(--ink); box-shadow: 0 12px 32px rgba(51, 48, 46, .28); }
+    dialog.graph-dialog::backdrop { background: rgba(51, 48, 46, .45); }
+    .graph-inner { padding: 1.1rem 1.3rem 1.3rem; }
+    .graph-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding-bottom: .6rem; margin-bottom: .9rem; border-bottom: 3px double var(--ink); }
+    .graph-head .kicker { margin: 0; }
+    .graph-head h3 { margin: .15rem 0 .25rem; font-family: var(--display); font-weight: 700; font-size: clamp(1.3rem, 3vw, 1.7rem); line-height: 1.15; }
+    .graph-head .rule { font-size: .9rem; }
+    .graph-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .7rem 1.4rem; margin: 0 0 .9rem; }
+    .graph-controls .pick { display: flex; flex-direction: column; gap: .3rem; }
+    .graph-controls .pick label, .graph-controls legend { padding: 0; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    .graph-controls fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+    .graph-controls legend { margin-bottom: .3rem; }
+    .graph-controls select { font-size: .88rem; padding: .35rem 1.8rem .35rem .55rem; }
+    .graph-controls .type { padding: .35rem .7rem; }
+    .graph-controls .type.off { color: var(--ink-40); border-color: var(--rule-light); cursor: default; }
+    .graph-body { position: relative; min-height: 4rem; }
+    .graph-body svg.chart { display: block; width: 100%; height: auto; font-family: var(--sans); outline: none; }
+    .graph-body svg.chart:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .chart .grid { stroke: var(--rule-light); stroke-width: 1; }
+    .chart .grid.zero { stroke: var(--rule); }
+    .chart .axis { fill: var(--ink-60); font-size: 11px; }
+    .chart .end { fill: var(--ink-70); font-size: 11px; font-weight: 700; }
+    .chart .series { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .chart .pt { fill: var(--ink); stroke: var(--paper); stroke-width: 2; }
+    .chart .pt.neg { fill: var(--claret); }
+    .chart .bar { fill: var(--ink); }
+    .chart .bar.neg { fill: var(--claret); }
+    .chart .bar.hot { opacity: .72; }
+    .chart .trend, .chart .mean { stroke: var(--teal); stroke-width: 1.5; stroke-linecap: round; }
+    .chart .band { fill: var(--teal); fill-opacity: .1; }
+    .chart .cross { stroke: var(--ink-40); stroke-width: 1; pointer-events: none; }
+    .chart .hit { fill: transparent; }
+    .graph-tip { position: absolute; z-index: 1; padding: .35rem .6rem; border: 1px solid var(--ink); background: var(--white); font-family: var(--sans); font-size: .78rem; color: var(--ink-60); white-space: nowrap; pointer-events: none; box-shadow: 0 2px 8px rgba(51, 48, 46, .15); }
+    .graph-tip b { display: block; font-size: .98rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .graph-tip[hidden] { display: none; }
+    .figures-head { margin: 1rem 0 .4rem; font-family: var(--sans); font-size: .74rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--claret); }
+    dl.figures { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: .2rem 1.4rem; margin: 0; font-family: var(--sans); font-size: .82rem; }
+    dl.figures div { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; padding: .3rem 0; border-bottom: 1px dotted var(--rule-light); }
+    dl.figures dt { color: var(--ink-60); }
+    dl.figures dd { margin: 0; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    @media (max-width: 40rem) { .graph-inner { padding: .9rem .9rem 1rem; } .graph-head { flex-direction: column; } }
 
     /* watchlists */
     .watchlist { padding: 1.6rem 1rem 2rem; }
@@ -672,6 +720,20 @@
       });
     }
 
+    // the earliest report still to come: a History entry with a report date and no actual figure yet
+    function nextReport(src) {
+      if (!src || typeof src !== 'object') return null;
+      var best = null;
+      Object.keys(src).forEach(function (k) {
+        var r = src[k];
+        if (!r || typeof r !== 'object' || !r.reportDate || num(r.epsActual) !== null) return;
+        if (!best || String(r.reportDate) < best.date) {
+          best = { date: String(r.reportDate), quarter: String(r.date || ''), when: String(r.beforeAfterMarket || ''), estimate: num(r.epsEstimate) };
+        }
+      });
+      return best;
+    }
+
     function extractCompany(symbol, data) {
       var fin = data.Financials || {};
       var g = data.General && typeof data.General === 'object' ? data.General : {};
@@ -696,12 +758,14 @@
         shares: {},
         sharesQ: {},
         eps: {},
-        epsQ: {}
+        epsQ: {},
+        next: null
       };
       readShares(data.outstandingShares && data.outstandingShares.annual, c.shares);
       readShares(data.outstandingShares && data.outstandingShares.quarterly, c.sharesQ);
       readEps(data.Earnings && data.Earnings.Annual, c.eps);
       readEps(data.Earnings && data.Earnings.History, c.epsQ);
+      c.next = nextReport(data.Earnings && data.Earnings.History);
       return c;
     }
 
@@ -1010,13 +1074,15 @@
             '" title="' + (open ? 'Hide' : 'Show') + ' the quarters of ' + esc(col.label) + '">' + esc(col.label) +
             '<span class="caret" aria-hidden="true">' + (open ? '\u25BE' : '\u25B8') + '</span></button></th>';
         }).join('') + '</tr></thead><tbody>';
-      NUMBER_ROWS.forEach(function (r) {
+      NUMBER_ROWS.forEach(function (r, index) {
         if (r.group) {
           html += '<tr class="group"><th class="item" colspan="' + (cols.length + 1) + '">' + esc(r.group) + '</th></tr>';
           return;
         }
         html += '<tr' + (r.ratio ? ' class="ratio"' : '') + '><th class="item" scope="row">' + esc(r.label) +
-          '<span class="ref">ch. ' + esc(r.ch) + '</span>' + (r.rule ? '<span class="rule">' + esc(r.rule) + '</span>' : '') + '</th>';
+          '<span class="ref">ch. ' + esc(r.ch) + '</span>' +
+          '<button type="button" class="graph" data-row="' + index + '" aria-label="Graph ' + esc(r.label) + '" title="Graph this line">' + GRAPH_ICON + '</button>' +
+          (r.rule ? '<span class="rule">' + esc(r.rule) + '</span>' : '') + '</th>';
         cols.forEach(function (col) {
           var val = cellValue(c, dates, col, r);
           var text = fmtValue(val, r.unit);
@@ -1150,6 +1216,7 @@
       var newest = dates.slice().reverse(), newestLabels = labels.slice().reverse();
       return '<p class="kicker">Company numbers \u00b7 ' + esc(c.symbol) + '</p>' +
         '<h2 class="headline">' + esc(m.name) + '</h2>' +
+        nextReportHtml(c) +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
         '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>' +
         '<button type="button" class="linkbtn" id="refresh">Fetch again</button>' +
@@ -1537,10 +1604,379 @@
       });
     }
 
+    // ---- the next report date ---------------------------------------------
+    function fmtDay(ymd) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(ymd || ''));
+      if (!m) return String(ymd || '');
+      return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function nextReportHtml(c) {
+      if (c.next === undefined) return '<p class="next-report"><b>Next report</b>Fetch again to see the next report date.</p>';
+      if (!c.next) return '<p class="next-report"><b>Next report</b>EODHD lists no report still to come.</p>';
+      var when = c.next.when === 'BeforeMarket' ? 'before the market opens' : c.next.when === 'AfterMarket' ? 'after the market closes' : '';
+      var text = fmtDay(c.next.date) + (when ? ', ' + when : '') + (c.next.quarter ? ', for the quarter to ' + fmtDay(c.next.quarter) : '') +
+        (c.next.estimate !== null && c.next.estimate !== undefined ? '; analysts expect ' + c.next.estimate.toFixed(2) + ' a share' : '');
+      if (c.next.date < dateStamp()) return '<p class="next-report"><b>Next report</b>The date EODHD listed, ' + esc(text) + ', has passed. Fetch again for the next one.</p>';
+      return '<p class="next-report"><b>Next report</b>' + esc(text) + '.</p>';
+    }
+
+    // ---- graphs: any line of the table, by year or by quarter, in a popup ----
+    var GRAPH_ICON = '<svg viewBox="0 0 14 12" width="14" height="12" aria-hidden="true" focusable="false"><path d="M1 10.5 4.5 6l3 2L13 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var graph = null;
+    var graphDialog = null;
+
+    function graphOption(group, value, text) {
+      return '<label class="type"><input type="radio" name="g' + group + '" value="' + value + '"><b>' + text + '</b></label>';
+    }
+
+    function ensureGraphDialog() {
+      if (graphDialog) return graphDialog;
+      var d = document.createElement('dialog');
+      d.className = 'graph-dialog';
+      d.setAttribute('aria-labelledby', 'graph-title');
+      d.innerHTML = '<div class="graph-inner">' +
+        '<div class="graph-head"><div><p class="kicker" id="graph-kicker"></p><h3 id="graph-title"></h3><p class="rule" id="graph-rule"></p></div>' +
+        '<button type="button" class="secondary" id="graph-close">Close</button></div>' +
+        '<form class="graph-controls" id="graph-controls">' +
+        '<div class="pick"><label for="graph-from">From</label><select id="graph-from"></select></div>' +
+        '<div class="pick"><label for="graph-to">To</label><select id="graph-to"></select></div>' +
+        '<fieldset><legend>Window</legend><div class="types">' + graphOption('window', 'shown', 'Shown period') + graphOption('window', '5', 'Last 5 years') + graphOption('window', '10', 'Last 10 years') + '</div></fieldset>' +
+        '<fieldset><legend>Period</legend><div class="types">' + graphOption('period', 'annual', 'Annual') + graphOption('period', 'quarterly', 'Quarterly') + '</div></fieldset>' +
+        '<fieldset><legend>Chart</legend><div class="types">' + graphOption('kind', 'line', 'Line') + graphOption('kind', 'bar', 'Bar') + '</div></fieldset>' +
+        '<fieldset><legend>Trend</legend><div class="types">' + graphOption('trend', 'none', 'None') + graphOption('trend', 'line', 'Straight line') + graphOption('trend', 'band', 'Mean band') + '</div></fieldset>' +
+        '</form>' +
+        '<div class="graph-body" id="graph-body"></div>' +
+        '<div class="graph-figures" id="graph-figures"></div>' +
+        '<p class="units" id="graph-units"></p></div>';
+      document.body.appendChild(d);
+      d.querySelector('#graph-close').addEventListener('click', function () { d.close(); });
+      d.addEventListener('click', function (ev) { if (ev.target === d) d.close(); });
+      var controls = d.querySelector('#graph-controls');
+      controls.addEventListener('submit', function (ev) { ev.preventDefault(); });
+      controls.addEventListener('change', function (ev) {
+        var t = ev.target;
+        if (!graph) return;
+        if (t.name === 'gkind') graph.kind = t.value;
+        else if (t.name === 'gtrend') graph.trend = t.value;
+        else if (t.name === 'gwindow') { graph.window = t.value; applyGraphWindow(); }
+        else if (t.name === 'gperiod') { graph.period = t.value; fillGraphRange(); applyGraphWindow(); }
+        else if (t.id === 'graph-from') { graph.from = t.value; if (graph.from > graph.to) graph.to = graph.from; graph.window = 'shown'; }
+        else if (t.id === 'graph-to') { graph.to = t.value; if (graph.to < graph.from) graph.from = graph.to; graph.window = 'shown'; }
+        d.querySelector('input[name="gwindow"][value="' + graph.window + '"]').checked = true;
+        d.querySelector('#graph-from').value = graph.from;
+        d.querySelector('#graph-to').value = graph.to;
+        syncGraphOptions();
+        drawGraph();
+      });
+      window.addEventListener('resize', function () { if (d.open) drawGraph(); });
+      graphDialog = d;
+      return d;
+    }
+
+    function quarterShort(q) {
+      return quarterLabel(q).replace(/ \d\d(\d\d)$/, ' $1');
+    }
+
+    function graphPeriods(c, period) {
+      if (period === 'quarterly') return quarterDates(c).map(function (q) { return { date: q, label: quarterLabel(q), short: quarterShort(q) }; });
+      var dates = yearList(c), labels = yearLabels(dates);
+      return dates.map(function (d, i) { return { date: d, label: labels[i], short: labels[i] }; });
+    }
+
+    function graphValues(c, row, period, periods) {
+      var dates = yearList(c);
+      return periods.map(function (p) {
+        var y = period === 'quarterly' ? quarterData(c, p.date, !!row.annual) : yearData(c, dates, dates.indexOf(p.date));
+        var v = y ? row.value(y) : null;
+        return (v === null || v === undefined || !isFinite(v)) ? null : v;
+      });
+    }
+
+    function fillGraphRange() {
+      var periods = graphPeriods(graph.c, graph.period);
+      var options = periods.map(function (p) { return '<option value="' + esc(p.date) + '">' + esc(p.label) + '</option>'; }).join('');
+      var from = graphDialog.querySelector('#graph-from'), to = graphDialog.querySelector('#graph-to');
+      from.innerHTML = options;
+      to.innerHTML = options;
+      graph.from = periods.length ? periods[0].date : '';
+      graph.to = periods.length ? periods[periods.length - 1].date : '';
+      from.value = graph.from;
+      to.value = graph.to;
+    }
+
+    // the last 5 or 10 years of the periods on offer, as the shown range
+    function applyGraphWindow() {
+      if (graph.window === 'shown') return;
+      var periods = graphPeriods(graph.c, graph.period);
+      var slice = periods.slice(-(parseInt(graph.window, 10) * (graph.period === 'quarterly' ? 4 : 1)));
+      if (!slice.length) return;
+      graph.from = slice[0].date;
+      graph.to = slice[slice.length - 1].date;
+    }
+
+    function syncGraphOptions() {
+      Array.prototype.forEach.call(graphDialog.querySelectorAll('.graph-controls input[type="radio"]'), function (input) {
+        input.parentNode.classList.toggle('on', input.checked);
+        input.parentNode.classList.toggle('off', input.disabled);
+      });
+    }
+
+    function openGraph(c, row) {
+      var d = ensureGraphDialog();
+      graph = { c: c, row: row, kind: 'line', period: 'annual', from: '', to: '', window: 'shown', trend: 'none' };
+      d.querySelector('#graph-kicker').textContent = c.meta.name + ' · ch. ' + row.ch;
+      d.querySelector('#graph-title').textContent = row.label;
+      d.querySelector('#graph-rule').textContent = row.rule || '';
+      var hasQ = quarterDates(c).length > 0;
+      var quarterly = d.querySelector('input[name="gperiod"][value="quarterly"]');
+      quarterly.disabled = !hasQ;
+      quarterly.parentNode.title = hasQ ? '' : 'No quarters are kept for this company: Fetch again pulls them.';
+      d.querySelector('input[name="gperiod"][value="annual"]').checked = true;
+      d.querySelector('input[name="gkind"][value="line"]').checked = true;
+      d.querySelector('input[name="gwindow"][value="shown"]').checked = true;
+      d.querySelector('input[name="gtrend"][value="none"]').checked = true;
+      fillGraphRange();
+      syncGraphOptions();
+      if (!d.open) d.showModal();
+      drawGraph();
+    }
+
+    function niceTicks(lo, hi, count) {
+      var span = (hi - lo) || Math.abs(hi) || 1;
+      var raw = span / (count - 1);
+      var mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+      var norm = raw / mag;
+      var step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
+      var start = Math.floor(lo / step) * step, end = Math.ceil(hi / step) * step, ticks = [];
+      for (var k = 0; start + k * step <= end + step / 2; k++) ticks.push(parseFloat((start + k * step).toPrecision(12)));
+      return { ticks: ticks, step: step };
+    }
+
+    function tickText(v, step, unit) {
+      if (unit === 'money' || unit === 'shares') {
+        var m = v / 1e6, sm = step / 1e6, dec = sm >= 1 ? 0 : sm >= 0.1 ? 1 : 2;
+        return (m < 0 ? '−' : '') + Math.abs(m).toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      }
+      if (unit === 'pct') return (v * 100).toFixed(step * 100 >= 1 ? 0 : 1) + '%';
+      return v.toFixed(step >= 1 ? 0 : step >= 0.1 ? 1 : 2);
+    }
+
+    function barPath(x, y, w, h, neg) {
+      var r = Math.min(4, w / 2, h);
+      if (h <= 0) return '';
+      if (!neg) return 'M' + x + ' ' + (y + h) + 'V' + (y + r) + 'Q' + x + ' ' + y + ' ' + (x + r) + ' ' + y + 'H' + (x + w - r) + 'Q' + (x + w) + ' ' + y + ' ' + (x + w) + ' ' + (y + r) + 'V' + (y + h) + 'Z';
+      return 'M' + x + ' ' + y + 'V' + (y + h - r) + 'Q' + x + ' ' + (y + h) + ' ' + (x + r) + ' ' + (y + h) + 'H' + (x + w - r) + 'Q' + (x + w) + ' ' + (y + h) + ' ' + (x + w) + ' ' + (y + h - r) + 'V' + y + 'Z';
+    }
+
+    // the figures behind a run of values: spread, trend and steadiness, over the periods shown
+    function graphStats(periods, values, period) {
+      var pts = [];
+      values.forEach(function (v, i) { if (v !== null) pts.push({ i: i, v: v, label: periods[i].label }); });
+      var n = pts.length;
+      if (!n) return null;
+      var sum = 0;
+      pts.forEach(function (p) { sum += p.v; });
+      var mean = sum / n;
+      var sorted = pts.map(function (p) { return p.v; }).sort(function (a, b) { return a - b; });
+      var median = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+      var ss = 0;
+      pts.forEach(function (p) { ss += (p.v - mean) * (p.v - mean); });
+      var variance = n > 1 ? ss / (n - 1) : 0, sd = Math.sqrt(variance);
+      var low = pts[0], high = pts[0];
+      pts.forEach(function (p) { if (p.v < low.v) low = p; if (p.v > high.v) high = p; });
+      // a straight line fitted to the period index, so a gap keeps its time
+      var sx = 0, sxx = 0, sxy = 0;
+      pts.forEach(function (p) { sx += p.i; sxx += p.i * p.i; sxy += p.i * p.v; });
+      var den = n * sxx - sx * sx;
+      var slope = n > 1 && den ? (n * sxy - sx * sum) / den : 0;
+      var intercept = mean - slope * (sx / n);
+      var sse = 0;
+      pts.forEach(function (p) { var e = p.v - (intercept + slope * p.i); sse += e * e; });
+      var r2 = n > 1 && ss > 0 ? Math.max(0, 1 - sse / ss) : null;
+      var first = pts[0], last = pts[n - 1], steps = last.i - first.i;
+      var perYear = period === 'quarterly' ? 4 : 1;
+      var change = first.v ? (last.v - first.v) / Math.abs(first.v) : null;
+      var growth = (first.v > 0 && last.v > 0 && steps > 0) ? Math.pow(last.v / first.v, perYear / steps) - 1 : null;
+      var falls = 0, largest = null;
+      for (var k = 1; k < n; k++) {
+        var prev = pts[k - 1].v, cur = pts[k].v;
+        if (cur < prev) {
+          falls++;
+          if (prev > 0) { var drop = (prev - cur) / prev; if (!largest || drop > largest.drop) largest = { drop: drop, label: pts[k].label }; }
+        }
+      }
+      return { n: n, mean: mean, median: median, variance: variance, sd: sd, cv: mean ? sd / Math.abs(mean) : null, low: low, high: high,
+        slope: slope, intercept: intercept, r2: r2, first: first, last: last, change: change, growth: growth, falls: falls, largest: largest };
+    }
+
+    function varianceText(variance, unit) {
+      if (unit === 'money' || unit === 'shares') return fmtInt(variance / 1e12) + ' millions²';
+      if (unit === 'pct') return (variance * 1e4).toFixed(2) + ' pts²';
+      return variance.toFixed(3);
+    }
+
+    function figuresHtml(st, periods, unit, period) {
+      if (!st) return '<p class="hint">No figures for this range.</p>';
+      var what = period === 'quarterly' ? 'quarter' : 'year', shown = periods.length;
+      var head = 'Over the ' + shown + ' ' + what + (shown === 1 ? '' : 's') + ' shown, ' + periods[0].label + ' to ' + periods[shown - 1].label +
+        (st.n < shown ? ', ' + st.n + ' with a figure' : '');
+      function pc(x, signed) { return x === null ? '—' : ((signed && x > 0) ? '+' : '') + (x * 100).toFixed(1) + '%'; }
+      var rows = [
+        ['Mean', fmtValue(st.mean, unit)],
+        ['Median', fmtValue(st.median, unit)],
+        ['Standard deviation', fmtValue(st.sd, unit)],
+        ['Variance', varianceText(st.variance, unit)],
+        ['Coefficient of variation', pc(st.cv)],
+        ['Low', fmtValue(st.low.v, unit) + ' (' + st.low.label + ')'],
+        ['High', fmtValue(st.high.v, unit) + ' (' + st.high.label + ')'],
+        ['Trend, per ' + what, st.n > 1 ? (st.slope > 0 ? '+' : '') + fmtValue(st.slope, unit) : '—'],
+        ['Fit to the trend (R²)', st.r2 === null ? '—' : st.r2.toFixed(2)],
+        ['Change, first to last', pc(st.change, true)],
+        ['Compound growth a year', pc(st.growth, true)],
+        ['Falls on the ' + what + ' before', st.n > 1 ? st.falls + ' of ' + (st.n - 1) : '—'],
+        ['Largest fall', st.largest ? '−' + (st.largest.drop * 100).toFixed(1) + '% (' + st.largest.label + ')' : 'none']
+      ];
+      return '<p class="figures-head">' + esc(head) + '</p><dl class="figures">' +
+        rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
+    }
+
+    function chartSvg(periods, values, kind, unit, width, trend, st) {
+      var n = periods.length;
+      var have = values.filter(function (v) { return v !== null; });
+      if (!n || !have.length) return '<p class="hint">No figures to draw for this range.</p>';
+      var W = width, H = 320, padL = 72, padR = 20, padT = 22, padB = 44;
+      var plotW = W - padL - padR, plotH = H - padT - padB;
+      var lo = Math.min.apply(null, have.concat([0])), hi = Math.max.apply(null, have.concat([0]));
+      var fit = function (i) { return st.intercept + st.slope * i; };
+      if (st && trend === 'line' && st.n > 1) { lo = Math.min(lo, fit(st.first.i), fit(st.last.i)); hi = Math.max(hi, fit(st.first.i), fit(st.last.i)); }
+      if (st && trend === 'band') { lo = Math.min(lo, st.mean - st.sd); hi = Math.max(hi, st.mean + st.sd); }
+      var scale = niceTicks(lo, hi, 5);
+      lo = scale.ticks[0];
+      hi = scale.ticks[scale.ticks.length - 1];
+      if (hi === lo) hi = lo + 1;
+      var band = plotW / n;
+      function X(i) { return padL + band * (i + 0.5); }
+      function Y(v) { return padT + plotH * (1 - (v - lo) / (hi - lo)); }
+      var svg = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" tabindex="0" aria-label="' +
+        esc(periods[0].label + ' to ' + periods[n - 1].label + ', ' + have.length + ' figures') + '">';
+      scale.ticks.forEach(function (t) {
+        var y = Y(t).toFixed(1);
+        svg += '<line class="grid' + (t === 0 ? ' zero' : '') + '" x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y + '" y2="' + y + '"/>' +
+          '<text class="axis" x="' + (padL - 8) + '" y="' + (+y + 4) + '" text-anchor="end">' + esc(tickText(t, scale.step, unit)) + '</text>';
+      });
+      var every = Math.max(1, Math.ceil(n / Math.max(1, Math.floor(plotW / 60))));
+      periods.forEach(function (p, i) {
+        if ((n - 1 - i) % every === 0) svg += '<text class="axis" x="' + X(i).toFixed(1) + '" y="' + (H - padB + 18) + '" text-anchor="middle">' + esc(p.short) + '</text>';
+      });
+      if (st && trend === 'band') {
+        var bx = (X(st.first.i) - band / 2).toFixed(1), bw2 = (X(st.last.i) - X(st.first.i) + band).toFixed(1);
+        svg += '<rect class="band" x="' + bx + '" y="' + Y(st.mean + st.sd).toFixed(1) + '" width="' + bw2 + '" height="' + (Y(st.mean - st.sd) - Y(st.mean + st.sd)).toFixed(1) + '"/>' +
+          '<line class="mean" x1="' + bx + '" x2="' + (+bx + +bw2).toFixed(1) + '" y1="' + Y(st.mean).toFixed(1) + '" y2="' + Y(st.mean).toFixed(1) + '"/>';
+      }
+      if (kind === 'bar') {
+        var bw = Math.min(24, Math.max(2, band - 2));
+        values.forEach(function (v, i) {
+          if (v === null) return;
+          var y0 = Y(0), y1 = Y(v);
+          svg += '<path class="bar' + (v < 0 ? ' neg' : '') + '" data-i="' + i + '" d="' + barPath(X(i) - bw / 2, Math.min(y0, y1), bw, Math.abs(y0 - y1), v < 0) + '"/>';
+        });
+      } else {
+        var d = '', pen = false;
+        values.forEach(function (v, i) {
+          if (v === null) { pen = false; return; }
+          d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1);
+          pen = true;
+        });
+        svg += '<path class="series" d="' + d + '"/>';
+        values.forEach(function (v, i) {
+          if (v === null) return;
+          svg += '<circle class="pt' + (v < 0 ? ' neg' : '') + '" data-i="' + i + '" cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="4"/>';
+        });
+      }
+      if (st && trend === 'line' && st.n > 1) {
+        svg += '<line class="trend" x1="' + X(st.first.i).toFixed(1) + '" y1="' + Y(fit(st.first.i)).toFixed(1) + '" x2="' + X(st.last.i).toFixed(1) + '" y2="' + Y(fit(st.last.i)).toFixed(1) + '"/>';
+      }
+      var last = -1;
+      values.forEach(function (v, i) { if (v !== null) last = i; });
+      if (last >= 0) {
+        var ly = values[last] < 0 ? Y(values[last]) + 16 : Y(values[last]) - 10;
+        svg += '<text class="end" x="' + X(last).toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + (last === n - 1 && n > 1 ? 'end' : 'middle') + '">' + esc(fmtValue(values[last], unit)) + '</text>';
+      }
+      svg += '<line class="cross" id="graph-cross" x1="0" x2="0" y1="' + padT + '" y2="' + (padT + plotH) + '" style="display:none"/>';
+      periods.forEach(function (p, i) {
+        svg += '<rect class="hit" data-i="' + i + '" x="' + (padL + band * i).toFixed(1) + '" y="' + padT + '" width="' + band.toFixed(1) + '" height="' + plotH + '"/>';
+      });
+      return svg + '</svg><div class="graph-tip" id="graph-tip" hidden><b></b><span></span></div>';
+    }
+
+    function wireGraphHover(body, periods, values, unit, kind) {
+      var svg = body.querySelector('svg.chart'), tip = body.querySelector('#graph-tip'), cross = body.querySelector('#graph-cross');
+      if (!svg) return;
+      var hot = -1;
+      function mark(i) { return i < 0 ? null : svg.querySelector('.pt[data-i="' + i + '"], .bar[data-i="' + i + '"]'); }
+      function hide() {
+        var m = mark(hot);
+        if (m) { m.classList.remove('hot'); if (m.tagName === 'circle') m.setAttribute('r', '4'); }
+        hot = -1;
+        tip.hidden = true;
+        cross.style.display = 'none';
+      }
+      function show(i) {
+        if (i < 0 || i >= periods.length) return;
+        var m = mark(hot);
+        if (m) { m.classList.remove('hot'); if (m.tagName === 'circle') m.setAttribute('r', '4'); }
+        hot = i;
+        m = mark(i);
+        if (m) { m.classList.add('hot'); if (m.tagName === 'circle') m.setAttribute('r', '6'); }
+        var hit = svg.querySelector('.hit[data-i="' + i + '"]');
+        var x = parseFloat(hit.getAttribute('x')) + parseFloat(hit.getAttribute('width')) / 2;
+        cross.setAttribute('x1', x);
+        cross.setAttribute('x2', x);
+        cross.style.display = kind === 'line' ? '' : 'none';
+        tip.firstChild.textContent = values[i] === null ? '—' : fmtValue(values[i], unit);
+        tip.lastChild.textContent = periods[i].label;
+        tip.hidden = false;
+        var rect = svg.getBoundingClientRect(), px = x * rect.width / svg.viewBox.baseVal.width;
+        var bodyW = body.clientWidth, tipW = tip.offsetWidth;
+        var left = px + 14 + tipW > bodyW ? px - tipW - 14 : px + 14;
+        tip.style.left = Math.max(0, Math.min(bodyW - tipW, left)) + 'px';
+        tip.style.top = (rect.top - body.getBoundingClientRect().top + 10) + 'px';
+      }
+      svg.addEventListener('pointermove', function (ev) {
+        var h = ev.target.closest ? ev.target.closest('.hit') : null;
+        if (h) show(parseInt(h.getAttribute('data-i'), 10));
+      });
+      svg.addEventListener('pointerleave', hide);
+      svg.addEventListener('blur', hide);
+      svg.addEventListener('keydown', function (ev) {
+        if (ev.key === 'ArrowRight') { show(hot < 0 ? 0 : Math.min(periods.length - 1, hot + 1)); ev.preventDefault(); }
+        else if (ev.key === 'ArrowLeft') { show(hot < 0 ? periods.length - 1 : Math.max(0, hot - 1)); ev.preventDefault(); }
+      });
+    }
+
+    function drawGraph() {
+      if (!graph || !graphDialog) return;
+      var body = graphDialog.querySelector('#graph-body');
+      var periods = graphPeriods(graph.c, graph.period).filter(function (p) { return p.date >= graph.from && p.date <= graph.to; });
+      var values = graphValues(graph.c, graph.row, graph.period, periods);
+      var width = Math.max(300, Math.floor(body.clientWidth || 640));
+      var st = graphStats(periods, values, graph.period);
+      body.innerHTML = chartSvg(periods, values, graph.kind, graph.row.unit, width, graph.trend, st);
+      wireGraphHover(body, periods, values, graph.row.unit, graph.kind);
+      graphDialog.querySelector('#graph-figures').innerHTML = figuresHtml(st, periods, graph.row.unit, graph.period);
+      var units = unitName(graph.row.unit, graph.c.meta.currency);
+      graphDialog.querySelector('#graph-units').textContent = units.charAt(0).toUpperCase() + units.slice(1) +
+        (graph.period === 'quarterly' ? ', by quarter' + (graph.row.annual ? ', each built on the trailing four quarters' : '') : ', by fiscal year') +
+        '. Oldest at the left, newest at the right.';
+    }
+
     var currentCompany = null;
     app.addEventListener('click', function (ev) {
       var btn = ev.target.closest ? ev.target.closest('button.yr') : null;
-      if (btn && currentCompany) { ev.preventDefault(); toggleYear(currentCompany, btn.getAttribute('data-date')); }
+      if (btn && currentCompany) { ev.preventDefault(); toggleYear(currentCompany, btn.getAttribute('data-date')); return; }
+      var g = ev.target.closest ? ev.target.closest('button.graph') : null;
+      if (g && currentCompany) { ev.preventDefault(); openGraph(currentCompany, NUMBER_ROWS[parseInt(g.getAttribute('data-row'), 10)]); }
     });
     var viewChapters = document.getElementById('view-chapters');
     var viewNumbers = document.getElementById('view-numbers');
