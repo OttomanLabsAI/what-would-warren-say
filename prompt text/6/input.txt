@@ -1,3 +1,0 @@
-also, the extents and positions of the text and layout are slightly offset from each other when i switch between chapters and numbers
-
-ok. the shift when changing from numbrs to chapters and vice versa is still there

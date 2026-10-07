@@ -1,0 +1,3 @@
+make these italic texts the same colour as the circled number
+
+remeber to check the updated skill for the prompt insertion to the repo

@@ -1,0 +1,9 @@
+v1.6 is built, verified and released. The book's rules of thumb under the ratios in the Numbers table are now claret, the same colour as a negative figure such as the one you circled.
+
+**What changed.** One colour in the stylesheet: the italic sentence beneath each ratio row, seventeen of them across the three statements, now uses the claret that negative numbers use, so the book's voice stands apart from the figures and the labels. Nothing else moved.
+
+**On the skill.** I re-read the prompt-archive skill before this version. The copy that reaches this session is unchanged from the one I loaded on the first day, dated 28 September, same text and same scripts, so if you have updated it on your side the update has not synced here. I have followed the version I have: your words went into the archive before the work, without the image marker the client inserts, your screenshot sits beside them as 3.webp, this reply is the output record written last, and the model line reads Fable 5.1 Max, the truthful form of the skill's default. If the update changes any of that, tell me what it says and the next version will follow it.
+
+**Verified.** The Numbers suite passed its ten checks against the stand-in EODHD reply. In the rendered page the computed colour of the rule lines equals the computed colour of a negative figure exactly, the wrangler dry-run passed and the render check is clean. A capture of the table is attached above.
+
+**Git.** Committed as Fid, pushed to the working branch, main fast-forwarded and pushed. No tags pushed. The ledger has the v1.6 line, and prompt archive 7 replaces archive 6 in the same commit, holding your message, your screenshot and this reply.
