@@ -142,9 +142,21 @@ against a local mock of EODHD and exercise `/api/eodhd/…` and the assets.
 
 ## Pulling whole exchanges
 
-`tools/pull-fundamentals.mjs` pulls every company's fundamentals for a set of
-exchanges from EODHD on your own machine, apart from the site, into a local
-`data/` folder that git ignores. It needs Node 18 or later and nothing else:
+Two ways to pull, sharing one engine in `tools/lib/pull.mjs`, both on your own
+machine, apart from the site, into a local `data/` folder that git ignores.
+They need Node 18 or later and nothing else.
+
+**The page.** `npm run pull-app` starts a page on 127.0.0.1 and opens it: a
+dropdown of markets (NASDAQ, NYSE, London, Shanghai, Shenzhen, Korea, KOSDAQ,
+Xetra, or all of them), a dropdown of the sample watchlists from the site, a
+box for the token with a "remember on this machine" tick (the token then
+lives in `data/eodhd-token.txt`, never in the repository), a Start and a Stop
+button, a progress bar, the calls spent this run, and EODHD's own count of
+calls used today before and after the run. Pass `--port`, `--out`, `--base`
+or `--no-open` if the defaults do not suit.
+
+**The command line.** `tools/pull-fundamentals.mjs` does the same without a
+page:
 
 ```bash
 EODHD_TOKEN=your-token npm run pull                      # NASDAQ and NYSE, London, Shanghai, Shenzhen, Korea, Xetra
@@ -156,8 +168,9 @@ lists, around seventeen thousand companies, take two days of a 100,000-call
 allowance: the run stops on its own when the day's calls are spent and carries
 on where it was when run again. It keeps EODHD's raw reply for each company,
 gzipped, writes the company in the shape the Numbers page keeps, one row of
-the book's ratios for the latest year, and a screen file per venue. The
-options are listed at the top of the script. The token comes from the
+the book's ratios for the latest year, and a screen file per venue, as JSON
+for the site and as CSV for a spreadsheet. The options are listed at the top
+of the script. The token comes from the
 environment and never enters the repository or the site. Nothing on the site
 reads the pull yet; EODHD's personal plans do not allow the data to be
 redistributed, so whatever the site later serves from it must be gated to you.

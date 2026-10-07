@@ -7,7 +7,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "check": "wrangler deploy --dry-run",
-    "pull": "node tools/pull-fundamentals.mjs"
+    "pull": "node tools/pull-fundamentals.mjs",
+    "pull-app": "node tools/pull-app.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

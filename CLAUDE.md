@@ -21,7 +21,9 @@ public/            everything served as assets
 src/worker.js      /api/eodhd/fundamentals/<symbol> -> eodhd.com; everything else -> env.ASSETS
 wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var
 package.json       wrangler devDependency + dev/deploy/check/pull scripts
-tools/pull-fundamentals.mjs  pulls whole exchanges' fundamentals from EODHD into data/, apart from the site
+tools/lib/pull.mjs  the pull engine: lists, fetches, extracts, screens; mirrors the page's extraction
+tools/pull-fundamentals.mjs  the command line over the engine: whole exchanges into data/, apart from the site
+tools/pull-app.mjs  a local page over the engine: market or sample-watchlist dropdowns, Start, Stop, calls spent
 data/              the pull's output: git-ignored, EODHD-licensed, never committed
 prompt text/       the records behind the version in service (see below)
 ```
@@ -101,18 +103,27 @@ never numbers or the token); on import a list from the file replaces the one
 here by `id` unless the one here was changed more recently, an identical list
 is left alone, and lists absent from the file are left alone.
 
-`tools/pull-fundamentals.mjs` pulls every company's fundamentals for a set of
-exchanges (US filtered to NASDAQ and NYSE, LSE, SHG, SHE, KO, KQ and XETRA by
-default) from
-EODHD on the owner's machine, apart from the site, into `data/`: `symbols.json`
-(the universe), `pulled.json` (the manifest), `raw/` (EODHD's replies,
-gzipped), `companies/` (each company in the Numbers page's shape), `rows/`
-(the book's ratios for the latest year) and `screen/<VENUE>.json` (the rows per
-venue, for screening in the browser). The token comes from `EODHD_TOKEN` and
-never enters the repository or the site. It stops on EODHD's 402 and resumes
-next run. Its company shape, next-report rule and ratio formulas mirror
-`extractCompany`, `nextReport` and `NUMBER_ROWS` in `index.html`: change them
-together. Nothing on the site reads
+`tools/lib/pull.mjs` is the pull engine: `createContext`, `loadUniverse`,
+`pull`, `writeScreens`, `recomputeRows`, `usage` (EODHD's user endpoint, for
+the calls used today), `MARKETS` (the menu of markets, each a set of EODHD
+lists with a US venue filter) and `loadSampleWatchlists` (reads
+`STARTING_LISTS` out of `index.html`, so the lists have one copy). It pulls
+every company's fundamentals for a set of exchanges (US filtered to NASDAQ
+and NYSE, LSE, SHG, SHE, KO, KQ and XETRA by default) from EODHD on the
+owner's machine, apart from the site, into `data/`: `symbols.json` (the
+universe), `pulled.json` (the manifest), `raw/` (EODHD's replies, gzipped),
+`companies/` (each company in the Numbers page's shape), `rows/` (the book's
+ratios for the latest year), `screen/<VENUE>.json` (the rows per venue, for
+screening in the browser) and `screen/<VENUE>.csv` (the same for a
+spreadsheet). `tools/pull-fundamentals.mjs` is the command line over it,
+with the token from `EODHD_TOKEN`; `tools/pull-app.mjs` is a local page on
+127.0.0.1 over it (`npm run pull-app`): market and sample-watchlist
+dropdowns, Start and Stop, progress, the calls spent and EODHD's own count,
+the token kept in memory or in `data/eodhd-token.txt` when "remember" is
+ticked. Neither puts the token in the repository or the site. A pull stops
+on EODHD's 402 and resumes next run. The engine's company shape, next-report
+rule and ratio formulas mirror `extractCompany`, `nextReport` and
+`NUMBER_ROWS` in `index.html`: change them together. Nothing on the site reads
 the pull yet; the plan is an R2 bucket the Worker serves from, gated with
 Cloudflare Access because EODHD's personal plans forbid redistribution, then
 the Numbers page reading it and a screen view.
@@ -221,3 +232,4 @@ design are their own release, requested deliberately.
 | v1.11 | Whole exchanges pulled from EODHD, off the site | A new tool pulls every company's fundamentals for the United States, London, Shanghai and Shenzhen from EODHD on your own machine, apart from the site, keeping each reply, each company in the shape the Numbers page uses, and a row of the book's ratios per company for screening. It stops when the day's calls run out and carries on next time. The site itself is unchanged; the parts that will read the pull come next. |
 | v1.12 | Korea and Germany join the exchanges pulled | The puller now takes the Korea Stock Exchange, KOSDAQ and Germany's Xetra alongside the United States, London, Shanghai and Shenzhen, around seventeen thousand companies in all, still within two days of the daily allowance. |
 | v1.13 | The next report date, and a graph for every line | A company's page now says when its next report is due, before or after the market and with the analysts' estimate, right under its name. Every line of the Numbers table has a small graph button that opens a popup chart of that line, as a line or bars, by year or by quarter, over any range or the last 5 or 10 years, with an optional trend line or mean band and the figures beneath it: mean, median, standard deviation, variance, how steady the trend is, growth, and how often and how far the line fell. |
+| v1.14 | A page on your own machine to pull markets and watchlists | A local page now does the pulling: choose a market from a dropdown, or one of the sample watchlists from another, paste your EODHD token once, press Start, and watch the companies come in with the calls spent this run and EODHD's own count of calls used today. Stop ends a run cleanly and the next Start carries on. Everything lands in the data folder as before, with a spreadsheet file for each market alongside the site's own. |

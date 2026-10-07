@@ -1,0 +1,5 @@
+ok, make me a code to run locally that'll use the api to get the information and save as an appropriate file type
+
+make it let me choose the market by dropdown menu and show me the tokens spent
+
+also, make one dropdown for the sample watchlists i gave you
