@@ -2,7 +2,7 @@
 
 A Cloudflare Workers site: a reading companion for *Warren Buffett and the
 Interpretation of Financial Statements* by Mary Buffett and David Clark,
-styled like a financial newspaper. Two views sit under the masthead.
+styled like a financial newspaper. Three views sit under the masthead.
 
 **Chapters.** A section dropdown narrows the book to one part, a row of
 numbered tabs picks the chapter, and the contents page lists every chapter in
@@ -18,6 +18,11 @@ book's ratios with its rule of thumb under each. Fetched companies are kept
 on the device, the table downloads as CSV, and an expandable section lists
 every field EODHD reported.
 
+**Watchlists.** Named lists of companies, each company with its EODHD ticker:
+a generic list and a set of custom lists come filled in, and lists can be
+made, renamed, added to, trimmed and deleted. A company's name opens its
+numbers, and a fetched company can be added to a list from the Numbers page.
+
 There is no build step. The files in `public/` are the site, and the page is a
 single self-contained HTML file with its styles and script inline. The only
 other files it loads are its own fonts. A tiny Worker, `src/worker.js`, relays
@@ -28,7 +33,7 @@ static asset by that Worker's assets binding.
 
 ```
 public/
-  index.html       both views: contents, dropdown, chapter tabs, chapter pages, numbers (one file, hash routes)
+  index.html       all three views: contents, dropdown, chapter tabs, chapter pages, numbers, watchlists (one file, hash routes)
   404.html         not-found page in the same style, links back home
   favicon.svg
   robots.txt
@@ -48,6 +53,10 @@ CLAUDE.md          standing policy for working in this repo
   dropdown remembers the last chapter visited in each section.
 - `#numbers` shows the Numbers view, `#numbers/KO.US` a kept company (or the
   form filled in, if that company has not been fetched yet).
+- `#watchlists` shows the list opened most recently, `#watchlists/chips` a
+  list by its id. Lists are kept under `wwws.watchlists.v1`; until that key
+  exists the page shows the starting lists built into it, and "Restore the
+  starting lists" brings a deleted one back.
 - Each chapter page starts with a chapter type, one of three: Overview for a
   chapter that introduces a run of chapters, Metric for one with direct
   information on a single metric, or Background for information only, such as
@@ -59,7 +68,10 @@ CLAUDE.md          standing policy for working in this repo
 - Export downloads `what-would-warren-say-YYYY-MM-DD.json`. Import reads such
   a file and merges it in: a chapter from the file replaces the one here unless
   the one here was written more recently, and chapters absent from the file are
-  left alone. The export holds notes only: no company numbers, no API token.
+  left alone. Watchlists travel in the same file and merge the same way: a
+  list from the file replaces the one here unless the one here was changed
+  more recently. The export holds notes and watchlists only: no company
+  numbers, no API token.
 
 ## The Numbers view and EODHD
 

@@ -12,7 +12,7 @@ Builds, so **every push to `main` deploys to production**.
 
 ```
 public/            everything served as assets
-  index.html       both views (contents, dropdown, chapter tabs, chapter pages, numbers): one file
+  index.html       all three views (contents, dropdown, chapter tabs, chapter pages, numbers, watchlists): one file
   404.html         same masthead and palette as index.html
   favicon.svg
   _headers         security + caching headers
@@ -60,6 +60,22 @@ chapter and the book's rule of thumb; "Every field EODHD reports" shows the
 raw statements. The relay forwards only `fundamentals/<symbol>` on GET, holds
 no secret, caches nothing, and passes EODHD's status and body straight back.
 
+The Watchlists view (`#watchlists`, `#watchlists/<list id>`) holds named lists
+of companies, each company a name and an EODHD symbol. The lists are kept under
+`wwws.watchlists.v1` as `{ version, last, lists: [ { id, name, items: [ { name,
+symbol } ], updated } ] }`; `last` is the list open most recently. Until that
+key exists on a device the page shows `STARTING_LISTS` from `index.html` (the
+generic "My watchlist" and the custom lists from the owner's sample
+screenshots), and the first change or opening writes them; from then on the
+key holds whatever the reader keeps, and "Restore the starting lists" puts a
+deleted starting list back in its place. The list tabs reuse the chapter tab
+row. A company's name links to `#numbers/<SYMBOL>`, the Numbers page can add a
+fetched company to a list, and a company whose numbers are kept carries a
+"numbers kept" mark. The export file carries `watchlists` (the array above,
+never numbers or the token); on import a list from the file replaces the one
+here by `id` unless the one here was changed more recently, an identical list
+is left alone, and lists absent from the file are left alone.
+
 The look is a financial newspaper: paper `#FFF1E5`, ink `#33302E`, claret
 `#990F3D` for accents, teal `#0D7680` for links, Playfair Display for the
 masthead and headlines, Newsreader for text, the system sans for controls. The
@@ -70,8 +86,8 @@ what the immutable cache on `/assets/*` is for. Anything else moved under
 Two rules keep the page still when switching views: `scrollbar-gutter: stable`
 on `html`, so the centred column neither moves nor narrows when a scrollbar
 appears, and at desktop widths the section dropdown's slot stays in the
-controls row on Numbers (`visibility: hidden`, not `display: none`) so the row
-has one height in both views. Do not remove either.
+controls row on Numbers and Watchlists (`visibility: hidden`, not `display:
+none`) so the row has one height in every view. Do not remove either.
 
 ## Local development
 
@@ -158,3 +174,4 @@ design are their own release, requested deliberately.
 | v1.5 | The page holds still between views | Switching between Chapters and Numbers no longer nudges the page: the column keeps its width and position whether or not a scrollbar is showing, and the row of controls keeps one height in both views, so the masthead, the buttons and the text below stay exactly where they were. |
 | v1.6 | The book's rules of thumb now read in claret | Under each ratio in the Numbers table, the book's rule of thumb now sits in the same claret as the negative figures, so the book's voice stands apart from the data at a glance. |
 | v1.7 | Pinned headings, open quarters, latest year first | The Numbers table now runs newest first, the latest year at the left, and sits in its own frame: the year headings stay pinned as you scroll down, the line names as you scroll across, and the scrollbars are always drawn. Click any year heading and its quarters unfold beside it, newest first, with the ratios that need a full year's earnings built on the trailing four quarters, and a "to date" column carries the quarters reported since the last year end. |
+| v1.8 | Watchlists, with the sample lists already filled in | A Watchlists tab now sits beside Chapters and Numbers, holding named lists of companies: one generic list and the thirteen custom lists from the screenshots, Chips and RAM through to Quantum and Lithography, each company under its EODHD ticker. A company's name opens its numbers, a fetched company can be added to a list from the Numbers page, and lists can be made, renamed, added to, trimmed and deleted, with the starting lists one click from being restored. Lists stay on the device and travel in the export file. |

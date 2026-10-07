@@ -56,7 +56,7 @@
     #import-file { display: none; }
     .status { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); }
 
-    /* view nav: Chapters | Numbers */
+    /* view nav: Chapters | Numbers | Watchlists */
     .views { display: flex; gap: .15rem; }
     .view { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .7rem; border-bottom: 3px solid transparent; }
     .view:hover { color: var(--ink); }
@@ -69,10 +69,10 @@
     /* numbers */
     .numbers { padding: 1.4rem 1rem 2rem; }
     .fetch-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .7rem 1rem; align-items: end; margin-bottom: .6rem; }
-    .fetch-form .f { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
-    .fetch-form .f > label { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
-    .fetch-form input[type="text"], .fetch-form input[type="password"] { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); width: 100%; box-sizing: border-box; }
-    .fetch-form input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .fetch-form .f, .add-form .f { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+    .fetch-form .f > label, .add-form .f > label { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    .fetch-form input[type="text"], .fetch-form input[type="password"], .add-form input[type="text"] { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); width: 100%; box-sizing: border-box; }
+    .fetch-form input:focus, .add-form input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
     .remember { display: flex; align-items: center; gap: .45rem; font-family: var(--sans); font-size: .82rem; color: var(--ink-70); padding-bottom: .55rem; }
     .remember input { margin: 0; accent-color: var(--claret); }
     .hint { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); margin: .25rem 0 1rem; }
@@ -111,6 +111,22 @@
     details.raw summary { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-70); cursor: pointer; padding: .5rem 0; }
     details.raw h4 { font-family: var(--sans); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); margin: 1.2rem 0 .4rem; }
     @media (max-width: 40rem) { .fetch-form { grid-template-columns: 1fr; } }
+    .addto { display: inline-flex; align-items: center; gap: .4rem; }
+    .addto select { font-size: .82rem; padding: .25rem 1.8rem .25rem .5rem; }
+
+    /* watchlists */
+    .watchlist { padding: 1.6rem 1rem 2rem; }
+    .wlist { margin: 0 0 1.5rem; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+    .wlist li { display: flex; align-items: baseline; gap: .6rem; padding: .4rem 0; border-bottom: 1px dotted var(--rule-light); font-size: 1.05rem; line-height: 1.35; }
+    .wlist .who { flex: 1 1 auto; min-width: 0; }
+    .wlist .who a { color: var(--ink); text-decoration: none; }
+    .wlist .who a:hover { color: var(--claret); text-decoration: underline; }
+    .wlist .sym { margin-left: .5rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .08em; color: var(--ink-60); white-space: nowrap; }
+    .wlist .remove { flex: 0 0 auto; }
+    .add-form { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) auto; gap: .7rem 1rem; align-items: end; margin: 0 0 .6rem; }
+    .add-form.one { grid-template-columns: minmax(0, 1fr) auto auto; margin: 0 0 1.2rem; }
+    .add-form .ask { font-family: var(--sans); font-size: .95rem; color: var(--ink); align-self: center; }
+    @media (max-width: 40rem) { .add-form, .add-form.one { grid-template-columns: 1fr; } }
 
     /* chapter tabs */
     .tabs-wrap { padding: .6rem 1rem; border-bottom: 1px solid var(--rule); }
@@ -176,6 +192,7 @@
     <nav class="views" aria-label="Views">
       <a class="view" id="view-chapters" href="#">Chapters</a>
       <a class="view" id="view-numbers" href="#numbers">Numbers</a>
+      <a class="view" id="view-watchlists" href="#watchlists">Watchlists</a>
     </nav>
     <div class="section-pick" id="section-pick">
       <label for="section">Section</label>
@@ -393,6 +410,7 @@
     });
 
     function renderTabs(part, currentId) {
+      tabsWrap.setAttribute('aria-label', 'Chapters in this section');
       tabsEl.innerHTML = partChapters[part].map(function (ch) {
         var selected = ch.id === currentId;
         return '<a class="tab' + (hasText(entries[ch.id]) ? ' written' : '') + '" role="tab" href="#' + ch.id + '"' +
@@ -1079,7 +1097,7 @@
         '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>' +
         '<button type="button" class="linkbtn" id="refresh">Fetch again</button>' +
         '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
-        '<button type="button" class="linkbtn" id="forget">Forget this company</button></p>' +
+        '<button type="button" class="linkbtn" id="forget">Forget this company</button>' + addToHtml(c) + '</p>' +
         keptHtml(c.symbol) +
         (dates.length ? unitsHtml(c) + tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
         (dates.length ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
@@ -1144,7 +1162,322 @@
           pendingNumbersStatus = 'Forgot ' + company.symbol + '.';
           if (window.location.hash === '#numbers') route(); else window.location.hash = 'numbers';
         });
+        var addTo = document.getElementById('addto');
+        if (addTo) addTo.addEventListener('change', function () {
+          var list = listById(addTo.value);
+          if (!list) return;
+          var r = addToList(list, company.meta.name, company.symbol);
+          var opt = addTo.options[addTo.selectedIndex];
+          opt.disabled = true;
+          opt.textContent = list.name + ' (in it already)';
+          addTo.value = '';
+          say(r === 'there' ? company.meta.name + ' is already in ' + list.name + '.' : 'Added ' + company.meta.name + ' to ' + list.name + '.');
+        });
       }
+    }
+
+    // ---- watchlists: named lists of companies -----------------------------
+    // Kept under wwws.watchlists.v1: { version, last, lists: [ { id, name, items: [ { name,
+    // symbol } ], updated } ] }. The starting lists below stand in until the key exists on
+    // a device; from then on it holds whatever the reader keeps. Lists travel in exports.
+    var WATCHLISTS_KEY = 'wwws.watchlists.v1';
+    var STARTING_LISTS = [
+      ['My watchlist', [
+        ['AST SpaceMobile', 'ASTS.US'], ['Applied Materials', 'AMAT.US'], ['Canon', 'CAJPY.US'], ['IREN', 'IREN.US'],
+        ['Hut 8', 'HUT.US'], ['Astera Labs', 'ALAB.US'], ['Seagate Technology', 'STX.US'], ['Axe Compute', 'AGPU.US'],
+        ['GRAIL', 'GRAL.US'], ['Richtech Robotics', 'RR.US'], ['SMX (Security Matters)', 'SMX.US'], ['Cloudflare', 'NET.US'],
+        ['Amazon', 'AMZN.US'], ['Burberry', 'BRBY.LSE'], ['Next Technology Holding', 'NXTT.US'], ['DeFi Development', 'DFDV.US'],
+        ['Bitcoin', 'BTC-USD.CC'], ['Meta Platforms', 'META.US'], ['Strategy', 'MSTR.US'], ['Estée Lauder', 'EL.US'],
+        ['L’Oréal', 'OR.PA'], ['HCA Healthcare', 'HCA.US'], ['Nano-X Imaging', 'NNOX.US'], ['Recursion Pharmaceuticals', 'RXRX.US']
+      ]],
+      ['Chips', [
+        ['Cerebras Systems', 'CBRS.US'], ['Arm', 'ARM.US'], ['Micron Technology', 'MU.US'], ['Nvidia', 'NVDA.US'],
+        ['Advanced Micro Devices', 'AMD.US'], ['Intel', 'INTC.US'], ['Qualcomm', 'QCOM.US'], ['Broadcom', 'AVGO.US'],
+        ['Taiwan Semiconductor', 'TSM.US'], ['Samsung Electronics', 'SMSN.LSE']
+      ]],
+      ['RAM', [['Micron Technology', 'MU.US'], ['Samsung Electronics', 'SMSN.LSE'], ['SK hynix', 'HY9H.XETRA']]],
+      ['RAM II', [['Western Digital', 'WDC.US'], ['Sandisk', 'SNDK.US'], ['Rambus', 'RMBS.US']]],
+      ['Optical', [['Corning', 'GLW.US'], ['Lumentum', 'LITE.US'], ['Coherent', 'COHR.US']]],
+      ['Network Infrastructure', [['BlackBerry', 'BB.US'], ['Marvell Technology', 'MRVL.US'], ['Credo Technology', 'CRDO.US'], ['Nokia', 'NOK.US']]],
+      ['Cybersecurity', [['Zscaler', 'ZS.US']]],
+      ['Energy', [
+        ['Siemens Energy', 'ENR.XETRA'], ['Mitsubishi Electric', 'MIELY.US'], ['BWX Technologies', 'BWXT.US'],
+        ['Rolls-Royce', 'RR.LSE'], ['NANO Nuclear Energy', 'NNE.US'], ['Constellation Energy', 'CEG.US']
+      ]],
+      ['Transport', [
+        ['Rivian Automotive', 'RIVN.US'], ['Safran', 'SAF.PA'], ['Uber Technologies', 'UBER.US'], ['Ferrari', 'RACE.US'],
+        ['BYD', 'BYDDY.US'], ['Toyota Motor', 'TM.US'], ['Tesla', 'TSLA.US'], ['Lucid', 'LCID.US'], ['XPeng', 'XPEV.US']
+      ]],
+      ['Software', [
+        ['SoundHound AI', 'SOUN.US'], ['Take-Two Interactive', 'TTWO.US'], ['CoreWeave', 'CRWV.US'], ['CrowdStrike', 'CRWD.US'],
+        ['Adobe', 'ADBE.US'], ['Strategy', 'MSTR.US'], ['Oracle', 'ORCL.US'], ['Dassault Systèmes', 'DSY.PA'],
+        ['Autodesk', 'ADSK.US'], ['Unity Software', 'U.US']
+      ]],
+      ['Tech Hardware', [
+        ['IREN', 'IREN.US'], ['STMicroelectronics', 'STM.US'], ['Analog Devices', 'ADI.US'], ['Chipotle Mexican Grill', 'CMG.US'],
+        ['Super Micro Computer', 'SMCI.US'], ['Lumen Technologies', 'LUMN.US'], ['Dell Technologies', 'DELL.US'], ['Raspberry Pi', 'RPI.LSE']
+      ]],
+      ['Technology', [
+        ['BYD', 'BYDDY.US'], ['Uber Technologies', 'UBER.US'], ['Alphabet (Class A)', 'GOOGL.US'], ['Tesla', 'TSLA.US'],
+        ['Nvidia', 'NVDA.US'], ['Apple', 'AAPL.US'], ['Amazon', 'AMZN.US'], ['Meta Platforms', 'META.US'],
+        ['Samsung Electronics', 'SMSN.LSE'], ['IBM', 'IBM.US'], ['Microsoft', 'MSFT.US']
+      ]],
+      ['Quantum', [['Quantum Computing', 'QUBT.US']]],
+      ['Lithography', [['Canon', 'CAJPY.US']]]
+    ];
+
+    function slugOf(name) {
+      return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    function cleanItems(arr) {
+      var out = [], seen = {};
+      if (!Array.isArray(arr)) return out;
+      arr.forEach(function (it) {
+        if (!it || typeof it !== 'object') return;
+        var symbol = normaliseSymbol(it.symbol);
+        if (!symbol || seen[symbol]) return;
+        seen[symbol] = true;
+        var name = typeof it.name === 'string' ? it.name.trim() : '';
+        out.push({ name: name || symbol, symbol: symbol });
+      });
+      return out;
+    }
+
+    function cleanLists(arr) {
+      var out = [], seen = {};
+      if (!Array.isArray(arr)) return out;
+      arr.forEach(function (l) {
+        if (!l || typeof l !== 'object') return;
+        var name = typeof l.name === 'string' ? l.name.trim() : '';
+        var id = typeof l.id === 'string' && /^[a-z0-9-]+$/.test(l.id) ? l.id : slugOf(name);
+        if (!name || !id || seen[id]) return;
+        seen[id] = true;
+        out.push({ id: id, name: name, items: cleanItems(l.items), updated: typeof l.updated === 'string' ? l.updated : '' });
+      });
+      return out;
+    }
+
+    function startingLists() {
+      return cleanLists(STARTING_LISTS.map(function (l) {
+        return { id: slugOf(l[0]), name: l[0], items: l[1].map(function (it) { return { name: it[0], symbol: it[1] }; }), updated: '' };
+      }));
+    }
+
+    function loadWatchlists() {
+      try {
+        var raw = window.localStorage.getItem(WATCHLISTS_KEY);
+        var d = raw ? JSON.parse(raw) : null;
+        if (d && typeof d === 'object' && Array.isArray(d.lists)) {
+          return { last: typeof d.last === 'string' ? d.last : '', lists: cleanLists(d.lists) };
+        }
+      } catch (e) {}
+      return { last: '', lists: startingLists() };
+    }
+
+    var watchlists = loadWatchlists();
+    var pendingListStatus = '';
+    var renderedList = null;
+
+    function saveWatchlists() {
+      try {
+        window.localStorage.setItem(WATCHLISTS_KEY, JSON.stringify({ version: 1, last: watchlists.last, lists: watchlists.lists }));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function listById(id) {
+      for (var i = 0; i < watchlists.lists.length; i++) if (watchlists.lists[i].id === id) return watchlists.lists[i];
+      return null;
+    }
+
+    function uniqueListId(name) {
+      var base = slugOf(name) || 'list', id = base, n = 2;
+      while (listById(id)) id = base + '-' + (n++);
+      return id;
+    }
+
+    function touchList(list) {
+      list.updated = new Date().toISOString();
+    }
+
+    // puts a company in a list: 'added', or 'there' when it is in it already
+    function addToList(list, name, symbol) {
+      symbol = normaliseSymbol(symbol);
+      for (var i = 0; i < list.items.length; i++) if (list.items[i].symbol === symbol) return 'there';
+      list.items.push({ name: String(name || '').trim() || symbol, symbol: symbol });
+      touchList(list);
+      saveWatchlists();
+      return 'added';
+    }
+
+    function missingStartingLists() {
+      return startingLists().filter(function (l) { return !listById(l.id); });
+    }
+
+    // puts each missing starting list back where it stood among the others
+    function restoreStartingLists() {
+      var back = missingStartingLists(), order = startingLists().map(function (l) { return l.id; });
+      back.forEach(function (l) {
+        var at = watchlists.lists.length;
+        for (var i = order.indexOf(l.id) + 1; i < order.length && at === watchlists.lists.length; i++) {
+          for (var j = 0; j < watchlists.lists.length; j++) if (watchlists.lists[j].id === order[i]) { at = j; break; }
+        }
+        watchlists.lists.splice(at, 0, l);
+      });
+      return back;
+    }
+
+    function countText(n) {
+      return n + (n === 1 ? ' company' : ' companies');
+    }
+
+    function addToHtml(c) {
+      if (!watchlists.lists.length) return '';
+      return '<label class="addto">Add to <select id="addto" aria-label="Add this company to a watchlist"><option value="">a watchlist…</option>' +
+        watchlists.lists.map(function (l) {
+          var there = l.items.some(function (it) { return it.symbol === c.symbol; });
+          return '<option value="' + esc(l.id) + '"' + (there ? ' disabled' : '') + '>' + esc(l.name) + (there ? ' (in it already)' : '') + '</option>';
+        }).join('') + '</select></label>';
+    }
+
+    function renderListTabs(currentId) {
+      tabsWrap.setAttribute('aria-label', 'Watchlists');
+      tabsEl.innerHTML = watchlists.lists.map(function (l) {
+        return '<a class="tab" role="tab" href="#watchlists/' + esc(l.id) + '" aria-selected="' + (l.id === currentId ? 'true' : 'false') + '"' +
+          ' title="' + esc(l.name) + ': ' + countText(l.items.length) + '">' + esc(l.name) + '</a>';
+      }).join('');
+      tabsWrap.hidden = !watchlists.lists.length;
+    }
+
+    function nameFormHtml(kind, list) {
+      if (kind === 'delete') {
+        return '<form class="add-form one" id="name-form"><span class="ask">Delete “' + esc(list.name) + '” and the ' + countText(list.items.length) + ' in it?</span>' +
+          '<button type="submit" id="name-go">Delete</button><button type="button" class="secondary" id="name-cancel">Cancel</button></form>';
+      }
+      var rename = kind === 'rename';
+      return '<form class="add-form one" id="name-form" autocomplete="off">' +
+        '<div class="f"><label for="list-name">' + (rename ? 'New name for this list' : 'Name of the new list') + '</label>' +
+        '<input type="text" id="list-name" value="' + (rename ? esc(list.name) : '') + '" placeholder="Banks"></div>' +
+        '<button type="submit" id="name-go">' + (rename ? 'Save' : 'Create') + '</button><button type="button" class="secondary" id="name-cancel">Cancel</button></form>';
+    }
+
+    function listActionsHtml(list) {
+      return (list ? '<button type="button" class="linkbtn" id="list-rename">Rename</button>' : '') +
+        '<button type="button" class="linkbtn" id="list-new">New list</button>' +
+        (list ? '<button type="button" class="linkbtn" id="list-delete">Delete this list</button>' : '') +
+        (missingStartingLists().length ? '<button type="button" class="linkbtn" id="list-restore">Restore the starting lists</button>' : '');
+    }
+
+    function listHtml(list) {
+      var kept = 0;
+      var rows = list.items.map(function (it, i) {
+        var has = !!numbers.companies[it.symbol];
+        if (has) kept++;
+        return '<li><span class="num">' + (i + 1) + '</span><span class="who"><a href="#numbers/' + esc(it.symbol) + '" title="Open the numbers for ' + esc(it.name) + '">' + esc(it.name) + '</a>' +
+          '<span class="sym">' + esc(it.symbol) + '</span>' + (has ? ' <span class="mark">numbers kept</span>' : '') + '</span>' +
+          '<button type="button" class="linkbtn remove" data-symbol="' + esc(it.symbol) + '" aria-label="Remove ' + esc(it.name) + ' from this list">Remove</button></li>';
+      }).join('');
+      return '<p class="kicker">Watchlist</p>' +
+        '<h2 class="headline">' + esc(list.name) + '</h2>' +
+        '<p class="company-meta"><span>' + countText(list.items.length) + (kept ? ', ' + kept + ' with numbers kept on this device' : '') + '</span>' + listActionsHtml(list) + '</p>' +
+        '<div id="name-slot"></div>' +
+        (rows ? '<ol class="wlist">' + rows + '</ol>' : '<p class="hint">Nothing in this list yet. Add a company below.</p>') +
+        '<form class="add-form" id="add-form" autocomplete="off">' +
+        '<div class="f"><label for="add-name">Company</label><input type="text" id="add-name" placeholder="The Coca-Cola Company"></div>' +
+        '<div class="f"><label for="add-symbol">Ticker</label><input type="text" id="add-symbol" placeholder="KO.US" spellcheck="false"></div>' +
+        '<button type="submit" id="add">Add</button></form>';
+    }
+
+    function noListHtml() {
+      return '<p class="kicker">Watchlists</p>' +
+        (watchlists.lists.length
+          ? '<h2 class="headline">No list at this address</h2><p class="hint">Pick a watchlist above, or make a new one.</p>'
+          : '<h2 class="headline">No watchlists yet</h2><p class="hint">Make a new list, or bring the starting lists back.</p>') +
+        '<p class="company-meta">' + listActionsHtml(null) + '</p><div id="name-slot"></div>';
+    }
+
+    function renderWatchlists(fromHash) {
+      showView('watchlists');
+      var list = fromHash ? listById(fromHash) : (listById(watchlists.last) || watchlists.lists[0] || null);
+      renderListTabs(list ? list.id : '');
+      if (list && watchlists.last !== list.id) { watchlists.last = list.id; saveWatchlists(); }
+      app.innerHTML = '<section class="watchlist">' + (list ? listHtml(list) : noListHtml()) +
+        '<p class="status" id="list-status" role="status" aria-live="polite"></p>' +
+        '<p class="hint">Tickers take EODHD’s form, code dot exchange: KO.US, VOD.LSE, BMW.XETRA; a bare US ticker gets .US added. ' +
+        'Click a company to open its numbers. Lists are kept on this device and travel in exports.</p></section>';
+
+      var statusLine = document.getElementById('list-status');
+      var slot = document.getElementById('name-slot');
+      renderedList = list;
+      function say(msg) { statusLine.textContent = msg; }
+      if (pendingListStatus) { say(pendingListStatus); pendingListStatus = ''; }
+      function keptNote(ok) { return ok ? '' : ' It could not be kept: this browser is blocking storage.'; }
+      function goTo(id, msg) {
+        pendingListStatus = msg;
+        var h = 'watchlists' + (id ? '/' + id : '');
+        if (window.location.hash === '#' + h) route(); else window.location.hash = h;
+      }
+      function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
+
+      function openForm(kind) {
+        slot.innerHTML = nameFormHtml(kind, list);
+        var form = document.getElementById('name-form');
+        var input = document.getElementById('list-name');
+        document.getElementById('name-cancel').addEventListener('click', function () { slot.innerHTML = ''; });
+        form.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          if (kind === 'delete') {
+            watchlists.lists = watchlists.lists.filter(function (l) { return l !== list; });
+            if (watchlists.last === list.id) watchlists.last = '';
+            goTo('', 'Deleted ' + list.name + '.' + keptNote(saveWatchlists()));
+            return;
+          }
+          var name = input.value.trim();
+          if (!name) { input.focus(); return; }
+          if (kind === 'rename') {
+            list.name = name;
+            touchList(list);
+            goTo(list.id, 'Renamed the list to ' + name + '.' + keptNote(saveWatchlists()));
+            return;
+          }
+          var fresh = { id: uniqueListId(name), name: name, items: [], updated: new Date().toISOString() };
+          watchlists.lists.push(fresh);
+          goTo(fresh.id, 'Made the list ' + name + '. Add companies below.' + keptNote(saveWatchlists()));
+        });
+        if (input) { input.focus(); input.select(); }
+      }
+
+      on('list-rename', function () { openForm('rename'); });
+      on('list-new', function () { openForm('new'); });
+      on('list-delete', function () { openForm('delete'); });
+      on('list-restore', function () {
+        var back = restoreStartingLists();
+        goTo(list ? list.id : back[0].id, 'Brought back ' + back.length + (back.length === 1 ? ' starting list.' : ' starting lists.') + keptNote(saveWatchlists()));
+      });
+
+      var addForm = document.getElementById('add-form');
+      if (addForm) addForm.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var nameInput = document.getElementById('add-name'), symInput = document.getElementById('add-symbol');
+        var symbol = normaliseSymbol(symInput.value);
+        if (!symbol) { say('Type a ticker, such as KO.US.'); symInput.focus(); return; }
+        var name = nameInput.value.trim() || symbol;
+        var r = addToList(list, name, symbol);
+        goTo(list.id, r === 'there' ? symbol + ' is already in ' + list.name + '.' : 'Added ' + name + ' to ' + list.name + '.');
+      });
+
+      Array.prototype.forEach.call(app.querySelectorAll('button.remove'), function (btn) {
+        btn.addEventListener('click', function () {
+          var symbol = btn.getAttribute('data-symbol'), gone = null;
+          list.items = list.items.filter(function (it) { if (it.symbol === symbol) { gone = it; return false; } return true; });
+          if (!gone) return;
+          touchList(list);
+          goTo(list.id, 'Removed ' + gone.name + ' from ' + list.name + '.' + keptNote(saveWatchlists()));
+        });
+      });
     }
 
     var currentCompany = null;
@@ -1154,14 +1487,16 @@
     });
     var viewChapters = document.getElementById('view-chapters');
     var viewNumbers = document.getElementById('view-numbers');
+    var viewWatchlists = document.getElementById('view-watchlists');
     var sectionPick = document.getElementById('section-pick');
 
     function showView(name) {
-      var onNumbers = name === 'numbers';
-      viewChapters.classList.toggle('active', !onNumbers);
-      viewNumbers.classList.toggle('active', onNumbers);
-      sectionPick.hidden = onNumbers;
-      if (onNumbers) hideTabs();
+      var onChapters = name === 'chapters';
+      viewChapters.classList.toggle('active', onChapters);
+      viewNumbers.classList.toggle('active', name === 'numbers');
+      viewWatchlists.classList.toggle('active', name === 'watchlists');
+      sectionPick.hidden = !onChapters;
+      if (name === 'numbers') hideTabs();
     }
 
     function route() {
@@ -1172,6 +1507,13 @@
         renderNumbers(numbersMatch[1] || '');
         var co = numbers.last && numbers.companies[numbers.last];
         document.title = (co && numbersMatch[1] ? co.meta.name + ' - ' : '') + 'Numbers - What Would Warren Say';
+        window.scrollTo(0, 0);
+        return;
+      }
+      var listMatch = /^watchlists(?:\/(.*))?$/i.exec(id);
+      if (listMatch) {
+        renderWatchlists(listMatch[1] || '');
+        document.title = (renderedList ? renderedList.name + ' - ' : '') + 'Watchlists - What Would Warren Say';
         window.scrollTo(0, 0);
         return;
       }
@@ -1200,7 +1542,8 @@
         version: 1,
         exportedAt: new Date().toISOString(),
         book: 'Warren Buffett and the Interpretation of Financial Statements',
-        entries: entries
+        entries: entries,
+        watchlists: watchlists.lists
       };
       var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       var url = URL.createObjectURL(blob);
@@ -1211,8 +1554,8 @@
       a.click();
       a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-      var n = Object.keys(entries).length;
-      setStatus('Exported ' + n + ' page' + (n === 1 ? '' : 's') + ' to ' + a.download);
+      var n = Object.keys(entries).length, w = watchlists.lists.length;
+      setStatus('Exported ' + n + ' page' + (n === 1 ? '' : 's') + (w ? ' and ' + w + ' watchlist' + (w === 1 ? '' : 's') : '') + ' to ' + a.download);
     }
 
     function importText(text) {
@@ -1224,9 +1567,10 @@
         return;
       }
       var incoming = cleanEntries(parsed && parsed.entries ? parsed.entries : parsed);
+      var lists = cleanLists(parsed && parsed.watchlists);
       var ids = Object.keys(incoming);
-      if (!ids.length) {
-        setStatus('Nothing to import: no chapter entries found in that file.');
+      if (!ids.length && !lists.length) {
+        setStatus('Nothing to import: no chapter entries or watchlists found in that file.');
         return;
       }
       var imported = 0, kept = 0;
@@ -1236,9 +1580,29 @@
         entries[id] = theirs;
         imported++;
       });
-      saveEntries();
-      setStatus('Imported ' + imported + ' page' + (imported === 1 ? '' : 's') +
-        (kept ? ', kept ' + kept + ' that ' + (kept === 1 ? 'was' : 'were') + ' newer here' : '') + '.');
+      if (ids.length) saveEntries();
+      // a list from the file replaces the one here unless the one here was changed more
+      // recently; a list that is already here, word for word, is left as it is
+      var listsIn = 0, listsKept = 0;
+      lists.forEach(function (theirs) {
+        var mine = listById(theirs.id);
+        if (mine && mine.updated && (!theirs.updated || mine.updated > theirs.updated)) { listsKept++; return; }
+        if (mine && mine.name === theirs.name && JSON.stringify(mine.items) === JSON.stringify(theirs.items)) return;
+        if (mine) { mine.name = theirs.name; mine.items = theirs.items; mine.updated = theirs.updated; }
+        else watchlists.lists.push(theirs);
+        listsIn++;
+      });
+      if (listsIn) saveWatchlists();
+      function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+      var got = [], held = [];
+      if (ids.length) { got.push(plural(imported, 'page')); if (kept) held.push(listsIn || listsKept ? plural(kept, 'page') : String(kept)); }
+      if (listsIn || listsKept) { got.push(plural(listsIn, 'watchlist')); if (listsKept) held.push(plural(listsKept, 'watchlist')); }
+      if (!got.length) {
+        setStatus('Nothing new to import: the watchlists in that file are already here.');
+        return;
+      }
+      setStatus('Imported ' + got.join(' and ') +
+        (held.length ? ', kept ' + held.join(' and ') + ' that ' + (kept + listsKept === 1 ? 'was' : 'were') + ' newer here' : '') + '.');
       route();
     }
 
