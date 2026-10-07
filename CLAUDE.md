@@ -133,9 +133,11 @@ generic "My watchlist" and the custom lists from the owner's sample
 screenshots), and the first change or opening writes them; from then on the
 key holds whatever the reader keeps, and "Restore the starting lists" puts a
 deleted starting list back in its place. The list tabs reuse the chapter tab
-row. A company's name links to `#numbers/<SYMBOL>`, the Numbers page can add a
-fetched company to a list, and a company whose numbers are kept carries a
-"numbers kept" mark. The export file carries `watchlists` (the array above,
+row. A company's name links to `#numbers/<SYMBOL>`, and a company whose
+numbers are kept carries a "numbers kept" mark. There is no way to add a
+company to a list for now: the Add-to dropdown on the company page and the
+add form under a list were removed at the owner's request, to come back
+later in another form; Rename, New list, Delete, Remove and Restore stay. The export file carries `watchlists` (the array above,
 never numbers or the token); on import a list from the file replaces the one
 here by `id` unless the one here was changed more recently, an identical list
 is left alone, and lists absent from the file are left alone.
@@ -275,3 +277,4 @@ design are their own release, requested deliberately.
 | v1.15 | Companies first, with eighty of them already on file | The site now opens on the company page, renamed Companies, with Chapters moved to its own tab. Eighty companies from the owner's own pull come with the site as sample data, from Apple to Zscaler and the London, Paris and Xetra names in the watchlists, so they open at once without spending a call, and a live copy is one click away. The company page lost its "also kept" line and the paragraph about units and quarters. |
 | v1.16 | The share price, and its chart, above the table | Each company's page now shows its current share price above the table, with the day's change and the time of the quote, once your EODHD token is in the box. A Graph link beside it draws the price the way a broker's app does, with a row of spans to pick from: the last day in five-minute steps, a week, a month, six months, a year, five years, ten years or all time, with the start, end, change, high and low for the span underneath. |
 | v1.17 | The numbers table readable on a phone | On a phone the names of the lines no longer take the whole width of the table: they sit in a narrow column, with two years of figures beside them and the rest a swipe away. The statement headings, Income statement, Balance sheet and Cash flow statement, now stay put as the table scrolls sideways, as the line names already did. |
+| v1.18 | Adding to a watchlist set aside for now | The two ways of putting a company into a watchlist, the dropdown on a company's page and the form under each list, are gone for now and will come back later in another form. The lists themselves stay as they were: open, rename, remove a company, make and delete a list, and bring the starting lists back. |

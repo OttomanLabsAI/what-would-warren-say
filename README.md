@@ -26,8 +26,8 @@ lists every field EODHD reported.
 
 **Watchlists.** Named lists of companies, each company with its EODHD ticker:
 a generic list and a set of custom lists come filled in, and lists can be
-made, renamed, added to, trimmed and deleted. A company's name opens its
-numbers, and a fetched company can be added to a list from the Numbers page.
+made, renamed, trimmed and deleted. A company's name opens its numbers.
+Adding a company to a list is set aside for now and will come later.
 
 There is no build step. The files in `public/` are the site, and the page is a
 single self-contained HTML file with its styles and script inline. The only

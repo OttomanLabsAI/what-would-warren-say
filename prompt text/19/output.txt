@@ -1,0 +1,5 @@
+Done and live. The two ways of putting a company into a watchlist are gone: the "Add to a watchlist" dropdown on a company's page, and the Company, Ticker and Add form under each list. The lists themselves are as they were: open one, rename it, remove a company, make or delete a list, and bring the starting lists back. The ticker hint under a list went with the form.
+
+**Verified.** Dry-run deploy clean. The watchlist suite now checks that neither control exists and that the rest still works, including a list marking a company whose numbers are kept; the company-page suites check the dropdown is gone; the earlier suites still pass on desktop and phone.
+
+The store and the Screen are re-stacked on top of this and wait on the bucket, as before.

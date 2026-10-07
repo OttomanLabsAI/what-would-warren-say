@@ -117,8 +117,6 @@
     details.raw summary { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-70); cursor: pointer; padding: .5rem 0; }
     details.raw h4 { font-family: var(--sans); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); margin: 1.2rem 0 .4rem; }
     @media (max-width: 40rem) { .fetch-form { grid-template-columns: 1fr; } }
-    .addto { display: inline-flex; align-items: center; gap: .4rem; }
-    .addto select { font-size: .82rem; padding: .25rem 1.8rem .25rem .5rem; }
     .next-report { margin: -.7rem 0 .6rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
     .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .8rem; margin: 0 0 1rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
     .price b { margin-right: .3rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
@@ -1244,7 +1242,7 @@
         (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
         '<button type="button" class="linkbtn" id="refresh">' + (c.sample ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
         '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
-        (c.sample ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + addToHtml(c) + '</p>' +
+        (c.sample ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + '</p>' +
         (dates.length ? tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
         (dates.length ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
           rawTableHtml('Income statement', c.income, newest, newestLabels) +
@@ -1366,17 +1364,6 @@
           saveNumbers();
           pendingNumbersStatus = 'Forgot ' + company.symbol + '.';
           if (window.location.hash === '#companies') route(); else window.location.hash = 'companies';
-        });
-        var addTo = document.getElementById('addto');
-        if (addTo) addTo.addEventListener('change', function () {
-          var list = listById(addTo.value);
-          if (!list) return;
-          var r = addToList(list, company.meta.name, company.symbol);
-          var opt = addTo.options[addTo.selectedIndex];
-          opt.disabled = true;
-          opt.textContent = list.name + ' (in it already)';
-          addTo.value = '';
-          say(r === 'there' ? company.meta.name + ' is already in ' + list.name + '.' : 'Added ' + company.meta.name + ' to ' + list.name + '.');
         });
       }
     }
@@ -1508,16 +1495,6 @@
       list.updated = new Date().toISOString();
     }
 
-    // puts a company in a list: 'added', or 'there' when it is in it already
-    function addToList(list, name, symbol) {
-      symbol = normaliseSymbol(symbol);
-      for (var i = 0; i < list.items.length; i++) if (list.items[i].symbol === symbol) return 'there';
-      list.items.push({ name: String(name || '').trim() || symbol, symbol: symbol });
-      touchList(list);
-      saveWatchlists();
-      return 'added';
-    }
-
     function missingStartingLists() {
       return startingLists().filter(function (l) { return !listById(l.id); });
     }
@@ -1537,15 +1514,6 @@
 
     function countText(n) {
       return n + (n === 1 ? ' company' : ' companies');
-    }
-
-    function addToHtml(c) {
-      if (!watchlists.lists.length) return '';
-      return '<label class="addto">Add to <select id="addto" aria-label="Add this company to a watchlist"><option value="">a watchlist…</option>' +
-        watchlists.lists.map(function (l) {
-          var there = l.items.some(function (it) { return it.symbol === c.symbol; });
-          return '<option value="' + esc(l.id) + '"' + (there ? ' disabled' : '') + '>' + esc(l.name) + (there ? ' (in it already)' : '') + '</option>';
-        }).join('') + '</select></label>';
     }
 
     function renderListTabs(currentId) {
@@ -1591,11 +1559,7 @@
         '<h2 class="headline">' + esc(list.name) + '</h2>' +
         '<p class="company-meta"><span>' + countText(list.items.length) + (kept ? ', ' + kept + ' with numbers kept on this device' : '') + (sampledCount ? ', ' + sampledCount + ' with sample data' : '') + '</span>' + listActionsHtml(list) + '</p>' +
         '<div id="name-slot"></div>' +
-        (rows ? '<ol class="wlist">' + rows + '</ol>' : '<p class="hint">Nothing in this list yet. Add a company below.</p>') +
-        '<form class="add-form" id="add-form" autocomplete="off">' +
-        '<div class="f"><label for="add-name">Company</label><input type="text" id="add-name" placeholder="The Coca-Cola Company"></div>' +
-        '<div class="f"><label for="add-symbol">Ticker</label><input type="text" id="add-symbol" placeholder="KO.US" spellcheck="false"></div>' +
-        '<button type="submit" id="add">Add</button></form>';
+        (rows ? '<ol class="wlist">' + rows + '</ol>' : '<p class="hint">Nothing in this list yet.</p>');
     }
 
     function noListHtml() {
@@ -1613,8 +1577,7 @@
       if (list && watchlists.last !== list.id) { watchlists.last = list.id; saveWatchlists(); }
       app.innerHTML = '<section class="watchlist">' + (list ? listHtml(list) : noListHtml()) +
         '<p class="status" id="list-status" role="status" aria-live="polite"></p>' +
-        '<p class="hint">Tickers take EODHD’s form, code dot exchange: KO.US, VOD.LSE, BMW.XETRA; a bare US ticker gets .US added. ' +
-        'Click a company to open its numbers. Lists are kept on this device and travel in exports.</p></section>';
+        '<p class="hint">Click a company to open its numbers. Lists are kept on this device and travel in exports.</p></section>';
 
       var statusLine = document.getElementById('list-status');
       var slot = document.getElementById('name-slot');
@@ -1652,7 +1615,7 @@
           }
           var fresh = { id: uniqueListId(name), name: name, items: [], updated: new Date().toISOString() };
           watchlists.lists.push(fresh);
-          goTo(fresh.id, 'Made the list ' + name + '. Add companies below.' + keptNote(saveWatchlists()));
+          goTo(fresh.id, 'Made the list ' + name + '.' + keptNote(saveWatchlists()));
         });
         if (input) { input.focus(); input.select(); }
       }
@@ -1663,17 +1626,6 @@
       on('list-restore', function () {
         var back = restoreStartingLists();
         goTo(list ? list.id : back[0].id, 'Brought back ' + back.length + (back.length === 1 ? ' starting list.' : ' starting lists.') + keptNote(saveWatchlists()));
-      });
-
-      var addForm = document.getElementById('add-form');
-      if (addForm) addForm.addEventListener('submit', function (ev) {
-        ev.preventDefault();
-        var nameInput = document.getElementById('add-name'), symInput = document.getElementById('add-symbol');
-        var symbol = normaliseSymbol(symInput.value);
-        if (!symbol) { say('Type a ticker, such as KO.US.'); symInput.focus(); return; }
-        var name = nameInput.value.trim() || symbol;
-        var r = addToList(list, name, symbol);
-        goTo(list.id, r === 'there' ? symbol + ' is already in ' + list.name + '.' : 'Added ' + name + ' to ' + list.name + '.');
       });
 
       Array.prototype.forEach.call(app.querySelectorAll('button.remove'), function (btn) {
