@@ -109,8 +109,9 @@
     .ntable td.neg { color: var(--claret); }
     .ntable td.none { color: var(--ink-40); }
     .ntable tr.group th { padding-top: 1rem; text-align: left; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); border-bottom: 2px solid var(--ink); }
+    .ntable tr.group td { padding-top: 1rem; border-bottom: 2px solid var(--ink); }
     .ntable tr.ratio th.item { font-weight: 400; font-style: italic; }
-    .ref { font-size: .68rem; font-weight: 700; color: var(--ink-40); margin-left: .35rem; letter-spacing: .06em; white-space: nowrap; }
+    .ref { font-size: .68rem; font-weight: 700; color: var(--ink-40); margin-left: .15rem; letter-spacing: .06em; white-space: nowrap; }
     .rule { display: block; font-family: var(--text); font-size: .78rem; font-style: italic; font-weight: 400; color: var(--claret); line-height: 1.3; }
     details.raw { margin-top: 1.6rem; }
     details.raw summary { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-70); cursor: pointer; padding: .5rem 0; }
@@ -243,6 +244,15 @@
     @media (min-width: 50rem) { .grid { columns: 2; column-gap: 2.5rem; } }
 
     footer { margin-top: 1rem; padding: 1rem 1rem 2rem; border-top: 3px double var(--ink); font-family: var(--sans); font-size: .74rem; letter-spacing: .04em; color: var(--ink-60); text-align: center; }
+    /* Phones: the sticky line-item column gives up most of its width so two years of figures fit beside it. Keep this block last. */
+    @media (max-width: 40rem) {
+      .ntable { font-size: .74rem; }
+      .ntable th, .ntable td { padding: .3rem .45rem; }
+      .ntable th.item, .ntable td.item { min-width: 8rem; width: 8rem; max-width: 8rem; }
+      .ntable thead th.todate, .ntable thead th.todate button.yr { white-space: normal; }
+      .ntable thead th.todate { max-width: 4.5rem; }
+      .rule { font-size: .7rem; }
+    }
   </style>
 </head>
 <body>
@@ -1080,19 +1090,19 @@
       var html = '<table class="ntable"><thead><tr><th class="item" scope="col">Line item</th>' +
         cols.map(function (col) {
           if (col.kind === 'quarter') return '<th class="q" scope="col" title="Quarter ending ' + esc(col.date) + '">' + esc(col.label) + '</th>';
-          if (!col.quarters.length) return '<th scope="col" title="' + esc(col.date) + '">' + esc(col.label) + '</th>';
+          if (!col.quarters.length) return '<th scope="col"' + (col.todate ? ' class="todate"' : '') + ' title="' + esc(col.date) + '">' + esc(col.label) + '</th>';
           var open = !!expanded[col.date];
-          return '<th scope="col"><button type="button" class="yr" data-date="' + esc(col.date) + '" aria-expanded="' + (open ? 'true' : 'false') +
+          return '<th scope="col"' + (col.todate ? ' class="todate"' : '') + '><button type="button" class="yr" data-date="' + esc(col.date) + '" aria-expanded="' + (open ? 'true' : 'false') +
             '" title="' + (open ? 'Hide' : 'Show') + ' the quarters of ' + esc(col.label) + '">' + esc(col.label) +
             '<span class="caret" aria-hidden="true">' + (open ? '\u25BE' : '\u25B8') + '</span></button></th>';
         }).join('') + '</tr></thead><tbody>';
       NUMBER_ROWS.forEach(function (r, index) {
         if (r.group) {
-          html += '<tr class="group"><th class="item" colspan="' + (cols.length + 1) + '">' + esc(r.group) + '</th></tr>';
+          html += '<tr class="group"><th class="item" scope="rowgroup">' + esc(r.group) + '</th><td colspan="' + cols.length + '"></td></tr>';
           return;
         }
         html += '<tr' + (r.ratio ? ' class="ratio"' : '') + '><th class="item" scope="row">' + esc(r.label) +
-          '<span class="ref">ch. ' + esc(r.ch) + '</span>' +
+          ' <span class="ref">ch. ' + esc(r.ch) + '</span>' +
           '<button type="button" class="graph" data-row="' + index + '" aria-label="Graph ' + esc(r.label) + '" title="Graph this line">' + GRAPH_ICON + '</button>' +
           (r.rule ? '<span class="rule">' + esc(r.rule) + '</span>' : '') + '</th>';
         cols.forEach(function (col) {

@@ -62,7 +62,13 @@ sizes the bar), the `.item` cells are sticky to the left, and the heading
 cells are shifted down with a transform as the page scrolls so they stay at
 the top of the window, which sticky positioning cannot do from inside a
 sideways scroller (`border-collapse: separate` so the sticky borders hold).
-Do not put the table back in a box that scrolls on its own. Columns run
+Do not put the table back in a box that scrolls on its own. A statement
+heading row is a sticky `th.item` plus one empty `td` spanning the value
+columns that carries the rule across, so the heading stays in view while the
+table scrolls sideways (a cell spanning the whole row cannot stick). Under
+40rem the `.item` column is fixed at 8rem and the "to date" heading wraps,
+so two years of figures sit beside the line names on a phone; that media
+block is the last thing in the stylesheet so nothing above it outranks it. Columns run
 newest first: the "to
 date" column, then each year with its quarters, newest first, to its right. A
 year heading with quarters is a `button.yr`; `columnsFor` builds the columns,
@@ -268,3 +274,4 @@ design are their own release, requested deliberately.
 | v1.14 | A page on your own machine to pull markets and watchlists | A local page now does the pulling: choose a market from a dropdown, or one of the sample watchlists from another, paste your EODHD token once, press Start, and watch the companies come in with the calls spent this run and EODHD's own count of calls used today. Stop ends a run cleanly and the next Start carries on. Everything lands in the data folder as before, with a spreadsheet file for each market alongside the site's own. |
 | v1.15 | Companies first, with eighty of them already on file | The site now opens on the company page, renamed Companies, with Chapters moved to its own tab. Eighty companies from the owner's own pull come with the site as sample data, from Apple to Zscaler and the London, Paris and Xetra names in the watchlists, so they open at once without spending a call, and a live copy is one click away. The company page lost its "also kept" line and the paragraph about units and quarters. |
 | v1.16 | The share price, and its chart, above the table | Each company's page now shows its current share price above the table, with the day's change and the time of the quote, once your EODHD token is in the box. A Graph link beside it draws the price the way a broker's app does, with a row of spans to pick from: the last day in five-minute steps, a week, a month, six months, a year, five years, ten years or all time, with the start, end, change, high and low for the span underneath. |
+| v1.17 | The numbers table readable on a phone | On a phone the names of the lines no longer take the whole width of the table: they sit in a narrow column, with two years of figures beside them and the rest a swipe away. The statement headings, Income statement, Balance sheet and Cash flow statement, now stay put as the table scrolls sideways, as the line names already did. |

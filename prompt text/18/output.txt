@@ -1,0 +1,7 @@
+Fixed and live. On a phone the line names now sit in a narrow column and two years of figures show beside them, with the rest a swipe away. The statement headings stay put as the table scrolls sideways, as the line names already did. Desktop is unchanged.
+
+**What was wrong.** The sticky column of line names kept its desktop minimum width on a phone, so it took nearly the whole screen and every figure sat off the right edge. The statement headings scrolled away with the figures because each spanned the whole row, which a sticky cell cannot do.
+
+**Verified.** Dry-run deploy clean. A new browser suite drives the table at two phone widths against a fixture: the column is narrow, two years and their headings are fully in view, the line names and the statement headings stay at the left edge while the table scrolls sideways, and the raw-field tables follow the same rule; the earlier suites still pass on desktop and phone.
+
+The store and the Screen are built and waiting on the bucket, as before. They now stack on top of this fix and will ship as the next version once `wwws-data` exists.
