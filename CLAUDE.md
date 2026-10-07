@@ -45,10 +45,16 @@ through the relay with the reader's own token in an `X-Api-Token` header,
 keeps the extracted company under `wwws.numbers.v1` (eight most recent; yearly
 statements plus the last `MAX_QUARTERS` = 40 quarters as `incomeQ`, `balanceQ`,
 `cashflowQ`, `sharesQ`, `epsQ`) and the token under `wwws.eodhd.token` only
-when "remember" is ticked. The table is a scroll frame (`.table-wrap`,
-`max-height` of the window less 7rem, `overflow-x: scroll` so the bar is
-always drawn, sticky `thead th` and sticky `.item` cells, `border-collapse:
-separate` so the sticky borders hold). Columns run newest first: the "to
+when "remember" is ticked. The table runs the full length of the page inside
+a `.table-frame`: the `.table-wrap` scrolls sideways with its own scrollbar
+hidden, the `.table-bar` under it mirrors that scroll and sticks to the foot
+of the window while the table is in view (`bindFrames` wires the two and
+sizes the bar), the `.item` cells are sticky to the left, and the heading
+cells are shifted down with a transform as the page scrolls so they stay at
+the top of the window, which sticky positioning cannot do from inside a
+sideways scroller (`border-collapse: separate` so the sticky borders hold).
+Do not put the table back in a box that scrolls on its own. Columns run
+newest first: the "to
 date" column, then each year with its quarters, newest first, to its right. A
 year heading with quarters is a `button.yr`; `columnsFor` builds the columns,
 `quarterData` the quarter values, and rows flagged `annual: true` use
@@ -176,3 +182,4 @@ design are their own release, requested deliberately.
 | v1.7 | Pinned headings, open quarters, latest year first | The Numbers table now runs newest first, the latest year at the left, and sits in its own frame: the year headings stay pinned as you scroll down, the line names as you scroll across, and the scrollbars are always drawn. Click any year heading and its quarters unfold beside it, newest first, with the ratios that need a full year's earnings built on the trailing four quarters, and a "to date" column carries the quarters reported since the last year end. |
 | v1.8 | Watchlists, with the sample lists already filled in | A Watchlists tab now sits beside Chapters and Numbers, holding named lists of companies: one generic list and the thirteen custom lists from the screenshots, Chips and RAM through to Quantum and Lithography, each company under its EODHD ticker. A company's name opens its numbers, a fetched company can be added to a list from the Numbers page, and lists can be made, renamed, added to, trimmed and deleted, with the starting lists one click from being restored. Lists stay on the device and travel in the export file. |
 | v1.9 | EODHD's refusals now say what is actually wrong | When EODHD turns a fetch down, the Numbers page now tells you which of three things happened: the token is not recognised, today's calls are used up, or the plan does not cover fundamentals for that ticker, in which case it says the token itself is fine and which plans do. Before, a plan without fundamentals was reported as a rejected token. |
+| v1.10 | One long table, the sideways bar always in view | The Numbers table no longer scrolls inside a box of its own: it runs the full length of the page, with the year headings staying at the top of the window as you scroll down and the line names at the left as you scroll across. The sideways scrollbar now sits at the foot of the window for as long as the table is in view, so the earlier years are always one drag away. |

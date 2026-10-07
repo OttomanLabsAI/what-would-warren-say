@@ -85,10 +85,11 @@ CLAUDE.md          standing policy for working in this repo
   the device under `wwws.numbers.v1` (the eight most recent) and shown again
   without a call. The token is kept under `wwws.eodhd.token` only when
   "Remember" is ticked.
-- The table runs newest first, the latest year at the left, and sits in its
-  own frame no taller than the window: the year headings stay pinned as you
-  scroll down, the line names as you scroll across, and both scrollbars are
-  always drawn.
+- The table runs newest first, the latest year at the left, and runs the
+  full length of the page: the year headings stay pinned at the top of the
+  window as you scroll down, the line names at the left as you scroll
+  across, and a sideways scrollbar sits at the foot of the window for as
+  long as the table is in view.
 - Each fetch also keeps the last forty quarters. Click a year heading and its
   quarters unfold beside it; a "to date" column holds the quarters reported
   since the last year end. In quarter columns the four ratios built on a full

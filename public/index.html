@@ -83,15 +83,18 @@
     .kept a { color: var(--teal); text-decoration: none; }
     .kept a:hover { text-decoration: underline; }
     .units { font-family: var(--sans); font-size: .75rem; color: var(--ink-60); margin: 0 0 .4rem; }
-    .table-wrap { overflow-x: scroll; overflow-y: auto; max-height: calc(100vh - 7rem); border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); scrollbar-width: auto; scrollbar-color: var(--ink-40) var(--paper-deep); }
-    .table-wrap::-webkit-scrollbar { width: 12px; height: 12px; }
-    .table-wrap::-webkit-scrollbar-track { background: var(--paper-deep); }
-    .table-wrap::-webkit-scrollbar-thumb { background: var(--ink-40); border: 2px solid var(--paper-deep); border-radius: 6px; }
-    .table-wrap::-webkit-scrollbar-thumb:hover { background: var(--ink-60); }
-    .table-wrap::-webkit-scrollbar-corner { background: var(--paper-deep); }
+    .table-frame { position: relative; }
+    .table-wrap { overflow-x: auto; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); scrollbar-width: none; }
+    .table-wrap::-webkit-scrollbar { display: none; }
+    .table-bar { position: sticky; bottom: 0; z-index: 4; overflow-x: scroll; overflow-y: hidden; min-height: 12px; background: var(--paper-deep); scrollbar-width: auto; scrollbar-color: var(--ink-40) var(--paper-deep); }
+    .table-bar::-webkit-scrollbar { height: 12px; }
+    .table-bar::-webkit-scrollbar-track { background: var(--paper-deep); }
+    .table-bar::-webkit-scrollbar-thumb { background: var(--ink-40); border: 2px solid var(--paper-deep); border-radius: 6px; }
+    .table-bar::-webkit-scrollbar-thumb:hover { background: var(--ink-60); }
+    .table-bar > div { height: 1px; }
     .ntable { border-collapse: separate; border-spacing: 0; font-family: var(--sans); font-size: .8rem; min-width: 100%; }
     .ntable th, .ntable td { padding: .35rem .6rem; border-bottom: 1px solid var(--rule-light); white-space: nowrap; vertical-align: top; }
-    .ntable thead th { position: sticky; top: 0; z-index: 2; background: var(--paper); text-align: right; font-weight: 700; color: var(--ink-70); border-bottom: 1px solid var(--ink); }
+    .ntable thead th { position: relative; z-index: 2; background: var(--paper); text-align: right; font-weight: 700; color: var(--ink-70); border-bottom: 1px solid var(--ink); }
     .ntable th.item, .ntable td.item { position: sticky; left: 0; z-index: 1; background: var(--paper); text-align: left; font-weight: 600; color: var(--ink); min-width: 14rem; max-width: 22rem; white-space: normal; border-right: 1px solid var(--rule); }
     .ntable thead th.item { text-align: left; z-index: 3; }
     .ntable thead th.q { background: var(--paper-deep); color: var(--ink-60); font-weight: 600; font-size: .74rem; }
@@ -998,7 +1001,7 @@
       var dates = yearList(c);
       var expanded = expandedFor(c.symbol);
       var cols = columnsFor(c, expanded);
-      var html = '<div class="table-wrap"><table class="ntable"><thead><tr><th class="item" scope="col">Line item</th>' +
+      var html = '<table class="ntable"><thead><tr><th class="item" scope="col">Line item</th>' +
         cols.map(function (col) {
           if (col.kind === 'quarter') return '<th class="q" scope="col" title="Quarter ending ' + esc(col.date) + '">' + esc(col.label) + '</th>';
           if (!col.quarters.length) return '<th scope="col" title="' + esc(col.date) + '">' + esc(col.label) + '</th>';
@@ -1021,24 +1024,77 @@
         });
         html += '</tr>';
       });
-      return html + '</tbody></table></div>';
+      return frameHtml(html + '</tbody></table>');
     }
 
     function toggleYear(c, date) {
       var expanded = expandedFor(c.symbol);
       if (expanded[date]) delete expanded[date]; else expanded[date] = true;
-      var wrap = app.querySelector('.numbers > .table-wrap');
-      if (!wrap) return;
-      var left = wrap.scrollLeft, top = wrap.scrollTop;
+      var frame = app.querySelector('.numbers > .table-frame');
+      if (!frame) return;
+      var left = frame.querySelector('.table-wrap').scrollLeft;
       var holder = document.createElement('div');
       holder.innerHTML = tableHtml(c);
       var fresh = holder.firstElementChild;
-      wrap.parentNode.replaceChild(fresh, wrap);
-      fresh.scrollLeft = left;
-      fresh.scrollTop = top;
+      frame.parentNode.replaceChild(fresh, frame);
+      bindFrames();
+      fresh.querySelector('.table-wrap').scrollLeft = left;
       var btn = fresh.querySelector('button.yr[data-date="' + date + '"]');
       if (btn) btn.focus({ preventScroll: true });
     }
+
+    // A table frame: the wrap scrolls sideways with its own bar hidden; the bar under it
+    // mirrors that scroll and sticks to the foot of the window while the table is in view;
+    // the heading cells are shifted down as the page scrolls so they stay at the top of
+    // the window, which sticky positioning cannot do from inside a sideways scroller.
+    function frameHtml(table) {
+      return '<div class="table-frame"><div class="table-wrap">' + table + '</div><div class="table-bar" aria-hidden="true"><div></div></div></div>';
+    }
+
+    var frames = [];
+    var pinQueued = false;
+
+    function sizeFrame(f) {
+      f.bar.firstElementChild.style.width = f.wrap.scrollWidth + 'px';
+    }
+
+    function pinHeader(f) {
+      var rect = f.wrap.getBoundingClientRect();
+      var head = f.ths.length ? f.ths[0].offsetHeight : 0;
+      var y = Math.round(Math.max(0, Math.min(-rect.top - f.wrap.clientTop, f.wrap.clientHeight - head)));
+      if (y === f.y) return;
+      f.y = y;
+      var t = y ? 'translateY(' + y + 'px)' : '';
+      f.ths.forEach(function (th) { th.style.transform = t; });
+    }
+
+    function pinAll() {
+      if (pinQueued) return;
+      pinQueued = true;
+      window.requestAnimationFrame(function () { pinQueued = false; frames.forEach(pinHeader); });
+    }
+
+    function bindFrames() {
+      frames.forEach(function (f) { if (f.ro) f.ro.disconnect(); });
+      frames = [];
+      Array.prototype.forEach.call(app.querySelectorAll('.table-frame'), function (el) {
+        var wrap = el.querySelector('.table-wrap'), bar = el.querySelector('.table-bar'), table = el.querySelector('table');
+        if (!wrap || !bar || !table) return;
+        var f = { wrap: wrap, bar: bar, ths: Array.prototype.slice.call(table.querySelectorAll('thead th')), y: 0 };
+        wrap.addEventListener('scroll', function () { if (bar.scrollLeft !== wrap.scrollLeft) bar.scrollLeft = wrap.scrollLeft; });
+        bar.addEventListener('scroll', function () { if (wrap.scrollLeft !== bar.scrollLeft) wrap.scrollLeft = bar.scrollLeft; });
+        if (window.ResizeObserver) {
+          f.ro = new ResizeObserver(function () { sizeFrame(f); pinHeader(f); });
+          f.ro.observe(table);
+        }
+        frames.push(f);
+        sizeFrame(f);
+        pinHeader(f);
+      });
+    }
+
+    window.addEventListener('scroll', pinAll, { passive: true });
+    window.addEventListener('resize', function () { frames.forEach(sizeFrame); pinAll(); });
 
     function rawTableHtml(title, stmt, dates, labels) {
       var skip = { date: 1, filing_date: 1, currency_symbol: 1 };
@@ -1046,7 +1102,7 @@
       dates.forEach(function (d) { var row = stmt[d]; if (row) Object.keys(row).forEach(function (k) { if (!skip[k]) keys[k] = true; }); });
       var names = Object.keys(keys).sort();
       if (!names.length) return '';
-      var html = '<h4>' + esc(title) + '</h4><div class="table-wrap"><table class="ntable"><thead><tr><th class="item" scope="col">Field</th>' +
+      var html = '<table class="ntable"><thead><tr><th class="item" scope="col">Field</th>' +
         dates.map(function (d, i) { return '<th scope="col" title="' + esc(d) + '">' + esc(labels[i]) + '</th>'; }).join('') + '</tr></thead><tbody>';
       names.forEach(function (k) {
         html += '<tr><th class="item" scope="row">' + esc(k) + '</th>';
@@ -1058,7 +1114,7 @@
         });
         html += '</tr>';
       });
-      return html + '</tbody></table></div>';
+      return '<h4>' + esc(title) + '</h4>' + frameHtml(html + '</tbody></table>');
     }
 
     function keptHtml(except) {
@@ -1509,6 +1565,7 @@
         var co = numbers.last && numbers.companies[numbers.last];
         document.title = (co && numbersMatch[1] ? co.meta.name + ' - ' : '') + 'Numbers - What Would Warren Say';
         window.scrollTo(0, 0);
+        bindFrames();
         return;
       }
       var listMatch = /^watchlists(?:\/(.*))?$/i.exec(id);
@@ -1516,6 +1573,7 @@
         renderWatchlists(listMatch[1] || '');
         document.title = (renderedList ? renderedList.name + ' - ' : '') + 'Watchlists - What Would Warren Say';
         window.scrollTo(0, 0);
+        bindFrames();
         return;
       }
       showView('chapters');
@@ -1533,6 +1591,7 @@
         document.title = 'What Would Warren Say';
       }
       window.scrollTo(0, 0);
+      bindFrames();
     }
 
     // ---- export / import ---------------------------------------------------
