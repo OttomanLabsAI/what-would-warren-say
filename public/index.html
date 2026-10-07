@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>What Would Warren Say</title>
+  <title>What Would Warren Say?</title>
   <meta name="description" content="A reading companion for Warren Buffett and the Interpretation of Financial Statements: pick a section, open a chapter, write its summary and your notes, and export or import everything written.">
   <meta name="theme-color" content="#FFF1E5">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -256,7 +256,7 @@
 <body>
   <header class="masthead wrap">
     <div class="dateline"><span id="today"></span></div>
-    <h1><a href="#">What Would Warren Say</a></h1>
+    <h1><a href="#">What Would Warren Say?</a></h1>
     <p class="tagline">Warren Buffett and the Interpretation of Financial Statements &middot; Mary Buffett and David Clark</p>
   </header>
 
@@ -2284,7 +2284,7 @@
       if (id === '' || numbersMatch) {
         var wanted = numbersMatch ? numbersMatch[1] || '' : '';
         renderNumbers(wanted);
-        document.title = (currentCompany && wanted ? currentCompany.meta.name + ' - Companies - ' : (wanted ? 'Companies - ' : '')) + 'What Would Warren Say';
+        document.title = (currentCompany && wanted ? currentCompany.meta.name + ' - Companies - ' : (wanted ? 'Companies - ' : '')) + 'What Would Warren Say?';
         window.scrollTo(0, 0);
         bindFrames();
         return;
@@ -2292,7 +2292,7 @@
       var listMatch = /^watchlists(?:\/(.*))?$/i.exec(id);
       if (listMatch) {
         renderWatchlists(listMatch[1] || '');
-        document.title = (renderedList ? renderedList.name + ' - ' : '') + 'Watchlists - What Would Warren Say';
+        document.title = (renderedList ? renderedList.name + ' - ' : '') + 'Watchlists - What Would Warren Say?';
         window.scrollTo(0, 0);
         bindFrames();
         return;
@@ -2304,12 +2304,12 @@
         sectionEl.value = String(ch.part);
         renderTabs(ch.part, ch.id);
         renderChapter(ch);
-        document.title = label(ch) + ' - What Would Warren Say';
+        document.title = label(ch) + ' - What Would Warren Say?';
       } else {
         sectionEl.value = '';
         hideTabs();
         renderContents();
-        document.title = 'Chapters - What Would Warren Say';
+        document.title = 'Chapters - What Would Warren Say?';
       }
       window.scrollTo(0, 0);
       bindFrames();

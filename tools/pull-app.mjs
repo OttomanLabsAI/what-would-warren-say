@@ -179,7 +179,7 @@ const PAGE = `<!doctype html>
 <body>
 <div class="wrap">
   <h1>Pull from EODHD</h1>
-  <p class="tag">What Would Warren Say &middot; every company of a market, or a sample watchlist, saved on this machine</p>
+  <p class="tag">What Would Warren Say? &middot; every company of a market, or a sample watchlist, saved on this machine</p>
   <form id="form" autocomplete="off">
     <div class="f wide"><label class="t" for="token">EODHD API token</label><input type="password" id="token" placeholder="paste your token"><p class="hint" id="token-hint"></p></div>
     <div class="f wide"><label class="check"><input type="checkbox" id="remember"> Remember the token on this machine (it goes in the data folder, never in the repository)</label></div>
