@@ -134,12 +134,12 @@ exchanges from EODHD on your own machine, apart from the site, into a local
 `data/` folder that git ignores. It needs Node 18 or later and nothing else:
 
 ```bash
-EODHD_TOKEN=your-token npm run pull                      # NASDAQ and NYSE, London, Shanghai, Shenzhen
+EODHD_TOKEN=your-token npm run pull                      # NASDAQ and NYSE, London, Shanghai, Shenzhen, Korea, Xetra
 EODHD_TOKEN=your-token npm run pull -- --exchanges US,LSE --refresh 30
 ```
 
-Each company costs ten EODHD calls and each symbol list one, so the four
-exchanges, around thirteen thousand companies, take two days of a 100,000-call
+Each company costs ten EODHD calls and each symbol list one, so the seven
+lists, around seventeen thousand companies, take two days of a 100,000-call
 allowance: the run stops on its own when the day's calls are spent and carries
 on where it was when run again. It keeps EODHD's raw reply for each company,
 gzipped, writes the company in the shape the Numbers page keeps, one row of

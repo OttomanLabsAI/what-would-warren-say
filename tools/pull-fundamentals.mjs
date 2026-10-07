@@ -7,9 +7,10 @@
 //
 // Options
 //   --out <dir>             where to write; default data (git ignores it)
-//   --exchanges US,LSE,SHG,SHE
-//                           EODHD exchange codes to pull; default as shown:
-//                           the United States, London, Shanghai, Shenzhen
+//   --exchanges US,LSE,SHG,SHE,KO,KQ,XETRA
+//                           EODHD exchange codes to pull; default as shown: the
+//                           United States, London, Shanghai, Shenzhen, the Korea
+//                           Stock Exchange, KOSDAQ and Xetra for Germany
 //   --us NASDAQ,NYSE        which venues to keep from the US list; default as shown
 //   --refresh <days>        pull again any company pulled more than this many days
 //                           ago; without it, a company already on disk is skipped
@@ -45,7 +46,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 const args = parseArgs(process.argv.slice(2));
 const OUT = path.resolve(args.out || 'data');
 const BASE = String(args.base || 'https://eodhd.com/api/').replace(/\/?$/, '/');
-const EXCHANGES = String(args.exchanges || 'US,LSE,SHG,SHE').split(',').map(s => s.trim()).filter(Boolean);
+const EXCHANGES = String(args.exchanges || 'US,LSE,SHG,SHE,KO,KQ,XETRA').split(',').map(s => s.trim()).filter(Boolean);
 const US_KEEP = new Set(String(args.us || 'NASDAQ,NYSE').split(',').map(s => s.trim()).filter(Boolean));
 const PARALLEL = Math.max(1, parseInt(args.parallel || '4', 10) || 4);
 const LIMIT = args.limit ? parseInt(args.limit, 10) : Infinity;
