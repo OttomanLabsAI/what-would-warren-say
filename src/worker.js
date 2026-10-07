@@ -1,11 +1,21 @@
 // The site is static assets, served by Cloudflare. This Worker exists only to
 // relay the page's EODHD requests on the same origin, so the browser never
-// makes a cross-site call. The reader's own API token travels in a header on
-// each request and is forwarded as EODHD's api_token query parameter; nothing
-// is stored here and no token lives on the server.
+// makes a cross-site call: a company's fundamentals, its latest quote, and its
+// end-of-day or intraday bars for the price chart. The reader's own API token
+// travels in a header on each request and is forwarded as EODHD's api_token
+// query parameter; nothing is stored here and no token lives on the server.
 
 const RELAY_PREFIX = '/api/eodhd/';
-const ALLOWED = /^fundamentals\/[A-Za-z0-9][A-Za-z0-9._^-]{0,40}$/;
+// fundamentals, the latest quote, end-of-day bars and intraday bars, one symbol each
+const ALLOWED = /^(?:fundamentals|real-time|eod|intraday)\/[A-Za-z0-9][A-Za-z0-9._^-]{0,40}$/;
+// the only query parameters passed on, each checked: a date or unix time, a bar size, an order
+const PASS = {
+  from: /^(?:\d{4}-\d{2}-\d{2}|\d{1,12})$/,
+  to: /^(?:\d{4}-\d{2}-\d{2}|\d{1,12})$/,
+  period: /^[dwm]$/,
+  interval: /^(?:1m|5m|15m|30m|1h)$/,
+  order: /^[ad]$/
+};
 
 export default {
   async fetch(request, env) {
@@ -31,6 +41,10 @@ async function relay(request, url, env) {
 
   const base = (env && env.EODHD_BASE) || 'https://eodhd.com/api/';
   const upstream = new URL(path, base);
+  for (const name of Object.keys(PASS)) {
+    const value = url.searchParams.get(name);
+    if (value !== null && PASS[name].test(value)) upstream.searchParams.set(name, value);
+  }
   upstream.searchParams.set('api_token', token);
   upstream.searchParams.set('fmt', 'json');
 

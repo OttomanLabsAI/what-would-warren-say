@@ -17,7 +17,10 @@ by the owner and read from the site itself, no calls needed. For any other
 ticker, give it your own EODHD API token and it fetches the company's
 fundamentals. Either way it lays out the full yearly history of the figures
 the book walks through: every statement line with the chapter beside it, and
-the book's ratios with its rule of thumb under each. Fetched companies are
+the book's ratios with its rule of thumb under each. With a token in the box
+the company's current share price sits above the table, with the day's change
+and a Graph link that draws the price over the last day, week, month, six
+months, year, five years, ten years or all time. Fetched companies are
 kept on the device, the table downloads as CSV, and an expandable section
 lists every field EODHD reported.
 
@@ -90,7 +93,15 @@ CLAUDE.md          standing policy for working in this repo
   token in an `X-Api-Token` header. The Worker forwards that to
   `https://eodhd.com/api/fundamentals/<SYMBOL>?api_token=…&fmt=json` and passes
   the reply and its status straight back. Nothing is cached or logged there,
-  only that one path is forwarded, and the Worker holds no secret of its own.
+  and the Worker holds no secret of its own. The price line and its chart use
+  three more EODHD paths the same way: `real-time/<SYMBOL>` for the quote,
+  `eod/<SYMBOL>` for daily, weekly and monthly closes, and
+  `intraday/<SYMBOL>` for the day of five-minute bars. The Worker forwards
+  only those four paths, on GET, and of the query only `from`, `to`,
+  `period`, `interval` and `order` in their expected shapes.
+- The quote is one call and is kept for a quarter of an hour; each span of
+  the chart is one call, except the day of five-minute bars, which EODHD
+  counts as five. Prices are never stored and never exported.
 - Symbols take EODHD's form, `CODE.EXCHANGE` (`KO.US`, `VOD.LSE`); a bare US
   code gets `.US`. One fetch is ten EODHD API calls, so companies are kept on
   the device under `wwws.numbers.v1` (the eight most recent) and shown again
@@ -204,5 +215,6 @@ and each file carries the same in its own metadata.
 
 ## External resources
 
-The page itself loads nothing from other domains. The Numbers view calls
-EODHD through the site's own relay, and only when you press Fetch.
+The page itself loads nothing from other domains. The Companies view calls
+EODHD through the site's own relay: the fundamentals when you press Fetch,
+and the price and its chart once a token is in the box.

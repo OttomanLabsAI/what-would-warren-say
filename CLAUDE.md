@@ -19,7 +19,7 @@ public/            everything served as assets
   _headers         security + caching headers
   robots.txt
   assets/fonts/    Playfair Display + Newsreader woff2 (OFL), the only assets
-src/worker.js      /api/eodhd/fundamentals/<symbol> -> eodhd.com; everything else -> env.ASSETS
+src/worker.js      /api/eodhd/{fundamentals,real-time,eod,intraday}/<symbol> -> eodhd.com; everything else -> env.ASSETS
 wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var
 package.json       wrangler devDependency + dev/deploy/check/pull scripts
 tools/lib/pull.mjs  the pull engine: lists, fetches, extracts, screens; mirrors the page's extraction
@@ -97,8 +97,26 @@ loads the index at boot (`loadSamples`), opens a company's file on first view
 takes precedence over the sample. A sample company's page says "Sample data
 pulled", offers "Fetch a live copy" and has no Forget. The company page
 carries no "also kept" line and no units paragraph: the owner had them
-removed. The relay forwards only `fundamentals/<symbol>` on GET, holds
-no secret, caches nothing, and passes EODHD's status and body straight back.
+removed. The relay forwards only `fundamentals/<symbol>`, `real-time/<symbol>`,
+`eod/<symbol>` and `intraday/<symbol>` on GET (`ALLOWED`), passes on only the
+query parameters in `PASS` (`from`, `to`, `period`, `interval`, `order`) when
+they match their shapes, holds no secret, caches nothing, and passes EODHD's
+status and body straight back.
+
+Under the next-report line the company page carries a price line
+(`priceHtml`, `wirePrice`): once a token is in the box it fetches
+`real-time/<symbol>` (one call), shows the price, the day's change and the
+quote time, and keeps the quote in memory for `QUOTE_LIFE` (fifteen minutes);
+without a token it says so and offers a button. Its Graph link opens a second
+dialog (`ensurePriceDialog`, `openPriceGraph`, `drawPrice`) with the spans in
+`SPANS`: 1D is `intraday/<symbol>` at five-minute bars over the last five
+days, reduced to the last trading day (five calls); 1W, 1M, 6M and 1Y are
+`eod/<symbol>` by day, 5Y and 10Y by week, All time by month from 1900 (one
+call each). `spanRequest` builds the request, `pricePoints` the points, and
+each span is cached in `priceSeries` for the session. The chart is
+`chartSvg` with unit `price`: a line, no dots, and the axis fitted to the
+prices shown rather than starting at zero. Prices are never stored and
+never exported.
 
 The Watchlists view (`#watchlists`, `#watchlists/<list id>`) holds named lists
 of companies, each company a name and an EODHD symbol. The lists are kept under
@@ -170,8 +188,10 @@ npm run dev          # wrangler dev
 3. For a change to the script, drive the page in a headless browser: open a
    chapter, type into both boxes, reload, export, clear storage, import, and
    check the text comes back. `playwright-core` with that Chromium does it.
-   For the Numbers view, answer `**/api/eodhd/fundamentals/**` from a fixture
-   shaped like an EODHD reply and check the table's cells.
+   For the Companies view, answer `**/api/eodhd/fundamentals/**` from a fixture
+   shaped like an EODHD reply and check the table's cells, and answer the
+   `real-time`, `eod` and `intraday` paths from stand-ins shaped like EODHD's
+   replies to check the price line and its chart.
 4. For a change to `src/worker.js`, run the real Worker:
    `npx wrangler dev --var EODHD_BASE:http://127.0.0.1:<port>/api/` against a
    local mock of EODHD, and check the assets, the 404 page and every relay path.
@@ -247,3 +267,4 @@ design are their own release, requested deliberately.
 | v1.13 | The next report date, and a graph for every line | A company's page now says when its next report is due, before or after the market and with the analysts' estimate, right under its name. Every line of the Numbers table has a small graph button that opens a popup chart of that line, as a line or bars, by year or by quarter, over any range or the last 5 or 10 years, with an optional trend line or mean band and the figures beneath it: mean, median, standard deviation, variance, how steady the trend is, growth, and how often and how far the line fell. |
 | v1.14 | A page on your own machine to pull markets and watchlists | A local page now does the pulling: choose a market from a dropdown, or one of the sample watchlists from another, paste your EODHD token once, press Start, and watch the companies come in with the calls spent this run and EODHD's own count of calls used today. Stop ends a run cleanly and the next Start carries on. Everything lands in the data folder as before, with a spreadsheet file for each market alongside the site's own. |
 | v1.15 | Companies first, with eighty of them already on file | The site now opens on the company page, renamed Companies, with Chapters moved to its own tab. Eighty companies from the owner's own pull come with the site as sample data, from Apple to Zscaler and the London, Paris and Xetra names in the watchlists, so they open at once without spending a call, and a live copy is one click away. The company page lost its "also kept" line and the paragraph about units and quarters. |
+| v1.16 | The share price, and its chart, above the table | Each company's page now shows its current share price above the table, with the day's change and the time of the quote, once your EODHD token is in the box. A Graph link beside it draws the price the way a broker's app does, with a row of spans to pick from: the last day in five-minute steps, a week, a month, six months, a year, five years, ten years or all time, with the start, end, change, high and low for the span underneath. |

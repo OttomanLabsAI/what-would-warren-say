@@ -1,0 +1,3 @@
+also, shwo the current stock price above the table, with a graph option to see it
+
+make the graph like trading212 in terms of how you can see the time span, selecting between 1d, 1w, 1m, 6m, 1y,5y,10y, all time

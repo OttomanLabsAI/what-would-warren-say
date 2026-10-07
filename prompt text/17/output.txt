@@ -1,0 +1,11 @@
+The share price now sits above every company's table, with a Trading212-style chart behind its Graph link.
+
+**The price line.** Under the next-report line, once your EODHD token is in the box, the page fetches the current quote and shows the price in the company's currency, the day's change in money and percent, in claret when negative, and the time of the quote marked "delayed", since EODHD's live quotes come fifteen to twenty minutes behind the market. Without a token it says "One call away: paste your EODHD token above" and offers a button, so a sample company costs nothing until you ask. A quote is one call and is kept for fifteen minutes, so moving between companies and back does not spend again. If EODHD refuses, the line says why in the same words Fetch uses, with a Try again link.
+
+**The chart.** Graph opens a popup with a row of spans: 1D, 1W, 1M, 6M, 1Y, 5Y, 10Y and All time. 1D is the last trading day in five-minute bars. 1W to 1Y are daily closes, 5Y and 10Y weekly, and All time monthly from the first price EODHD holds. The axis fits the prices shown rather than starting at zero, as a broker's chart does, so a quiet day is a readable line and not a flat one at the top of an empty box. Hovering reads the price and time at any point, and Start, End, Change, High and Low for the span sit underneath. Each span is one call, except 1D, which EODHD counts as five; spans you have opened are kept for the session. Prices are never stored on the device and never exported.
+
+**The relay.** The Worker now forwards three more EODHD paths, real-time, eod and intraday, with only the parameters those calls need, and still refuses everything else.
+
+**Verified.** Dry-run deploy clean. A new browser suite drives the price line and all eight spans against a mock EODHD and checks the calls made, the labels, the fitted axis, the figures, caching, hover and the refusal wording, on desktop and phone; the earlier suites still pass. The real Worker ran against a mock EODHD for the four relay paths, the parameter filtering and the refusals.
+
+The circled screenshot from your "remove all of this text" message still has no file behind it, so version 16's record went out without it.
