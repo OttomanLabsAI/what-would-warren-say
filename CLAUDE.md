@@ -12,19 +12,21 @@ Builds, so **every push to `main` deploys to production**.
 
 ```
 public/            everything served as assets
-  index.html       all three views (companies, watchlists, contents, dropdown, chapter tabs, chapter pages): one file
+  index.html       all four views (companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages): one file
   data/            sample data: index.json + companies/<SYMBOL>.json, from tools/bundle-samples.mjs (git-tracked, EODHD-derived)
   404.html         same masthead and palette as index.html
   favicon.svg
   _headers         security + caching headers
   robots.txt
   assets/fonts/    Playfair Display + Newsreader woff2 (OFL), the only assets
-src/worker.js      /api/eodhd/{fundamentals,real-time,eod,intraday}/<symbol> -> eodhd.com; everything else -> env.ASSETS
-wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var
-package.json       wrangler devDependency + dev/deploy/check/pull scripts
+src/worker.js      /api/eodhd/{fundamentals,real-time,eod,intraday}/<symbol> -> eodhd.com; /api/data/<key> -> the R2 bucket (binding DATA); everything else -> env.ASSETS
+wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var + r2_buckets DATA -> wwws-data
+package.json       wrangler devDependency + dev/deploy/check/pull/pull-app/bundle-samples/upload-store scripts
 tools/lib/pull.mjs  the pull engine: lists, fetches, extracts, screens; mirrors the page's extraction
+tools/lib/store.mjs  the store uploader: SigV4 over R2's S3 API, the upload plan, index.json, uploaded.json
 tools/pull-fundamentals.mjs  the command line over the engine: whole exchanges into data/, apart from the site
-tools/pull-app.mjs  a local page over the engine: market or sample-watchlist dropdowns, Start, Stop, calls spent
+tools/pull-app.mjs  a local page over the engine: market or sample-watchlist dropdowns, Start, Stop, calls spent, Send to the site
+tools/upload-store.mjs  the command line over the uploader: a pull into the bucket
 tools/bundle-samples.mjs  copies a pull's companies into public/data/ as the site's sample data
 data/              the pull's output: git-ignored, EODHD-licensed, never committed
 prompt text/       the records behind the version in service (see below)
@@ -103,7 +105,45 @@ loads the index at boot (`loadSamples`), opens a company's file on first view
 takes precedence over the sample. A sample company's page says "Sample data
 pulled", offers "Fetch a live copy" and has no Forget. The company page
 carries no "also kept" line and no units paragraph: the owner had them
-removed. The relay forwards only `fundamentals/<symbol>`, `real-time/<symbol>`,
+removed.
+
+The store is the owner's pull of whole exchanges in the R2 bucket `wwws-data`
+(binding `DATA`), served by the Worker at `/api/data/<key>` with no key and
+no gate (`store()` in `src/worker.js`: GET and HEAD, keys checked against
+`STORE_KEY`, the object's ETag so a browser gets 304, `cache-control:
+public, max-age=300`; without a bucket bound every key is 404, which is how
+local development runs). The keys are `index.json` (`{ builtAt, pulledUpTo,
+venues: { <VENUE>: { companies, pulledUpTo } }, companies: { <SYMBOL>:
+<date pulled> } }`), `companies/<SYMBOL>.json` (the page's company shape,
+with `fetchedAt`) and `screen/<VENUE>.json` plus `screen/index.json` (as the
+puller writes them). The page loads `index.json` at boot (`loadStoreIndex`,
+re-routing when it arrives), opens a company's file on first view
+(`loadStored`, kept for the session with `store: true`), and shows a company
+from the first of: the kept copy, the store, a bundled sample, the fetch
+form. A stored company's page says "In the store, pulled", offers "Fetch a
+live copy" and has no Forget; the home page says what the store holds by
+venue (`storeHtml`) and points at the Screen; watchlists mark "in the store"
+after "numbers kept" and before "sample data". The store is open because the
+owner chose so while the site has no readers but them, knowing EODHD's
+personal plans forbid redistribution; Cloudflare Access on a custom domain is
+the step up if that changes. The bucket must exist in the account before a
+deploy that carries the binding, or the deploy fails.
+
+The Screen view (`#screen`, `#screen/<VENUE>`, `renderScreen`) lists every
+company of a venue from `screen/<VENUE>.json`: `SCREEN_COLUMNS` (the row's
+figures and ratios, with their units), `SCREEN_RULES` (the book's rules of
+thumb as predicates on a row, each with its chapter; keep them in step with
+the `rule` texts in `NUMBER_ROWS`), `VENUE_ORDER` (the tab order; the first
+venue present opens by default), `SCREEN_PAGE` = 200 rows at a time with
+"Show more". `screenState` keeps the venue, sort column and direction, the
+search text, the ticked rules and the rows shown for the session. Rows with
+no `year` (no statements at EODHD) are counted in the heading and left out.
+The venue tabs reuse the tab row, the table is a `.table-frame` like the
+company table (pinned headings, sticky company column, the bar at the foot),
+blanks sort last, and `drawScreenTable` redraws only the table and the count
+line, keeping the sideways scroll.
+
+The relay forwards only `fundamentals/<symbol>`, `real-time/<symbol>`,
 `eod/<symbol>` and `intraday/<symbol>` on GET (`ALLOWED`), passes on only the
 query parameters in `PASS` (`from`, `to`, `period`, `interval`, `order`) when
 they match their shapes, holds no secret, caches nothing, and passes EODHD's
@@ -162,10 +202,23 @@ the token kept in memory or in `data/eodhd-token.txt` when "remember" is
 ticked. Neither puts the token in the repository or the site. A pull stops
 on EODHD's 402 and resumes next run. The engine's company shape, next-report
 rule and ratio formulas mirror `extractCompany`, `nextReport` and
-`NUMBER_ROWS` in `index.html`: change them together. Nothing on the site reads
-the pull yet; the plan is an R2 bucket the Worker serves from, gated with
-Cloudflare Access because EODHD's personal plans forbid redistribution, then
-the Numbers page reading it and a screen view.
+`NUMBER_ROWS` in `index.html`: change them together.
+
+`tools/lib/store.mjs` sends a pull to the store: `sign` (AWS Signature
+Version 4 in its header form, region `auto`, service `s3`, checked against
+AWS's published test vector), `objectPath` (each key segment encoded once),
+`putObject` (one PUT with the payload hash, retried on a network error or a
+5xx, stopped at once on a refusal with the reason), `planUpload` (every
+company with statements from `pulled.json` and `rows/`, the screen files and
+their index, and the `index.json` the page reads) and `uploadStore` (the
+plan in parallel, `uploaded.json` so unchanged companies are skipped, the
+index written last and only when nothing failed or stopped). The raw
+replies, the rows folder and the CSVs never go up. `tools/upload-store.mjs`
+is the command line over it (`R2_ENDPOINT`, `R2_ACCESS_KEY_ID`,
+`R2_SECRET_ACCESS_KEY`, `--bucket`, `--all`); the pull page's second form,
+"Send to the site", does the same with the keys in memory or in
+`data/r2.json` when remembered. Neither puts the keys in the repository or
+the site.
 
 The look is a financial newspaper: paper `#FFF1E5`, ink `#33302E`, claret
 `#990F3D` for accents, teal `#0D7680` for links, Playfair Display for the
@@ -199,10 +252,19 @@ npm run dev          # wrangler dev
    For the Companies view, answer `**/api/eodhd/fundamentals/**` from a fixture
    shaped like an EODHD reply and check the table's cells, and answer the
    `real-time`, `eod` and `intraday` paths from stand-ins shaped like EODHD's
-   replies to check the price line and its chart.
+   replies to check the price line and its chart. For the store and the
+   Screen, answer `**/api/data/**` from the screen files of a real pull and
+   from stand-in company files, and once with 404s for the no-store case.
 4. For a change to `src/worker.js`, run the real Worker:
    `npx wrangler dev --var EODHD_BASE:http://127.0.0.1:<port>/api/` against a
    local mock of EODHD, and check the assets, the 404 page and every relay path.
+   For the store, seed the local bucket first (`npx wrangler r2 object put
+   wwws-data/<key> --file … --local --persist-to <dir>`) and start dev with
+   the same `--persist-to`, then check `/api/data/…`: the index, a company,
+   a screen file, a 304 on If-None-Match, 404s for what is not there.
+5. For a change to `tools/lib/store.mjs`, drive the uploader against a mock of
+   R2's S3 API that recomputes every signature, and `tools/pull-app.mjs` in a
+   browser against that mock and a mock of EODHD.
 
 Never leave pushed work unverified or half-finished. Work in small, complete
 batches: implement, verify, commit, push.
@@ -279,3 +341,4 @@ design are their own release, requested deliberately.
 | v1.17 | The numbers table readable on a phone | On a phone the names of the lines no longer take the whole width of the table: they sit in a narrow column, with two years of figures beside them and the rest a swipe away. The statement headings, Income statement, Balance sheet and Cash flow statement, now stay put as the table scrolls sideways, as the line names already did. |
 | v1.18 | Adding to a watchlist set aside for now | The two ways of putting a company into a watchlist, the dropdown on a company's page and the form under each list, are gone for now and will come back later in another form. The lists themselves stay as they were: open, rename, remove a company, make and delete a list, and bring the starting lists back. |
 | v1.19 | The masthead asks its question | The site's name now carries its question mark, on the masthead, in the browser tab and on the not-found page: What Would Warren Say? |
+| v1.20 | Every pulled company on the site, plus a screen | The companies you pull now live in a store of your own, a bucket in your Cloudflare account that the local pull page fills with one button, and the site opens any of them without a call or a key. A new Screen tab lists every company of an exchange by the book's ratios, sortable and searchable, with the book's rules of thumb as tick-box filters and a count of how many each company meets. |

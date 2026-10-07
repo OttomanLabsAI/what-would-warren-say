@@ -16,6 +16,12 @@
     // Upstream for the relay; overridden in tests with --var EODHD_BASE:...
     "EODHD_BASE": "https://eodhd.com/api/"
   },
+  "r2_buckets": [
+    // The store: the owner's pull, uploaded from their machine with
+    // tools/upload-store.mjs and read by the Worker at /api/data/. The bucket
+    // is made once in the Cloudflare dashboard, under this name, before deploying.
+    { "binding": "DATA", "bucket_name": "wwws-data" }
+  ],
   "observability": {
     "enabled": true
   }

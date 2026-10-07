@@ -1,5 +1,0 @@
-Done and live: the masthead now reads What Would Warren Say? The question mark is also in the browser tab title on every page, on the not-found page's masthead and in the local pull page's tagline, so the name is the same everywhere. The subtitle, the export file name and the site's address are unchanged.
-
-**Verified.** Dry-run deploy clean, the page rendered at desktop and phone widths with the new masthead, and every browser suite still passes with the new titles.
-
-The store and the Screen are re-stacked on top of this and wait on the bucket, as before.

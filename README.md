@@ -12,9 +12,10 @@ that save as you type. Export writes everything you have written to a JSON
 file, and Import reads one back, so you can carry on another day or on another
 device.
 
-**Companies.** Eighty companies come with the site as sample data, pulled
-by the owner and read from the site itself, no calls needed. For any other
-ticker, give it your own EODHD API token and it fetches the company's
+**Companies.** Every company of the exchanges you have pulled sits in the
+site's store, an R2 bucket in your Cloudflare account, and opens without a
+call or a key; eighty more come bundled with the site as sample data. For any
+other ticker, give it your own EODHD API token and it fetches the company's
 fundamentals. Either way it lays out the full yearly history of the figures
 the book walks through: every statement line with the chapter beside it, and
 the book's ratios with its rule of thumb under each. With a token in the box
@@ -23,6 +24,12 @@ and a Graph link that draws the price over the last day, week, month, six
 months, year, five years, ten years or all time. Fetched companies are
 kept on the device, the table downloads as CSV, and an expandable section
 lists every field EODHD reported.
+
+**Screen.** Every company of a venue in the store, one row each with the
+latest year's figures and the book's ratios: sortable by any column,
+searchable by name or ticker, with the book's rules of thumb as tick-box
+filters, from a gross margin of 40% or more to buying back shares, and a
+count of the rules each company meets.
 
 **Watchlists.** Named lists of companies, each company with its EODHD ticker:
 a generic list and a set of custom lists come filled in, and lists can be
@@ -39,16 +46,17 @@ static asset by that Worker's assets binding.
 
 ```
 public/
-  index.html       all three views: companies, watchlists, contents, dropdown, chapter tabs, chapter pages (one file, hash routes)
+  index.html       all four views: companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages (one file, hash routes)
   data/            sample data: index.json and companies/<SYMBOL>.json, written by tools/bundle-samples.mjs
   404.html         not-found page in the same style, links back home
   favicon.svg
   robots.txt
   _headers         security and caching headers
   assets/fonts/    Playfair Display and Newsreader, latin subsets, self-hosted
-src/worker.js      the EODHD relay; every other request goes to the assets
-wrangler.jsonc     Worker + assets config
-package.json       wrangler as a devDependency, dev/deploy/check scripts
+src/worker.js      the EODHD relay and the store; every other request goes to the assets
+wrangler.jsonc     Worker + assets config, and the store's bucket binding
+package.json       wrangler as a devDependency, dev/deploy/check/pull/upload scripts
+tools/             the puller, the local pull page and the store uploader (see below)
 prompt text/       the prompt and reply behind the version in service
 CLAUDE.md          standing policy for working in this repo
 ```
@@ -56,7 +64,8 @@ CLAUDE.md          standing policy for working in this repo
 ## How the page works
 
 - `#` and `#companies` show the Companies view, `#companies/KO.US` a company:
-  the kept copy if you fetched it, else the sample file if there is one, else
+  the kept copy if you fetched it, else the store's copy if the company is
+  there, else the sample file if there is one, else
   the form filled in. `#numbers` and `#numbers/KO.US` still work as the old
   addresses.
 - `#chapters` shows the contents; `#intro` and `#1` to `#57` show a chapter
@@ -157,10 +166,14 @@ npm run check                         # wrangler deploy --dry-run
 Then serve `public/`, render it with headless Chromium at desktop and mobile
 widths, and look at the screenshots. For changes to the script, also drive the
 page in a headless browser: type into a chapter, reload, export, clear
-storage, import, and check the text comes back; for the Numbers view, answer
-the relay path from a fixture shaped like an EODHD reply and check the table.
-For a change to the Worker, run `npx wrangler dev --var EODHD_BASE:<mock url>`
-against a local mock of EODHD and exercise `/api/eodhd/…` and the assets.
+storage, import, and check the text comes back; for the Companies view, answer
+the relay path from a fixture shaped like an EODHD reply and check the table;
+for the store and the Screen, answer `/api/data/…` from the screen files of a
+pull and stand-in company files. For a change to the Worker, run `npx wrangler
+dev --var EODHD_BASE:<mock url>` against a local mock of EODHD and exercise
+`/api/eodhd/…` and the assets, and seed the local bucket (`npx wrangler r2
+object put wwws-data/<key> --file … --local --persist-to <dir>`, then `dev
+--persist-to <dir>`) to exercise `/api/data/…`.
 
 ## Pulling whole exchanges
 
@@ -193,16 +206,49 @@ gzipped, writes the company in the shape the Numbers page keeps, one row of
 the book's ratios for the latest year, and a screen file per venue, as JSON
 for the site and as CSV for a spreadsheet. The options are listed at the top
 of the script. The token comes from the
-environment and never enters the repository or the site. Nothing on the site
-reads the pull yet; EODHD's personal plans do not allow the data to be
-redistributed, so whatever the site later serves from it must be gated to you.
+environment and never enters the repository or the site.
+
+## The store: sending a pull to the site
+
+The site reads the pull from a store of your own: an R2 bucket named
+`wwws-data` in the same Cloudflare account the site runs in, bound to the
+Worker as `DATA` and served on the site's own origin at `/api/data/…`, open
+to anyone, with no key. Make the bucket once in the Cloudflare dashboard
+(R2 Object Storage, Create bucket, the name above) before the first deploy
+that carries the binding; a deploy with a bucket that does not exist fails.
+
+Then send a pull up, either from the pull page's second form, **Send to the
+site**, or from the command line:
+
+```bash
+R2_ENDPOINT=https://<account id>.r2.cloudflarestorage.com \
+R2_ACCESS_KEY_ID=… R2_SECRET_ACCESS_KEY=… npm run upload-store      # add -- --all to resend everything
+```
+
+The keys are those of an R2 API token: in the dashboard open R2, then Manage
+R2 API Tokens, create a token with Object Read & Write on the bucket, and it
+shows the endpoint, the Access Key ID and the Secret Access Key. The page
+keeps them in memory, or in `data/r2.json` when you tick "remember"; they
+never enter the repository or the site. Only what the site reads goes up:
+each company with statements (`companies/<SYMBOL>.json`), the screen rows per
+venue and their index (`screen/…`), and `index.json`, which lists the
+companies and venues in the store and is written last, so the site never
+points at a file that is not there yet. The raw replies, the rows folder and
+the CSVs stay on your machine. `data/uploaded.json` remembers what went up,
+so a second send skips companies the pull has not touched since. The free R2
+allowance is ten gigabytes, which holds the three exchanges several times over.
+
+EODHD's personal plans do not allow the data to be redistributed. The store is
+open because the site has no readers but its owner yet; if that changes, put
+Cloudflare Access in front of the data paths on a domain of your own.
 
 ## Deployment
 
 The repository is connected to Cloudflare Workers Builds, so every push to
 `main` deploys to production. Connect it once in the Cloudflare dashboard
 (Workers & Pages, Create, Import a repository) if that has not been done yet.
-The Worker needs no secrets or bindings beyond what `wrangler.jsonc` declares.
+The Worker needs no secrets. Its one binding beyond the assets is the store's
+bucket, `wwws-data`, which must exist in the account before a deploy with it.
 
 ## Fonts
 

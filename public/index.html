@@ -57,10 +57,11 @@
     .status { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); }
 
     /* view nav: Companies | Watchlists | Chapters */
-    .views { display: flex; gap: .15rem; }
+    .views { display: flex; flex-wrap: wrap; gap: .15rem; }
     .view { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .7rem; border-bottom: 3px solid transparent; }
     .view:hover { color: var(--ink); }
     .view.active { color: var(--claret); border-bottom-color: var(--claret); }
+    @media (max-width: 40rem) { .view { padding: .45rem .35rem; font-size: .68rem; letter-spacing: .05em; } }
     .section-pick { display: flex; align-items: center; gap: .6rem; flex: 1 1 18rem; min-width: 0; max-width: 34rem; }
     .section-pick select { flex: 1 1 0; min-width: 0; }
     .section-pick[hidden] { display: none; }
@@ -84,6 +85,8 @@
     .kept a:hover { text-decoration: underline; }
     .kept.samples { margin-top: -.6rem; }
     .kept.samples b { margin-right: .4rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .kept.store { color: var(--ink); }
+    .kept.store b { margin: 0 .2rem 0 .4rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .units { font-family: var(--sans); font-size: .75rem; color: var(--ink-60); margin: 0 0 .4rem; }
     .table-frame { position: relative; }
     .table-wrap { overflow-x: auto; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); scrollbar-width: none; }
@@ -118,6 +121,28 @@
     details.raw h4 { font-family: var(--sans); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); margin: 1.2rem 0 .4rem; }
     @media (max-width: 40rem) { .fetch-form { grid-template-columns: 1fr; } }
     .next-report { margin: -.7rem 0 .6rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
+    .screen-controls { display: flex; flex-wrap: wrap; gap: .9rem 2rem; align-items: flex-start; margin: 0 0 1rem; font-family: var(--sans); }
+    .screen-controls .f { display: flex; flex-direction: column; gap: .35rem; }
+    .screen-controls label.t, .rules legend { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); padding: 0; }
+    .screen-controls input[type=search] { font-family: var(--sans); font-size: .95rem; padding: .45rem .6rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); min-width: 16rem; }
+    .rules { border: 0; padding: 0; margin: 0; min-width: 0; flex: 1 1 28rem; }
+    .rules legend { margin-bottom: .35rem; }
+    .rules .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: .2rem 1.2rem; }
+    .rules label { display: flex; align-items: baseline; gap: .45rem; font-size: .85rem; color: var(--ink); cursor: pointer; }
+    .rules input { accent-color: var(--claret); margin: 0; position: relative; top: .1rem; flex: none; }
+    .rules .n { color: var(--ink-40); font-size: .78rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .screen-count { font-family: var(--sans); font-size: .82rem; color: var(--ink-60); margin: 0 0 .6rem; }
+    .ntable.screen thead th { white-space: normal; min-width: 5.5rem; vertical-align: bottom; line-height: 1.25; }
+    .ntable.screen th.item, .ntable.screen td.item { min-width: 13rem; max-width: 18rem; }
+    .ntable.screen td.item a { color: var(--ink); text-decoration: none; }
+    .ntable.screen td.item a:hover { color: var(--claret); text-decoration: underline; }
+    .ntable.screen td.item .sym { display: block; font-size: .72rem; font-weight: 400; color: var(--ink-60); }
+    .ntable.screen td.t { text-align: left; white-space: nowrap; color: var(--ink-70); }
+    .ntable button.sort { background: none; border: 0; padding: 0; margin: 0; color: inherit; font: inherit; letter-spacing: normal; text-transform: none; cursor: pointer; text-align: inherit; white-space: normal; }
+    .ntable button.sort:hover, .ntable button.sort:focus-visible { background: none; color: var(--claret); outline: none; text-decoration: underline; }
+    .ntable th.sorted button.sort { color: var(--claret); }
+    .ntable button.sort .dir { font-size: .7em; margin-left: .25rem; }
+    .screen-more { margin: 1rem 0 0; }
     .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .8rem; margin: 0 0 1rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
     .price b { margin-right: .3rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .price .now { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -219,6 +244,7 @@
     .type.on input { accent-color: var(--paper); }
     .type:focus-within { outline: 2px solid var(--teal); outline-offset: 1px; }
     .mark.type-tag { color: var(--teal); border-color: var(--teal); }
+    .mark.store-tag { color: var(--ink-60); border-color: var(--ink-60); }
     textarea { display: block; width: 100%; box-sizing: border-box; font-family: var(--text); font-size: 1.125rem; line-height: 1.55; padding: .85rem 1rem; color: var(--ink); background: var(--white); border: 1px solid var(--rule); border-radius: 0; resize: vertical; }
     textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(13, 118, 128, .22); }
     textarea::placeholder { color: var(--ink-40); font-style: italic; }
@@ -263,6 +289,7 @@
   <div class="controls wrap">
     <nav class="views" aria-label="Views">
       <a class="view" id="view-numbers" href="#companies">Companies</a>
+      <a class="view" id="view-screen" href="#screen">Screen</a>
       <a class="view" id="view-watchlists" href="#watchlists">Watchlists</a>
       <a class="view" id="view-chapters" href="#chapters">Chapters</a>
     </nav>
@@ -1239,10 +1266,10 @@
         nextReportHtml(c) +
         priceHtml(c) +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
-        (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
-        '<button type="button" class="linkbtn" id="refresh">' + (c.sample ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
+        (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.store ? '<span>In the store, pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
+        '<button type="button" class="linkbtn" id="refresh">' + (c.sample || c.store ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
         '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
-        (c.sample ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + '</p>' +
+        (c.sample || c.store ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + '</p>' +
         (dates.length ? tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
         (dates.length ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
           rawTableHtml('Income statement', c.income, newest, newestLabels) +
@@ -1282,7 +1309,61 @@
       });
     }
 
-    var VENUE_NAMES = { NASDAQ: 'NASDAQ', NYSE: 'New York', US: 'United States', LSE: 'London', PA: 'Paris', XETRA: 'Xetra', SHG: 'Shanghai', SHE: 'Shenzhen', KO: 'Korea', KQ: 'KOSDAQ' };
+    // The store: the owner's pull of whole exchanges, in an R2 bucket the Worker
+    // serves at api/data/ with no key. index.json says what is there (symbol to
+    // the date pulled, and the venues); a company's file is fetched on first
+    // view and kept for the session, like a sample. A kept copy comes first,
+    // then the store, then a bundled sample, then the fetch form.
+    var store = { index: null, failed: false, loading: null, cache: {}, missing: {} };
+
+    function loadStoreIndex() {
+      if (store.loading) return store.loading;
+      store.loading = window.fetch('api/data/index.json').then(function (res) { return res.ok ? res.json() : null; }).then(function (d) {
+        if (d && d.companies && typeof d.companies === 'object' && !Array.isArray(d.companies)) store.index = d; else store.failed = true;
+      }).catch(function () { store.failed = true; }).then(function () {
+        var id = window.location.hash.replace(/^#\/?/, '');
+        if (/^(companies|numbers|watchlists)/i.test(id) || id === '') route();
+      });
+      return store.loading;
+    }
+
+    function inStore(symbol) {
+      return !!(store.index && Object.prototype.hasOwnProperty.call(store.index.companies, symbol));
+    }
+
+    function storeCount() {
+      return store.index ? Object.keys(store.index.companies).length : 0;
+    }
+
+    function loadStored(symbol) {
+      window.fetch('api/data/companies/' + encodeURIComponent(symbol) + '.json').then(function (res) {
+        if (!res.ok) throw new Error('status ' + res.status);
+        return res.json();
+      }).then(function (c) {
+        if (!c || typeof c !== 'object' || !c.income) throw new Error('not a company file');
+        c.store = true;
+        store.cache[symbol] = c;
+      }).catch(function () {
+        store.missing[symbol] = true;
+      }).then(function () {
+        var id = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
+        var m = /^(?:numbers|companies)\/(.*)$/i.exec(id);
+        if (m && normaliseSymbol(m[1]) === symbol) route();
+      });
+    }
+
+    function fmtCount(n) { return Number(n).toLocaleString('en-US'); }
+
+    function storeHtml() {
+      var d = store.index, total = storeCount();
+      if (!d || !total) return '';
+      var venues = Object.keys(d.venues || {}).filter(function (v) { return d.venues[v] && d.venues[v].companies; })
+        .sort(function (a, b) { return d.venues[b].companies - d.venues[a].companies || a.localeCompare(b); });
+      return '<p class="kept store">The store holds ' + fmtCount(total) + ' companies, pulled ' + esc(fmtDate(d.pulledUpTo)) + ', and opens any of them without a call:' +
+        venues.map(function (v) { return '<b>' + esc(VENUE_NAMES[v] || v) + '</b>' + fmtCount(d.venues[v].companies); }).join(' \u00b7') + '. Open the <a href="#screen">Screen</a> to sort and filter them, or type a ticker above.</p>';
+    }
+
+    var VENUE_NAMES = { NASDAQ: 'NASDAQ', NYSE: 'New York', US: 'United States', LSE: 'London', PA: 'Paris', XETRA: 'Xetra', SHG: 'Shanghai', SHE: 'Shenzhen', KO: 'Korea', KQ: 'KOSDAQ', CC: 'Crypto' };
 
     function samplesHtml() {
       var d = samples.index;
@@ -1303,15 +1384,22 @@
       showView('numbers');
       var symbol = fromHash ? normaliseSymbol(fromHash) : (numbers.last || '');
       var company = symbol ? numbers.companies[symbol] : null;
-      var sample = null, loading = false;
-      if (!company && symbol && samples.byId[symbol] && !samples.failed[symbol]) {
-        sample = samples.cache[symbol] || null;
-        if (!sample) { loading = true; loadSample(symbol); }
+      var stored = null, sample = null, loading = false;
+      if (!company && symbol) {
+        if (!store.index && !store.failed) { loading = true; loadStoreIndex(); }
+        else if (inStore(symbol) && !store.missing[symbol]) {
+          stored = store.cache[symbol] || null;
+          if (!stored) { loading = true; loadStored(symbol); }
+        }
+        if (!stored && !loading && samples.byId[symbol] && !samples.failed[symbol]) {
+          sample = samples.cache[symbol] || null;
+          if (!sample) { loading = true; loadSample(symbol); }
+        }
       }
-      var shown = company || sample;
+      var shown = company || stored || sample;
       app.innerHTML = '<section class="numbers">' + formHtml(symbol) +
         '<p class="status" id="numbers-status" role="status" aria-live="polite"></p>' +
-        (shown ? companyHtml(shown) : (loading ? '<p class="kept">Opening the sample data for ' + esc(symbol) + '\u2026</p>' : samplesHtml() + keptHtml(''))) + '</section>';
+        (shown ? companyHtml(shown) : (loading ? '<p class="kept">Opening ' + esc(symbol) + '\u2026</p>' : storeHtml() + samplesHtml() + keptHtml(''))) + '</section>';
       currentCompany = shown || null;
       if (company) numbers.last = symbol;
 
@@ -1324,7 +1412,8 @@
 
       function say(msg) { statusLine.textContent = msg; }
       if (pendingNumbersStatus) { say(pendingNumbersStatus); pendingNumbersStatus = ''; }
-      else if (symbol && samples.failed[symbol] && !company) say('The sample file for ' + symbol + ' could not be opened. Press Fetch to pull it from EODHD.');
+      else if (symbol && store.missing[symbol] && !shown) say('The store\u2019s file for ' + symbol + ' could not be opened. Press Fetch to pull it from EODHD.');
+      else if (symbol && samples.failed[symbol] && !shown) say('The sample file for ' + symbol + ' could not be opened. Press Fetch to pull it from EODHD.');
       else if (symbol && !shown && !loading) say('Not fetched yet. Press Fetch to pull ' + symbol + ' from EODHD.');
 
       function go(sym) {
@@ -1366,6 +1455,253 @@
           if (window.location.hash === '#companies') route(); else window.location.hash = 'companies';
         });
       }
+    }
+
+    // ---- screen: every company of a venue, by the book's ratios -----------
+    // The rows come from the store (api/data/screen/<VENUE>.json): one per
+    // company, with the latest year's figures and ratios as the puller computes
+    // them (screenRow in tools/lib/pull.mjs). The rules are the book's rules of
+    // thumb from NUMBER_ROWS, applied to that row; a company with no statements
+    // at EODHD is counted but left out of the table.
+    var SCREEN_COLUMNS = [
+      { key: 'sector', label: 'Sector', text: true },
+      { key: 'rules', label: 'Rules met', unit: 'rules' },
+      { key: 'revenue', label: 'Revenue, millions', unit: 'money' },
+      { key: 'grossMargin', label: 'Gross margin', unit: 'pct' },
+      { key: 'sgaOfGrossProfit', label: 'SG&A, share of gross profit', unit: 'pct' },
+      { key: 'rdOfGrossProfit', label: 'R&D, share of gross profit', unit: 'pct' },
+      { key: 'depreciationOfGrossProfit', label: 'Depreciation, share of gross profit', unit: 'pct' },
+      { key: 'interestOfOperatingIncome', label: 'Interest, share of operating income', unit: 'pct' },
+      { key: 'taxRate', label: 'Effective tax rate', unit: 'pct' },
+      { key: 'netMargin', label: 'Net margin', unit: 'pct' },
+      { key: 'eps', label: 'Earnings per share', unit: 'x' },
+      { key: 'currentRatio', label: 'Current ratio', unit: 'x' },
+      { key: 'returnOnAssets', label: 'Return on total assets', unit: 'pct' },
+      { key: 'yearsToClearDebt', label: 'Years of earnings to clear long-term debt', unit: 'years' },
+      { key: 'debtToEquity', label: 'Debt to equity', unit: 'x' },
+      { key: 'returnOnEquity', label: 'Return on equity', unit: 'pct' },
+      { key: 'retainedEarningsGrowth', label: 'Retained earnings growth', unit: 'pct' },
+      { key: 'capexOfNetEarnings', label: 'Capex, share of net earnings', unit: 'pct' },
+      { key: 'stockBoughtBack', label: 'Stock bought back, millions', unit: 'money' },
+      { key: 'dividendsPaid', label: 'Dividends paid, millions', unit: 'money' },
+      { key: 'year', label: 'Latest year', text: true, show: function (r) { return r.year ? r.year.slice(0, 4) : ''; } },
+      { key: 'nextReport', label: 'Next report', text: true, show: function (r) { return r.nextReport ? dayLabel(r.nextReport) : ''; } }
+    ];
+    function isNum(x) { return typeof x === 'number' && isFinite(x); }
+    var SCREEN_RULES = [
+      { key: 'grossMargin', label: 'Gross margin 40% or more', ch: '10', test: function (r) { return isNum(r.grossMargin) && r.grossMargin >= 0.4; } },
+      { key: 'sga', label: 'SG&A under 30% of gross profit', ch: '12', test: function (r) { return isNum(r.sgaOfGrossProfit) && r.sgaOfGrossProfit >= 0 && r.sgaOfGrossProfit < 0.3; } },
+      { key: 'depreciation', label: 'Depreciation 10% of gross profit or less', ch: '14', test: function (r) { return isNum(r.depreciationOfGrossProfit) && r.depreciationOfGrossProfit >= 0 && r.depreciationOfGrossProfit <= 0.1; } },
+      { key: 'interest', label: 'Interest under 15% of operating income', ch: '15', test: function (r) { return isNum(r.interestOfOperatingIncome) && r.interestOfOperatingIncome >= 0 && r.interestOfOperatingIncome < 0.15; } },
+      { key: 'netMargin', label: 'Net margin over 20%', ch: '19', test: function (r) { return isNum(r.netMargin) && r.netMargin > 0.2; } },
+      { key: 'eps', label: 'Earnings per share positive and rising over the years shown', ch: '20', test: function (r) { var v = (r.epsByYear || []).map(function (e) { return e && e[1]; }).filter(isNum); return v.length >= 3 && v.every(function (x) { return x > 0; }) && v[v.length - 1] > v[0]; } },
+      { key: 'current', label: 'Current ratio above 1', ch: '28', test: function (r) { return isNum(r.currentRatio) && r.currentRatio > 1; } },
+      { key: 'debtYears', label: 'Long-term debt cleared within four years of earnings', ch: '40', test: function (r) { if (!(isNum(r.netEarnings) && r.netEarnings > 0)) return false; if (!isNum(r.longTermDebt) || r.longTermDebt <= 0) return true; return isNum(r.yearsToClearDebt) && r.yearsToClearDebt <= 4; } },
+      { key: 'debtToEquity', label: 'Debt to equity below 0.80', ch: '42', test: function (r) { return isNum(r.debtToEquity) && r.debtToEquity >= 0 && r.debtToEquity < 0.8; } },
+      { key: 'retained', label: 'Retained earnings growing', ch: '45', test: function (r) { return isNum(r.retainedEarningsGrowth) && r.retainedEarningsGrowth > 0; } },
+      { key: 'capex', label: 'Capex 25% of net earnings or less', ch: '51', test: function (r) { return isNum(r.netEarnings) && r.netEarnings > 0 && isNum(r.capexOfNetEarnings) && r.capexOfNetEarnings <= 0.25; } },
+      { key: 'buybacks', label: 'Bought back shares in the latest year', ch: '52', test: function (r) { return isNum(r.stockBoughtBack) && r.stockBoughtBack > 0; } }
+    ];
+    var VENUE_ORDER = ['NASDAQ', 'NYSE', 'LSE', 'XETRA', 'PA', 'SHG', 'SHE', 'KO', 'KQ', 'US', 'CC'];
+    var SCREEN_PAGE = 200;
+    var screen = { index: null, failed: false, loading: null, rows: {}, failedRows: {}, loadingRows: {} };
+    var screenState = { venue: '', sort: 'rules', dir: 'desc', query: '', rules: {}, shown: SCREEN_PAGE };
+
+    function onScreen() { return /^#\/?screen/i.test(window.location.hash); }
+
+    function loadScreenIndex() {
+      if (screen.loading) return screen.loading;
+      screen.loading = window.fetch('api/data/screen/index.json').then(function (res) { return res.ok ? res.json() : null; }).then(function (d) {
+        if (d && d.venues && typeof d.venues === 'object') screen.index = d; else screen.failed = true;
+      }).catch(function () { screen.failed = true; }).then(function () { if (onScreen()) route(); });
+      return screen.loading;
+    }
+
+    function prepareScreenRows(rows) {
+      var out = { rows: [], without: 0 };
+      rows.forEach(function (r) {
+        if (!r || typeof r !== 'object' || !r.symbol) return;
+        if (!r.year) { out.without++; return; }
+        r.rulesMet = SCREEN_RULES.map(function (rule) { return rule.test(r); });
+        r.rules = r.rulesMet.filter(Boolean).length;
+        r.search = ((r.name || '') + ' ' + r.symbol).toLowerCase();
+        out.rows.push(r);
+      });
+      return out;
+    }
+
+    function loadScreenRows(venue) {
+      if (screen.loadingRows[venue]) return;
+      screen.loadingRows[venue] = true;
+      window.fetch('api/data/screen/' + encodeURIComponent(venue) + '.json').then(function (res) {
+        if (!res.ok) throw new Error('status ' + res.status);
+        return res.json();
+      }).then(function (rows) {
+        if (!Array.isArray(rows)) throw new Error('not a screen file');
+        screen.rows[venue] = prepareScreenRows(rows);
+      }).catch(function () {
+        screen.failedRows[venue] = true;
+      }).then(function () {
+        screen.loadingRows[venue] = false;
+        if (onScreen() && screenState.venue === venue) route();
+      });
+    }
+
+    function screenVenues() {
+      if (!screen.index) return [];
+      return Object.keys(screen.index.venues).filter(function (v) { return screen.index.venues[v] && screen.index.venues[v].companies > 0; }).sort(function (a, b) {
+        var ia = VENUE_ORDER.indexOf(a), ib = VENUE_ORDER.indexOf(b);
+        if (ia < 0) ia = 99; if (ib < 0) ib = 99;
+        return ia - ib || a.localeCompare(b);
+      });
+    }
+
+    function renderVenueTabs(venues, current) {
+      tabsWrap.setAttribute('aria-label', 'Venues');
+      tabsEl.innerHTML = venues.map(function (v) {
+        return '<a class="tab" role="tab" href="#screen/' + esc(v) + '" aria-selected="' + (v === current ? 'true' : 'false') + '"' +
+          ' title="' + esc(fmtCount(screen.index.venues[v].companies) + ' companies') + '">' + esc(VENUE_NAMES[v] || v) + '</a>';
+      }).join('');
+      tabsWrap.hidden = !venues.length;
+    }
+
+    function screenHeadHtml(venue, data) {
+      var info = screen.index.venues[venue] || {};
+      return '<p class="kicker">Screen \u00b7 ' + esc(VENUE_NAMES[venue] || venue) + '</p>' +
+        '<h2 class="headline">' + esc(VENUE_NAMES[venue] || venue) + '</h2>' +
+        '<p class="company-meta"><span>' + fmtCount(data.rows.length) + ' companies with statements' + (info.pulledUpTo ? ', pulled ' + esc(fmtDate(info.pulledUpTo)) : '') +
+        (data.without ? '; ' + fmtCount(data.without) + ' without statements at EODHD are left out' : '') + '.</span></p>' +
+        '<div class="screen-controls">' +
+        '<div class="f"><label class="t" for="screen-find">Find a company</label><input type="search" id="screen-find" placeholder="Name or ticker" value="' + esc(screenState.query) + '" autocomplete="off"></div>' +
+        '<fieldset class="rules"><legend>The book\u2019s rules of thumb: tick to keep only the companies that pass</legend><div class="list">' + SCREEN_RULES.map(function (rule) {
+          var n = data.rows.filter(function (r) { return r.rulesMet[SCREEN_RULES.indexOf(rule)]; }).length;
+          return '<label><input type="checkbox" id="rule-' + esc(rule.key) + '" data-rule="' + esc(rule.key) + '"' + (screenState.rules[rule.key] ? ' checked' : '') + '> <span>' + esc(rule.label) + ' <span class="ref">ch. ' + esc(rule.ch) + '</span> <span class="n">' + fmtCount(n) + '</span></span></label>';
+        }).join('') + '</div></fieldset></div>' +
+        '<p class="screen-count" id="screen-count"></p>';
+    }
+
+    function screenList(data) {
+      var q = screenState.query, ticked = SCREEN_RULES.map(function (rule, i) { return screenState.rules[rule.key] ? i : -1; }).filter(function (i) { return i >= 0; });
+      var list = data.rows.filter(function (r) {
+        if (q && r.search.indexOf(q) < 0) return false;
+        for (var k = 0; k < ticked.length; k++) if (!r.rulesMet[ticked[k]]) return false;
+        return true;
+      });
+      var col = screenColumn(screenState.sort), dir = screenState.dir === 'asc' ? 1 : -1;
+      list.sort(function (a, b) {
+        var x = screenSortValue(a, col), y = screenSortValue(b, col);
+        var xn = x === null, yn = y === null;
+        if (xn && yn) return (a.name || '').localeCompare(b.name || '');
+        if (xn) return 1;
+        if (yn) return -1;
+        if (typeof x === 'string') return dir * x.localeCompare(y) || (a.name || '').localeCompare(b.name || '');
+        return dir * (x - y) || (a.name || '').localeCompare(b.name || '');
+      });
+      return { list: list, ticked: ticked.length };
+    }
+
+    var NAME_COLUMN = { key: 'name', label: 'Company', text: true };
+    function screenColumn(key) {
+      if (key === 'name') return NAME_COLUMN;
+      for (var i = 0; i < SCREEN_COLUMNS.length; i++) if (SCREEN_COLUMNS[i].key === key) return SCREEN_COLUMNS[i];
+      return SCREEN_COLUMNS[1];
+    }
+
+    function screenSortValue(r, col) {
+      if (col.key === 'name') return r.name || r.symbol;
+      if (col.text) { var t = col.show ? col.show(r) : r[col.key]; return t ? String(col.key === 'nextReport' || col.key === 'year' ? r[col.key] : t) : null; }
+      var v = r[col.key];
+      return isNum(v) ? v : null;
+    }
+
+    function screenCellHtml(r, col) {
+      if (col.text) { var t = col.show ? col.show(r) : (r[col.key] || ''); return '<td class="t' + (t ? '' : ' none') + '">' + (t ? esc(t) : '\u2014') + '</td>'; }
+      if (col.unit === 'rules') return '<td class="v">' + r.rules + '/' + SCREEN_RULES.length + '</td>';
+      var v = r[col.key];
+      if (!isNum(v)) return '<td class="v none">\u2014</td>';
+      return '<td class="v' + (v < 0 ? ' neg' : '') + '">' + esc(fmtValue(v, col.unit)) + '</td>';
+    }
+
+    function drawScreenTable(venue, data) {
+      var slot = document.getElementById('screen-table'), count = document.getElementById('screen-count');
+      if (!slot || !count) return;
+      var oldWrap = slot.querySelector('.table-wrap'), left = oldWrap ? oldWrap.scrollLeft : 0;
+      var r = screenList(data), list = r.list, shown = list.slice(0, screenState.shown);
+      var col = screenColumn(screenState.sort);
+      count.textContent = (list.length === data.rows.length ? fmtCount(list.length) + ' companies' : fmtCount(list.length) + ' of ' + fmtCount(data.rows.length) + ' companies') +
+        (r.ticked ? ' meet ' + (r.ticked === 1 ? 'the ticked rule' : 'all ' + r.ticked + ' ticked rules') : '') +
+        (screenState.query ? ' and match \u201c' + screenState.query + '\u201d' : '') +
+        ', sorted by ' + (col.key === 'name' ? 'name' : col.label.toLowerCase()) + (screenState.dir === 'asc' ? ', lowest first' : col.text ? ', last first' : ', highest first') +
+        (list.length > shown.length ? '; showing the first ' + fmtCount(shown.length) : '') + '.';
+      if (!list.length) { slot.innerHTML = '<p class="hint">No company matches. Untick a rule or clear the search.</p>'; return; }
+      function th(key, label, cls) {
+        var sorted = screenState.sort === key;
+        return '<th class="' + cls + (sorted ? ' sorted' : '') + '" scope="col"' + (sorted ? ' aria-sort="' + (screenState.dir === 'asc' ? 'ascending' : 'descending') + '"' : '') + '>' +
+          '<button type="button" class="sort" data-sort="' + esc(key) + '">' + esc(label) + (sorted ? '<span class="dir">' + (screenState.dir === 'asc' ? '\u25b2' : '\u25bc') + '</span>' : '') + '</button></th>';
+      }
+      var html = '<div class="table-frame"><div class="table-wrap"><table class="ntable screen"><thead><tr>' + th('name', 'Company', 'item') +
+        SCREEN_COLUMNS.map(function (c) { return th(c.key, c.label, ''); }).join('') + '</tr></thead><tbody>';
+      shown.forEach(function (row) {
+        html += '<tr><td class="item"><a href="#companies/' + esc(row.symbol) + '">' + esc(row.name || row.symbol) + '</a><span class="sym">' + esc(row.symbol) + (row.currency ? ' \u00b7 ' + esc(row.currency) : '') + '</span></td>' +
+          SCREEN_COLUMNS.map(function (c) { return screenCellHtml(row, c); }).join('') + '</tr>';
+      });
+      html += '</tbody></table></div><div class="table-bar"><div></div></div></div>';
+      if (list.length > shown.length) html += '<p class="screen-more"><button type="button" id="screen-more">Show ' + fmtCount(Math.min(SCREEN_PAGE, list.length - shown.length)) + ' more</button></p>';
+      slot.innerHTML = html;
+      var wrap = slot.querySelector('.table-wrap');
+      if (wrap && left) wrap.scrollLeft = left;
+      bindFrames();
+    }
+
+    function renderScreen(fromHash) {
+      showView('screen');
+      if (!screen.index && !screen.failed) {
+        hideTabs();
+        loadScreenIndex();
+        app.innerHTML = '<section class="screen"><p class="kicker">Screen</p><p class="kept">Opening the store\u2026</p></section>';
+        return;
+      }
+      var venues = screenVenues();
+      if (!venues.length) {
+        hideTabs();
+        screenState.venue = '';
+        app.innerHTML = '<section class="screen"><p class="kicker">Screen</p><h2 class="headline">Nothing to screen yet</h2>' +
+          '<p class="hint">The store has no screen rows. Send a pull to the site from the local pull page, and every company of its venues will be listed here by the book\u2019s ratios, with its rules of thumb as filters.</p></section>';
+        return;
+      }
+      var wanted = fromHash ? String(fromHash).toUpperCase() : '';
+      var venue = venues.indexOf(wanted) >= 0 ? wanted : (venues.indexOf(screenState.venue) >= 0 ? screenState.venue : venues[0]);
+      if (screenState.venue !== venue) { screenState.venue = venue; screenState.shown = SCREEN_PAGE; }
+      renderVenueTabs(venues, venue);
+      var data = screen.rows[venue];
+      if (!data) {
+        if (!screen.failedRows[venue]) loadScreenRows(venue);
+        app.innerHTML = '<section class="screen"><p class="kicker">Screen \u00b7 ' + esc(VENUE_NAMES[venue] || venue) + '</p><h2 class="headline">' + esc(VENUE_NAMES[venue] || venue) + '</h2>' +
+          (screen.failedRows[venue] ? '<p class="hint">The rows for ' + esc(VENUE_NAMES[venue] || venue) + ' could not be opened from the store.</p>' : '<p class="kept">Opening ' + esc(VENUE_NAMES[venue] || venue) + '\u2026</p>') + '</section>';
+        return;
+      }
+      app.innerHTML = '<section class="screen">' + screenHeadHtml(venue, data) + '<div id="screen-table"></div></section>';
+      var find = document.getElementById('screen-find'), timer = null;
+      find.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () { screenState.query = find.value.trim().toLowerCase(); screenState.shown = SCREEN_PAGE; drawScreenTable(venue, data); }, 150);
+      });
+      Array.prototype.forEach.call(app.querySelectorAll('.rules input[data-rule]'), function (box) {
+        box.addEventListener('change', function () { screenState.rules[box.getAttribute('data-rule')] = box.checked; screenState.shown = SCREEN_PAGE; drawScreenTable(venue, data); });
+      });
+      document.getElementById('screen-table').addEventListener('click', function (ev) {
+        var sort = ev.target.closest ? ev.target.closest('button.sort') : null;
+        if (sort) {
+          var key = sort.getAttribute('data-sort');
+          if (screenState.sort === key) screenState.dir = screenState.dir === 'asc' ? 'desc' : 'asc';
+          else { screenState.sort = key; screenState.dir = key === 'name' || key === 'sector' ? 'asc' : 'desc'; }
+          screenState.shown = SCREEN_PAGE;
+          drawScreenTable(venue, data);
+          return;
+        }
+        if (ev.target.id === 'screen-more') { screenState.shown += SCREEN_PAGE; drawScreenTable(venue, data); }
+      });
+      drawScreenTable(venue, data);
     }
 
     // ---- watchlists: named lists of companies -----------------------------
@@ -1545,19 +1881,21 @@
     }
 
     function listHtml(list) {
-      var kept = 0, sampledCount = 0;
+      var kept = 0, storedCount = 0, sampledCount = 0;
       var rows = list.items.map(function (it, i) {
         var has = !!numbers.companies[it.symbol];
         if (has) kept++;
-        var sampled = !has && !!samples.byId[it.symbol];
+        var stored = !has && inStore(it.symbol);
+        if (stored) storedCount++;
+        var sampled = !has && !stored && !!samples.byId[it.symbol];
         if (sampled) sampledCount++;
         return '<li><span class="num">' + (i + 1) + '</span><span class="who"><a href="#companies/' + esc(it.symbol) + '" title="Open the numbers for ' + esc(it.name) + '">' + esc(it.name) + '</a>' +
-          '<span class="sym">' + esc(it.symbol) + '</span>' + (has ? ' <span class="mark">numbers kept</span>' : (sampled ? ' <span class="mark type-tag">sample data</span>' : '')) + '</span>' +
+          '<span class="sym">' + esc(it.symbol) + '</span>' + (has ? ' <span class="mark">numbers kept</span>' : stored ? ' <span class="mark store-tag">in the store</span>' : (sampled ? ' <span class="mark type-tag">sample data</span>' : '')) + '</span>' +
           '<button type="button" class="linkbtn remove" data-symbol="' + esc(it.symbol) + '" aria-label="Remove ' + esc(it.name) + ' from this list">Remove</button></li>';
       }).join('');
       return '<p class="kicker">Watchlist</p>' +
         '<h2 class="headline">' + esc(list.name) + '</h2>' +
-        '<p class="company-meta"><span>' + countText(list.items.length) + (kept ? ', ' + kept + ' with numbers kept on this device' : '') + (sampledCount ? ', ' + sampledCount + ' with sample data' : '') + '</span>' + listActionsHtml(list) + '</p>' +
+        '<p class="company-meta"><span>' + countText(list.items.length) + (kept ? ', ' + kept + ' with numbers kept on this device' : '') + (storedCount ? ', ' + storedCount + ' in the store' : '') + (sampledCount ? ', ' + sampledCount + ' with sample data' : '') + '</span>' + listActionsHtml(list) + '</p>' +
         '<div id="name-slot"></div>' +
         (rows ? '<ol class="wlist">' + rows + '</ol>' : '<p class="hint">Nothing in this list yet.</p>');
     }
@@ -2266,12 +2604,14 @@
     var viewChapters = document.getElementById('view-chapters');
     var viewNumbers = document.getElementById('view-numbers');
     var viewWatchlists = document.getElementById('view-watchlists');
+    var viewScreen = document.getElementById('view-screen');
     var sectionPick = document.getElementById('section-pick');
 
     function showView(name) {
       var onChapters = name === 'chapters';
       viewChapters.classList.toggle('active', onChapters);
       viewNumbers.classList.toggle('active', name === 'numbers');
+      viewScreen.classList.toggle('active', name === 'screen');
       viewWatchlists.classList.toggle('active', name === 'watchlists');
       sectionPick.hidden = !onChapters;
       if (name === 'numbers') hideTabs();
@@ -2285,6 +2625,14 @@
         var wanted = numbersMatch ? numbersMatch[1] || '' : '';
         renderNumbers(wanted);
         document.title = (currentCompany && wanted ? currentCompany.meta.name + ' - Companies - ' : (wanted ? 'Companies - ' : '')) + 'What Would Warren Say?';
+        window.scrollTo(0, 0);
+        bindFrames();
+        return;
+      }
+      var screenMatch = /^screen(?:\/(.*))?$/i.exec(id);
+      if (screenMatch) {
+        renderScreen(screenMatch[1] || '');
+        document.title = (screenState.venue ? (VENUE_NAMES[screenState.venue] || screenState.venue) + ' - ' : '') + 'Screen - What Would Warren Say?';
         window.scrollTo(0, 0);
         bindFrames();
         return;
@@ -2408,6 +2756,7 @@
     window.addEventListener('beforeunload', function () { if (pendingFlush) pendingFlush(); });
     route();
     loadSamples();
+    loadStoreIndex();
   })();
   </script>
 </body>
