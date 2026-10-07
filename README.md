@@ -127,6 +127,28 @@ the relay path from a fixture shaped like an EODHD reply and check the table.
 For a change to the Worker, run `npx wrangler dev --var EODHD_BASE:<mock url>`
 against a local mock of EODHD and exercise `/api/eodhd/…` and the assets.
 
+## Pulling whole exchanges
+
+`tools/pull-fundamentals.mjs` pulls every company's fundamentals for a set of
+exchanges from EODHD on your own machine, apart from the site, into a local
+`data/` folder that git ignores. It needs Node 18 or later and nothing else:
+
+```bash
+EODHD_TOKEN=your-token npm run pull                      # NASDAQ and NYSE, London, Shanghai, Shenzhen
+EODHD_TOKEN=your-token npm run pull -- --exchanges US,LSE --refresh 30
+```
+
+Each company costs ten EODHD calls and each symbol list one, so the four
+exchanges, around thirteen thousand companies, take two days of a 100,000-call
+allowance: the run stops on its own when the day's calls are spent and carries
+on where it was when run again. It keeps EODHD's raw reply for each company,
+gzipped, writes the company in the shape the Numbers page keeps, one row of
+the book's ratios for the latest year, and a screen file per venue. The
+options are listed at the top of the script. The token comes from the
+environment and never enters the repository or the site. Nothing on the site
+reads the pull yet; EODHD's personal plans do not allow the data to be
+redistributed, so whatever the site later serves from it must be gated to you.
+
 ## Deployment
 
 The repository is connected to Cloudflare Workers Builds, so every push to

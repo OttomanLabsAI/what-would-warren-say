@@ -20,7 +20,9 @@ public/            everything served as assets
   assets/fonts/    Playfair Display + Newsreader woff2 (OFL), the only assets
 src/worker.js      /api/eodhd/fundamentals/<symbol> -> eodhd.com; everything else -> env.ASSETS
 wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var
-package.json       wrangler devDependency + dev/deploy/check scripts
+package.json       wrangler devDependency + dev/deploy/check/pull scripts
+tools/pull-fundamentals.mjs  pulls whole exchanges' fundamentals from EODHD into data/, apart from the site
+data/              the pull's output: git-ignored, EODHD-licensed, never committed
 prompt text/       the records behind the version in service (see below)
 ```
 
@@ -81,6 +83,20 @@ fetched company to a list, and a company whose numbers are kept carries a
 never numbers or the token); on import a list from the file replaces the one
 here by `id` unless the one here was changed more recently, an identical list
 is left alone, and lists absent from the file are left alone.
+
+`tools/pull-fundamentals.mjs` pulls every company's fundamentals for a set of
+exchanges (US filtered to NASDAQ and NYSE, LSE, SHG, SHE by default) from
+EODHD on the owner's machine, apart from the site, into `data/`: `symbols.json`
+(the universe), `pulled.json` (the manifest), `raw/` (EODHD's replies,
+gzipped), `companies/` (each company in the Numbers page's shape), `rows/`
+(the book's ratios for the latest year) and `screen/<VENUE>.json` (the rows per
+venue, for screening in the browser). The token comes from `EODHD_TOKEN` and
+never enters the repository or the site. It stops on EODHD's 402 and resumes
+next run. Its company shape and ratio formulas mirror `extractCompany` and
+`NUMBER_ROWS` in `index.html`: change them together. Nothing on the site reads
+the pull yet; the plan is an R2 bucket the Worker serves from, gated with
+Cloudflare Access because EODHD's personal plans forbid redistribution, then
+the Numbers page reading it and a screen view.
 
 The look is a financial newspaper: paper `#FFF1E5`, ink `#33302E`, claret
 `#990F3D` for accents, teal `#0D7680` for links, Playfair Display for the
@@ -183,3 +199,4 @@ design are their own release, requested deliberately.
 | v1.8 | Watchlists, with the sample lists already filled in | A Watchlists tab now sits beside Chapters and Numbers, holding named lists of companies: one generic list and the thirteen custom lists from the screenshots, Chips and RAM through to Quantum and Lithography, each company under its EODHD ticker. A company's name opens its numbers, a fetched company can be added to a list from the Numbers page, and lists can be made, renamed, added to, trimmed and deleted, with the starting lists one click from being restored. Lists stay on the device and travel in the export file. |
 | v1.9 | EODHD's refusals now say what is actually wrong | When EODHD turns a fetch down, the Numbers page now tells you which of three things happened: the token is not recognised, today's calls are used up, or the plan does not cover fundamentals for that ticker, in which case it says the token itself is fine and which plans do. Before, a plan without fundamentals was reported as a rejected token. |
 | v1.10 | One long table, the sideways bar always in view | The Numbers table no longer scrolls inside a box of its own: it runs the full length of the page, with the year headings staying at the top of the window as you scroll down and the line names at the left as you scroll across. The sideways scrollbar now sits at the foot of the window for as long as the table is in view, so the earlier years are always one drag away. |
+| v1.11 | Whole exchanges pulled from EODHD, off the site | A new tool pulls every company's fundamentals for the United States, London, Shanghai and Shenzhen from EODHD on your own machine, apart from the site, keeping each reply, each company in the shape the Numbers page uses, and a row of the book's ratios per company for screening. It stops when the day's calls run out and carries on next time. The site itself is unchanged; the parts that will read the pull come next. |
