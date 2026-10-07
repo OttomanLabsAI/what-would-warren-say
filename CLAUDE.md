@@ -57,6 +57,12 @@ fonts are self-hosted under `public/assets/fonts/`; they never change, which is
 what the immutable cache on `/assets/*` is for. Anything else moved under
 `/assets/` needs a fingerprinted name. Keep `index.html` single-file.
 
+Two rules keep the page still when switching views: `scrollbar-gutter: stable`
+on `html`, so the centred column neither moves nor narrows when a scrollbar
+appears, and at desktop widths the section dropdown's slot stays in the
+controls row on Numbers (`visibility: hidden`, not `display: none`) so the row
+has one height in both views. Do not remove either.
+
 ## Local development
 
 ```bash
@@ -138,3 +144,4 @@ design are their own release, requested deliberately.
 | v1.2 | Salmon paper, serif headlines and chapter tabs | The companion now reads like a financial newspaper: salmon paper, dark ink, a serif masthead and headlines, with your writing in clean white boxes. A section dropdown narrows the book to one part and a row of numbered tabs picks the chapter within it, a dot marking every chapter you have written on, while the contents page keeps the whole table of chapters in two newspaper columns. |
 | v1.3 | Every chapter now says what kind it is | Each chapter page opens with a chapter type, set with one click: Overview for a chapter that introduces a run of chapters, Metric for one that explains a single line item or ratio, or Background for the ones that are there for context only, such as the introduction. The choice saves with your notes, travels in exports and shows as a small tag beside the chapter in the contents. |
 | v1.4 | The book's numbers, fetched for any company | A Numbers tab now sits beside Chapters: give it a ticker and your own EODHD key and it lays out the company's full yearly history of the figures the book walks through, statement by statement with the chapter beside each line and the book's rule of thumb under each ratio, from gross margin to the years of earnings it would take to clear the long-term debt. Companies you fetch are kept on your device, the table downloads as a spreadsheet, and the key never leaves your browser. The line above the masthead is gone. |
+| v1.5 | The page holds still between views | Switching between Chapters and Numbers no longer nudges the page: the column keeps its width and position whether or not a scrollbar is showing, and the row of controls keeps one height in both views, so the masthead, the buttons and the text below stay exactly where they were. |

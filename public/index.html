@@ -32,7 +32,7 @@
       --sans: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
     }
 
-    html { background: var(--paper); }
+    html { background: var(--paper); scrollbar-gutter: stable; }
     body { margin: 0; color: var(--ink); font-family: var(--text); font-size: 1.125rem; line-height: 1.5; }
     .wrap { max-width: 64rem; margin: 0 auto; padding: 0 1rem; }
     a { color: var(--teal); }
@@ -61,9 +61,10 @@
     .view { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .7rem; border-bottom: 3px solid transparent; }
     .view:hover { color: var(--ink); }
     .view.active { color: var(--claret); border-bottom-color: var(--claret); }
-    .section-pick { display: flex; align-items: center; gap: .6rem; flex: 0 1 auto; min-width: 0; }
-    .section-pick select { flex: 1 1 auto; min-width: 7rem; max-width: 26rem; }
+    .section-pick { display: flex; align-items: center; gap: .6rem; flex: 1 1 18rem; min-width: 0; max-width: 34rem; }
+    .section-pick select { flex: 1 1 0; min-width: 0; }
     .section-pick[hidden] { display: none; }
+    @media (min-width: 50rem) { .section-pick[hidden] { display: flex; visibility: hidden; } }
 
     /* numbers */
     .numbers { padding: 1.4rem 1rem 2rem; }
