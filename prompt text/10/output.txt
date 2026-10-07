@@ -1,0 +1,9 @@
+v1.9 is built, verified and released: the Numbers page now says what EODHD actually refused.
+
+**The refusals.** Your screenshot showed "EODHD rejected the API token" for NVDA, when the token was fine and the plan was the problem: EODHD answers 401 for a token it does not recognise, 402 when the day's calls are spent and 403 when the token is valid but the plan does not cover the data, and the page had folded 403 into the token message. It now gives each its own line: a token that is not recognised says so and points you to your account page; a spent allowance says it comes back when EODHD's day resets; a plan that does not cover fundamentals for the ticker says the token itself is fine and names the plans that do, Fundamentals Data Feed and All-In-One; and a burst of requests says to wait a minute. Unknown tickers, empty replies and a dead connection read as before.
+
+**The archive.** Your message "api token error?" and its screenshot are archive 10, which replaces archive 9 in this commit, so the token screenshot now has its home.
+
+**Verified.** The Numbers suite's error cases now stand in for each refusal, a bad token, a spent allowance, a plan without fundamentals and the rate limit, and read the exact line back; all ten checks pass. The wrangler dry-run passed and the render check is clean. The relay is untouched, so it was not re-run.
+
+**Git.** Committed as Fid, pushed to the working branch, main fast-forwarded and pushed. No tags pushed. The ledger has the v1.9 line.

@@ -1,5 +1,0 @@
-create watchlists. add these with one generic one and the custom ones
-
-remembr to add the attahced file to the github repo in the prompt folder. update the skill if needed to include all file types
-
-allso, i hadn't updated the skill earlier in the session, add the attached files to the appropriate tags
