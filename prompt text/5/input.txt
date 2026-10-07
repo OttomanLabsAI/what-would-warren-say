@@ -1,0 +1,3 @@
+A reading companion remove this text
+
+also, i have eodhd api and an api key for it, make a new tabe that will get me the full history of a companies numbers that this book talks about

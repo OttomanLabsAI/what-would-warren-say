@@ -1,13 +1,20 @@
 {
-  // Assets-only Worker: no script, Cloudflare serves public/ directly.
+  // Static assets served from public/, plus a tiny Worker that relays EODHD
+  // requests on the same origin (src/worker.js). Everything else is an asset.
   // https://developers.cloudflare.com/workers/static-assets/
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "what-would-warren-say",
+  "main": "src/worker.js",
   "compatibility_date": "2026-09-26",
   "assets": {
     "directory": "./public",
+    "binding": "ASSETS",
     // Serve the themed 404 for unknown paths instead of a bare Cloudflare error.
     "not_found_handling": "404-page"
+  },
+  "vars": {
+    // Upstream for the relay; overridden in tests with --var EODHD_BASE:...
+    "EODHD_BASE": "https://eodhd.com/api/"
   },
   "observability": {
     "enabled": true

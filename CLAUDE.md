@@ -4,20 +4,22 @@ Standing policy for this repository. Read it before making any change here.
 
 ## What this repo is
 
-A Cloudflare Workers static-assets site. Everything served lives in `public/`
-and there is no build step - the files in that directory are the site. The repo
-is connected to Cloudflare Workers Builds, so **every push to `main` deploys to
-production**.
+A Cloudflare Workers site: static assets in `public/` plus one small Worker,
+`src/worker.js`, that relays the page's EODHD requests on the same origin and
+hands every other request to the assets binding. There is no build step - the
+files in `public/` are the site. The repo is connected to Cloudflare Workers
+Builds, so **every push to `main` deploys to production**.
 
 ```
-public/            everything served
-  index.html       contents, section dropdown, chapter tabs, chapter pages: one file
+public/            everything served as assets
+  index.html       both views (contents, dropdown, chapter tabs, chapter pages, numbers): one file
   404.html         same masthead and palette as index.html
   favicon.svg
   _headers         security + caching headers
   robots.txt
   assets/fonts/    Playfair Display + Newsreader woff2 (OFL), the only assets
-wrangler.jsonc     assets-only config, no Worker script
+src/worker.js      /api/eodhd/fundamentals/<symbol> -> eodhd.com; everything else -> env.ASSETS
+wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var
 package.json       wrangler devDependency + dev/deploy/check scripts
 prompt text/       the records behind the version in service (see below)
 ```
@@ -37,6 +39,16 @@ a chapter from the file replaces the one here unless the one here is newer,
 and chapters absent from the file are left alone; an unknown `type` is dropped.
 The storage key and the export shape are a contract with existing exports:
 add fields, never rename or remove them, and change them only with a migration.
+
+The Numbers view (`#numbers`, `#numbers/<SYMBOL>`) fetches EODHD fundamentals
+through the relay with the reader's own token in an `X-Api-Token` header,
+keeps the extracted company under `wwws.numbers.v1` (eight most recent) and
+the token under `wwws.eodhd.token` only when "remember" is ticked. The export
+file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
+the book's lines to EODHD field names, several candidates per line, with the
+chapter and the book's rule of thumb; "Every field EODHD reports" shows the
+raw statements. The relay forwards only `fundamentals/<symbol>` on GET, holds
+no secret, caches nothing, and passes EODHD's status and body straight back.
 
 The look is a financial newspaper: paper `#FFF1E5`, ink `#33302E`, claret
 `#990F3D` for accents, teal `#0D7680` for links, Playfair Display for the
@@ -61,6 +73,11 @@ npm run dev          # wrangler dev
 3. For a change to the script, drive the page in a headless browser: open a
    chapter, type into both boxes, reload, export, clear storage, import, and
    check the text comes back. `playwright-core` with that Chromium does it.
+   For the Numbers view, answer `**/api/eodhd/fundamentals/**` from a fixture
+   shaped like an EODHD reply and check the table's cells.
+4. For a change to `src/worker.js`, run the real Worker:
+   `npx wrangler dev --var EODHD_BASE:http://127.0.0.1:<port>/api/` against a
+   local mock of EODHD, and check the assets, the 404 page and every relay path.
 
 Never leave pushed work unverified or half-finished. Work in small, complete
 batches: implement, verify, commit, push.
@@ -120,3 +137,4 @@ design are their own release, requested deliberately.
 | v1.1 | Every chapter gets a page to write in | Each chapter of the book now opens on its own page with a summary box and a notes box beneath it, and what you type is kept in your browser as you go. Export saves everything you have written to a file, and Import brings it back, so you can pick up where you left off on another day or another device. |
 | v1.2 | Salmon paper, serif headlines and chapter tabs | The companion now reads like a financial newspaper: salmon paper, dark ink, a serif masthead and headlines, with your writing in clean white boxes. A section dropdown narrows the book to one part and a row of numbered tabs picks the chapter within it, a dot marking every chapter you have written on, while the contents page keeps the whole table of chapters in two newspaper columns. |
 | v1.3 | Every chapter now says what kind it is | Each chapter page opens with a chapter type, set with one click: Overview for a chapter that introduces a run of chapters, Metric for one that explains a single line item or ratio, or Background for the ones that are there for context only, such as the introduction. The choice saves with your notes, travels in exports and shows as a small tag beside the chapter in the contents. |
+| v1.4 | The book's numbers, fetched for any company | A Numbers tab now sits beside Chapters: give it a ticker and your own EODHD key and it lays out the company's full yearly history of the figures the book walks through, statement by statement with the chapter beside each line and the book's rule of thumb under each ratio, from gross margin to the years of earnings it would take to clear the long-term debt. Companies you fetch are kept on your device, the table downloads as a spreadsheet, and the key never leaves your browser. The line above the masthead is gone. |

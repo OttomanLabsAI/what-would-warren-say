@@ -39,7 +39,7 @@
 
     /* masthead */
     .masthead { padding: 1rem 1rem .75rem; border-bottom: 3px double var(--ink); text-align: center; }
-    .dateline { display: flex; justify-content: space-between; gap: 1rem; font-family: var(--sans); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); border-bottom: 1px solid var(--rule); padding-bottom: .45rem; margin-bottom: .9rem; }
+    .dateline { display: flex; justify-content: flex-end; gap: 1rem; font-family: var(--sans); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); border-bottom: 1px solid var(--rule); padding-bottom: .45rem; margin-bottom: .9rem; }
     .masthead h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(2.1rem, 6.5vw, 3.6rem); line-height: 1.05; letter-spacing: .005em; }
     .masthead h1 a { color: inherit; text-decoration: none; }
     .tagline { margin: .4rem 0 0; font-style: italic; color: var(--ink-70); font-size: 1.05rem; }
@@ -55,6 +55,50 @@
     button:hover, button:focus-visible { background: var(--claret); border-color: var(--claret); color: #fff; outline: none; }
     #import-file { display: none; }
     .status { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); }
+
+    /* view nav: Chapters | Numbers */
+    .views { display: flex; gap: .15rem; }
+    .view { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .7rem; border-bottom: 3px solid transparent; }
+    .view:hover { color: var(--ink); }
+    .view.active { color: var(--claret); border-bottom-color: var(--claret); }
+    .section-pick { display: flex; align-items: center; gap: .6rem; flex: 0 1 auto; min-width: 0; }
+    .section-pick select { flex: 1 1 auto; min-width: 7rem; max-width: 26rem; }
+    .section-pick[hidden] { display: none; }
+
+    /* numbers */
+    .numbers { padding: 1.4rem 1rem 2rem; }
+    .fetch-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .7rem 1rem; align-items: end; margin-bottom: .6rem; }
+    .fetch-form .f { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+    .fetch-form .f > label { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    .fetch-form input[type="text"], .fetch-form input[type="password"] { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); width: 100%; box-sizing: border-box; }
+    .fetch-form input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .remember { display: flex; align-items: center; gap: .45rem; font-family: var(--sans); font-size: .82rem; color: var(--ink-70); padding-bottom: .55rem; }
+    .remember input { margin: 0; accent-color: var(--claret); }
+    .hint { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); margin: .25rem 0 1rem; }
+    .company-meta { font-family: var(--sans); font-size: .82rem; color: var(--ink-60); margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; }
+    .linkbtn { background: none; border: 0; padding: 0; color: var(--teal); font-family: var(--sans); font-size: .82rem; font-weight: 600; letter-spacing: normal; text-transform: none; cursor: pointer; text-decoration: underline; }
+    .linkbtn:hover, .linkbtn:focus-visible { background: none; color: var(--claret); outline: none; }
+    .kept { font-family: var(--sans); font-size: .82rem; color: var(--ink-60); margin: 0 0 1rem; }
+    .kept a { color: var(--teal); text-decoration: none; }
+    .kept a:hover { text-decoration: underline; }
+    .units { font-family: var(--sans); font-size: .75rem; color: var(--ink-60); margin: 0 0 .4rem; }
+    .table-wrap { overflow-x: auto; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); }
+    .ntable { border-collapse: collapse; font-family: var(--sans); font-size: .8rem; min-width: 100%; }
+    .ntable th, .ntable td { padding: .35rem .6rem; border-bottom: 1px solid var(--rule-light); white-space: nowrap; vertical-align: top; }
+    .ntable thead th { text-align: right; font-weight: 700; color: var(--ink-70); border-bottom: 1px solid var(--ink); }
+    .ntable th.item, .ntable td.item { position: sticky; left: 0; z-index: 1; background: var(--paper); text-align: left; font-weight: 600; color: var(--ink); min-width: 14rem; max-width: 22rem; white-space: normal; border-right: 1px solid var(--rule); }
+    .ntable thead th.item { text-align: left; }
+    .ntable td.v { text-align: right; font-variant-numeric: tabular-nums; }
+    .ntable td.neg { color: var(--claret); }
+    .ntable td.none { color: var(--ink-40); }
+    .ntable tr.group th { padding-top: 1rem; text-align: left; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); border-bottom: 2px solid var(--ink); }
+    .ntable tr.ratio th.item { font-weight: 400; font-style: italic; }
+    .ref { font-size: .68rem; font-weight: 700; color: var(--ink-40); margin-left: .35rem; letter-spacing: .06em; white-space: nowrap; }
+    .rule { display: block; font-family: var(--text); font-size: .78rem; font-style: italic; font-weight: 400; color: var(--ink-60); line-height: 1.3; }
+    details.raw { margin-top: 1.6rem; }
+    details.raw summary { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-70); cursor: pointer; padding: .5rem 0; }
+    details.raw h4 { font-family: var(--sans); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); margin: 1.2rem 0 .4rem; }
+    @media (max-width: 40rem) { .fetch-form { grid-template-columns: 1fr; } }
 
     /* chapter tabs */
     .tabs-wrap { padding: .6rem 1rem; border-bottom: 1px solid var(--rule); }
@@ -111,14 +155,20 @@
 </head>
 <body>
   <header class="masthead wrap">
-    <div class="dateline"><span>A reading companion</span><span id="today"></span></div>
+    <div class="dateline"><span id="today"></span></div>
     <h1><a href="#">What Would Warren Say</a></h1>
     <p class="tagline">Warren Buffett and the Interpretation of Financial Statements &middot; Mary Buffett and David Clark</p>
   </header>
 
   <div class="controls wrap">
-    <label for="section">Section</label>
-    <select id="section" aria-label="Section of the book"></select>
+    <nav class="views" aria-label="Views">
+      <a class="view" id="view-chapters" href="#">Chapters</a>
+      <a class="view" id="view-numbers" href="#numbers">Numbers</a>
+    </nav>
+    <div class="section-pick" id="section-pick">
+      <label for="section">Section</label>
+      <select id="section" aria-label="Section of the book"></select>
+    </div>
     <span class="spacer"></span>
     <button type="button" id="export">Export</button>
     <button type="button" id="import" class="secondary">Import</button>
@@ -435,9 +485,523 @@
       pendingFlush = flush;
     }
 
+    // ---- numbers: a company's statements from EODHD -----------------------
+    // Kept under wwws.numbers.v1: { last, companies: { 'KO.US': { symbol, fetchedAt,
+    // meta, income, balance, cashflow, shares, eps } } }. The API token lives under
+    // wwws.eodhd.token only when "remember" is ticked, and never in an export.
+    var NUMBERS_KEY = 'wwws.numbers.v1';
+    var TOKEN_KEY = 'wwws.eodhd.token';
+    var MAX_KEPT = 8;
+    var numbers = loadNumbers();
+    var sessionToken = '';
+    var pendingNumbersStatus = '';
+
+    function loadNumbers() {
+      try {
+        var raw = window.localStorage.getItem(NUMBERS_KEY);
+        var d = raw ? JSON.parse(raw) : null;
+        if (d && typeof d === 'object' && d.companies && typeof d.companies === 'object') {
+          return { last: typeof d.last === 'string' ? d.last : '', companies: d.companies };
+        }
+      } catch (e) {}
+      return { last: '', companies: {} };
+    }
+
+    function oldestFirst() {
+      return Object.keys(numbers.companies).sort(function (a, b) {
+        return String(numbers.companies[a].fetchedAt || '').localeCompare(String(numbers.companies[b].fetchedAt || ''));
+      });
+    }
+
+    function saveNumbers() {
+      var ids = oldestFirst();
+      while (ids.length > MAX_KEPT) delete numbers.companies[ids.shift()];
+      for (var attempt = 0; attempt < 3; attempt++) {
+        try {
+          window.localStorage.setItem(NUMBERS_KEY, JSON.stringify(numbers));
+          return true;
+        } catch (e) {
+          if (!ids.length) return false;
+          delete numbers.companies[ids.shift()];
+        }
+      }
+      return false;
+    }
+
+    function getToken() {
+      if (sessionToken) return sessionToken;
+      try { return window.localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; }
+    }
+
+    function tokenRemembered() {
+      try { return !!window.localStorage.getItem(TOKEN_KEY); } catch (e) { return false; }
+    }
+
+    function setToken(token, remember) {
+      sessionToken = token;
+      try {
+        if (remember) window.localStorage.setItem(TOKEN_KEY, token);
+        else window.localStorage.removeItem(TOKEN_KEY);
+      } catch (e) {}
+    }
+
+    function normaliseSymbol(s) {
+      s = String(s || '').trim().toUpperCase().replace(/\s+/g, '');
+      if (!s) return '';
+      if (s.indexOf('.') < 0) s += '.US';
+      return s;
+    }
+
+    function num(v) {
+      if (v === null || v === undefined || v === '') return null;
+      var n = typeof v === 'number' ? v : parseFloat(String(v).replace(/,/g, ''));
+      return isFinite(n) ? n : null;
+    }
+
+    function httpMessage(status, data) {
+      var said = data && typeof data === 'object' && typeof data.error === 'string' ? data.error : '';
+      if (status === 401 || status === 403) return 'EODHD rejected the API token.';
+      if (status === 402) return 'Your EODHD plan does not include this data.';
+      if (status === 404) return 'EODHD has no company under that ticker. Check the code and the exchange suffix.';
+      if (status === 429) return 'You have used up today\u2019s EODHD calls. Try again tomorrow.';
+      if (status === 502) return said || 'The site could not reach EODHD.';
+      if (status === 400) return said || 'EODHD rejected the request.';
+      return 'EODHD answered with status ' + status + (said ? ': ' + said : '') + '.';
+    }
+
+    function fetchFundamentals(symbol, token) {
+      var direct = window.location.protocol === 'file:';
+      var url = direct
+        ? 'https://eodhd.com/api/fundamentals/' + encodeURIComponent(symbol) + '?api_token=' + encodeURIComponent(token) + '&fmt=json'
+        : '/api/eodhd/fundamentals/' + encodeURIComponent(symbol);
+      var options = { headers: direct ? {} : { 'X-Api-Token': token } };
+      return window.fetch(url, options).then(function (res) {
+        return res.text().then(function (body) {
+          var data = null;
+          try { data = JSON.parse(body); } catch (e) {}
+          if (!res.ok) throw new Error(httpMessage(res.status, data));
+          if (!data || typeof data !== 'object') throw new Error('EODHD sent back something that is not JSON.');
+          var fin = data.Financials;
+          if (!fin || typeof fin !== 'object' || !fin.Income_Statement) {
+            throw new Error('No financial statements came back for ' + symbol + '. Check the ticker and exchange, and that your plan includes fundamentals.');
+          }
+          return data;
+        });
+      }, function () {
+        throw new Error('Could not reach the data service. Check your connection and try again.');
+      });
+    }
+
+    function yearlyOf(section) {
+      var y = section && typeof section === 'object' && section.yearly;
+      var out = {};
+      if (!y || typeof y !== 'object') return out;
+      Object.keys(y).forEach(function (d) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d) && y[d] && typeof y[d] === 'object') out[d] = y[d];
+      });
+      return out;
+    }
+
+    function extractCompany(symbol, data) {
+      var fin = data.Financials || {};
+      var g = data.General && typeof data.General === 'object' ? data.General : {};
+      var c = {
+        symbol: symbol,
+        fetchedAt: new Date().toISOString(),
+        meta: {
+          code: String(g.Code || symbol),
+          name: String(g.Name || symbol),
+          exchange: String(g.Exchange || ''),
+          currency: String(g.CurrencyCode || (fin.Income_Statement && fin.Income_Statement.currency_symbol) || ''),
+          fiscalYearEnd: String(g.FiscalYearEnd || ''),
+          sector: String(g.Sector || ''),
+          industry: String(g.Industry || '')
+        },
+        income: yearlyOf(fin.Income_Statement),
+        balance: yearlyOf(fin.Balance_Sheet),
+        cashflow: yearlyOf(fin.Cash_Flow),
+        shares: {},
+        eps: {}
+      };
+      var os = data.outstandingShares && data.outstandingShares.annual;
+      if (os && typeof os === 'object') {
+        Object.keys(os).forEach(function (k) {
+          var r = os[k];
+          if (!r || typeof r !== 'object') return;
+          var d = r.dateFormatted || r.date;
+          var n = num(r.shares);
+          if (n === null && r.sharesMln !== undefined) { var m = num(r.sharesMln); n = m === null ? null : m * 1e6; }
+          if (d && n) c.shares[String(d)] = n;
+        });
+      }
+      var ea = data.Earnings && data.Earnings.Annual;
+      if (ea && typeof ea === 'object') {
+        Object.keys(ea).forEach(function (k) {
+          var r = ea[k];
+          if (!r || typeof r !== 'object' || !r.date) return;
+          var e = num(r.epsActual);
+          if (e !== null) c.eps[String(r.date)] = e;
+        });
+      }
+      return c;
+    }
+
+    function yearList(c) {
+      var seen = {};
+      [c.income, c.balance, c.cashflow].forEach(function (st) { Object.keys(st).forEach(function (d) { seen[d] = true; }); });
+      return Object.keys(seen).sort();
+    }
+
+    function yearLabels(dates) {
+      var years = dates.map(function (d) { return d.slice(0, 4); });
+      var dup = years.some(function (y, i) { return years.indexOf(y) !== i; });
+      return dup ? dates : years;
+    }
+
+    function sharesFor(c, date) {
+      var row = c.balance[date];
+      var n = row ? num(row.commonStockSharesOutstanding) : null;
+      if (n) return n;
+      if (c.shares[date]) return c.shares[date];
+      var year = date.slice(0, 4), found = null;
+      Object.keys(c.shares).forEach(function (d) { if (d.slice(0, 4) === year) found = c.shares[d]; });
+      return found;
+    }
+
+    function yearData(c, dates, i) {
+      var d = dates[i];
+      return {
+        date: d,
+        inc: c.income[d] || {},
+        bal: c.balance[d] || {},
+        cf: c.cashflow[d] || {},
+        prevBal: i > 0 ? (c.balance[dates[i - 1]] || {}) : {},
+        shares: sharesFor(c, d),
+        eps: Object.prototype.hasOwnProperty.call(c.eps, d) ? c.eps[d] : null
+      };
+    }
+
+    // first field that carries a number
+    function v(row) {
+      for (var i = 1; i < arguments.length; i++) {
+        var n = num(row[arguments[i]]);
+        if (n !== null) return n;
+      }
+      return null;
+    }
+    function div(a, b) { return (a === null || b === null || !b) ? null : a / b; }
+    function sub(a, b) { return (a === null || b === null) ? null : a - b; }
+    function grossProfit(y) {
+      var g = v(y.inc, 'grossProfit');
+      return g !== null ? g : sub(v(y.inc, 'totalRevenue'), v(y.inc, 'costOfRevenue'));
+    }
+    function capex(y) { var c = v(y.cf, 'capitalExpenditures'); return c === null ? null : Math.abs(c); }
+
+    // The lines the book walks through, with its chapter and its rule of thumb.
+    // unit: money (millions), pct, x (two decimals), years, shares (millions).
+    var NUMBER_ROWS = [
+      { group: 'Income statement' },
+      { label: 'Revenue', ch: '8', unit: 'money', value: function (y) { return v(y.inc, 'totalRevenue'); } },
+      { label: 'Cost of goods sold', ch: '9', unit: 'money', value: function (y) { return v(y.inc, 'costOfRevenue'); } },
+      { label: 'Gross profit', ch: '10', unit: 'money', value: grossProfit },
+      { label: 'Gross margin', ch: '10', unit: 'pct', ratio: true, rule: '40% and up points to a durable advantage; under 20% is a competitive business.', value: function (y) { return div(grossProfit(y), v(y.inc, 'totalRevenue')); } },
+      { label: 'Selling, general and administrative', ch: '12', unit: 'money', value: function (y) { return v(y.inc, 'sellingGeneralAdministrative'); } },
+      { label: 'SG&A as a share of gross profit', ch: '12', unit: 'pct', ratio: true, rule: 'Under 30% is excellent; what matters most is that it stays steady year to year.', value: function (y) { return div(v(y.inc, 'sellingGeneralAdministrative'), grossProfit(y)); } },
+      { label: 'Research and development', ch: '13', unit: 'money', value: function (y) { return v(y.inc, 'researchDevelopment'); } },
+      { label: 'R&D as a share of gross profit', ch: '13', unit: 'pct', ratio: true, rule: 'Heavy, constant spending just to keep up is a weakness, not a moat.', value: function (y) { return div(v(y.inc, 'researchDevelopment'), grossProfit(y)); } },
+      { label: 'Depreciation and amortisation', ch: '14', unit: 'money', value: function (y) { return v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'); } },
+      { label: 'Depreciation as a share of gross profit', ch: '14', unit: 'pct', ratio: true, rule: 'Durable advantages tend to run low here, around 10% or less.', value: function (y) { return div(v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'), grossProfit(y)); } },
+      { label: 'Operating income', ch: '11', unit: 'money', value: function (y) { return v(y.inc, 'operatingIncome'); } },
+      { label: 'Interest expense', ch: '15', unit: 'money', value: function (y) { return v(y.inc, 'interestExpense'); } },
+      { label: 'Interest as a share of operating income', ch: '15', unit: 'pct', ratio: true, rule: 'Under 15% for a durable consumer business; none at all is best.', value: function (y) { return div(v(y.inc, 'interestExpense'), v(y.inc, 'operatingIncome')); } },
+      { label: 'Other income and gains, net', ch: '16', unit: 'money', value: function (y) { return v(y.inc, 'nonOperatingIncomeNetOther', 'totalOtherIncomeExpenseNet'); } },
+      { label: 'Income before tax', ch: '17', unit: 'money', value: function (y) { return v(y.inc, 'incomeBeforeTax'); } },
+      { label: 'Income tax', ch: '18', unit: 'money', value: function (y) { return v(y.inc, 'incomeTaxExpense', 'taxProvision'); } },
+      { label: 'Effective tax rate', ch: '18', unit: 'pct', ratio: true, rule: 'Should sit near the going corporate rate; a company paying far less may be flattering its earnings.', value: function (y) { return div(v(y.inc, 'incomeTaxExpense', 'taxProvision'), v(y.inc, 'incomeBeforeTax')); } },
+      { label: 'Net earnings', ch: '19', unit: 'money', value: function (y) { return v(y.inc, 'netIncome'); } },
+      { label: 'Net margin', ch: '19', unit: 'pct', ratio: true, rule: 'Over 20% suggests a durable advantage; under 10% a competitive business.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.inc, 'totalRevenue')); } },
+      { label: 'Earnings per share', ch: '20', unit: 'x', rule: 'A steady upward trend over ten years is what to look for.', value: function (y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y.shares); } },
+      { label: 'Shares outstanding', ch: '20', unit: 'shares', value: function (y) { return y.shares; } },
+      { group: 'Balance sheet' },
+      { label: 'Cash and cash equivalents', ch: '24', unit: 'money', value: function (y) { return v(y.bal, 'cashAndEquivalents', 'cash'); } },
+      { label: 'Short-term investments', ch: '24', unit: 'money', value: function (y) { return v(y.bal, 'shortTermInvestments'); } },
+      { label: 'Inventory', ch: '25', unit: 'money', value: function (y) { return v(y.bal, 'inventory'); } },
+      { label: 'Net receivables', ch: '26', unit: 'money', value: function (y) { return v(y.bal, 'netReceivables'); } },
+      { label: 'Prepaid expenses and other current assets', ch: '27', unit: 'money', value: function (y) { return v(y.bal, 'otherCurrentAssets'); } },
+      { label: 'Total current assets', ch: '28', unit: 'money', value: function (y) { return v(y.bal, 'totalCurrentAssets'); } },
+      { label: 'Current ratio', ch: '28', unit: 'x', ratio: true, rule: 'Above 1 is the textbook comfort; a durable business can run below it on sheer earning power.', value: function (y) { return div(v(y.bal, 'totalCurrentAssets'), v(y.bal, 'totalCurrentLiabilities')); } },
+      { label: 'Property, plant and equipment', ch: '29', unit: 'money', value: function (y) { return v(y.bal, 'propertyPlantEquipment', 'propertyPlantAndEquipmentNet'); } },
+      { label: 'Goodwill', ch: '30', unit: 'money', value: function (y) { return v(y.bal, 'goodWill'); } },
+      { label: 'Intangible assets', ch: '31', unit: 'money', value: function (y) { return v(y.bal, 'intangibleAssets'); } },
+      { label: 'Long-term investments', ch: '32', unit: 'money', value: function (y) { return v(y.bal, 'longTermInvestments'); } },
+      { label: 'Other long-term assets', ch: '33', unit: 'money', value: function (y) { return v(y.bal, 'nonCurrrentAssetsOther', 'nonCurrentAssetsOther', 'otherAssets'); } },
+      { label: 'Total assets', ch: '34', unit: 'money', value: function (y) { return v(y.bal, 'totalAssets'); } },
+      { label: 'Return on total assets', ch: '34', unit: 'pct', ratio: true, rule: 'High is good, but a very high return on a small asset base can mean the moat is easy to cross.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalAssets')); } },
+      { label: 'Accounts payable', ch: '36', unit: 'money', value: function (y) { return v(y.bal, 'accountsPayable'); } },
+      { label: 'Accrued and other current liabilities', ch: '36', unit: 'money', value: function (y) { return v(y.bal, 'otherCurrentLiab'); } },
+      { label: 'Short-term debt', ch: '37', unit: 'money', value: function (y) { return v(y.bal, 'shortTermDebt', 'shortLongTermDebt'); } },
+      { label: 'Long-term debt coming due', ch: '38', unit: 'money', value: function (y) { return v(y.bal, 'shortLongTermDebt'); } },
+      { label: 'Total current liabilities', ch: '39', unit: 'money', value: function (y) { return v(y.bal, 'totalCurrentLiabilities'); } },
+      { label: 'Long-term debt', ch: '40', unit: 'money', value: function (y) { return v(y.bal, 'longTermDebt', 'longTermDebtTotal'); } },
+      { label: 'Years of net earnings to clear long-term debt', ch: '40', unit: 'years', ratio: true, rule: 'A durable business could pay it all off within three or four years.', value: function (y) { return div(v(y.bal, 'longTermDebt', 'longTermDebtTotal'), v(y.inc, 'netIncome')); } },
+      { label: 'Deferred taxes and other long-term liabilities', ch: '41', unit: 'money', value: function (y) { return v(y.bal, 'deferredLongTermLiab'); } },
+      { label: 'Minority interest', ch: '41', unit: 'money', value: function (y) { return v(y.bal, 'noncontrollingInterestInConsolidatedEntity', 'minorityInterest'); } },
+      { label: 'Total liabilities', ch: '42', unit: 'money', value: function (y) { return v(y.bal, 'totalLiab'); } },
+      { label: 'Debt to shareholders\u2019 equity', ch: '42', unit: 'x', ratio: true, rule: 'Below 0.80 is what to look for; buybacks distort it, so add treasury stock back to equity.', value: function (y) { return div(v(y.bal, 'totalLiab'), v(y.bal, 'totalStockholderEquity')); } },
+      { label: 'Shareholders\u2019 equity', ch: '43', unit: 'money', value: function (y) { return v(y.bal, 'totalStockholderEquity'); } },
+      { label: 'Book value per share', ch: '43', unit: 'x', ratio: true, value: function (y) { return div(v(y.bal, 'totalStockholderEquity'), y.shares); } },
+      { label: 'Common stock', ch: '44', unit: 'money', value: function (y) { return v(y.bal, 'commonStock'); } },
+      { label: 'Additional paid-in capital', ch: '44', unit: 'money', value: function (y) { return v(y.bal, 'additionalPaidInCapital'); } },
+      { label: 'Preferred stock', ch: '44', unit: 'money', value: function (y) { return v(y.bal, 'preferredStockTotalEquity', 'preferredStockRedeemable'); } },
+      { label: 'Retained earnings', ch: '45', unit: 'money', value: function (y) { return v(y.bal, 'retainedEarnings'); } },
+      { label: 'Retained earnings growth', ch: '45', unit: 'pct', ratio: true, rule: 'The pile should grow year after year; a shrinking one is a warning.', value: function (y) { var now = v(y.bal, 'retainedEarnings'), prev = v(y.prevBal, 'retainedEarnings'); return (now !== null && prev) ? (now - prev) / Math.abs(prev) : null; } },
+      { label: 'Treasury stock', ch: '46', unit: 'money', rule: 'Its presence is a good sign: cash was spare enough to buy the shares back.', value: function (y) { return v(y.bal, 'treasuryStock'); } },
+      { label: 'Return on shareholders\u2019 equity', ch: '47', unit: 'pct', ratio: true, rule: 'High and consistent is the mark; equity near zero after big buybacks makes the figure meaningless.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalStockholderEquity')); } },
+      { group: 'Cash flow statement' },
+      { label: 'Cash from operations', ch: '50', unit: 'money', value: function (y) { return v(y.cf, 'totalCashFromOperatingActivities'); } },
+      { label: 'Capital expenditures', ch: '51', unit: 'money', value: capex },
+      { label: 'Capital expenditures as a share of net earnings', ch: '51', unit: 'pct', ratio: true, rule: 'Under 50% is good; under 25% is where durable advantages usually sit.', value: function (y) { return div(capex(y), v(y.inc, 'netIncome')); } },
+      { label: 'Stock bought back, net', ch: '52', unit: 'money', rule: 'Buybacks raise your share of the business without a tax bill.', value: function (y) { var s = v(y.cf, 'salePurchaseOfStock'); return s === null ? null : -s; } },
+      { label: 'Dividends paid', ch: '52', unit: 'money', value: function (y) { var d = v(y.cf, 'dividendsPaid'); return d === null ? null : Math.abs(d); } },
+      { label: 'Free cash flow', ch: '51', unit: 'money', value: function (y) { var f = v(y.cf, 'freeCashFlow'); if (f !== null) return f; var o = v(y.cf, 'totalCashFromOperatingActivities'), c = capex(y); return (o !== null && c !== null) ? o - c : null; } }
+    ];
+
+    function fmtInt(n) {
+      var r = Math.round(n);
+      return (r < 0 ? '\u2212' : '') + String(Math.abs(r)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    function fmtValue(val, unit) {
+      if (val === null || val === undefined || !isFinite(val)) return '';
+      if (unit === 'money' || unit === 'shares') return fmtInt(val / 1e6);
+      if (unit === 'pct') return (val * 100).toFixed(1) + '%';
+      if (unit === 'years') return val.toFixed(1);
+      return val.toFixed(2);
+    }
+
+    function unitName(unit, currency) {
+      if (unit === 'money') return (currency || '') + ' millions';
+      if (unit === 'shares') return 'millions of shares';
+      if (unit === 'pct') return 'percent';
+      if (unit === 'years') return 'years';
+      return 'ratio';
+    }
+
+    function csvValue(val, unit) {
+      if (val === null || val === undefined || !isFinite(val)) return '';
+      if (unit === 'money' || unit === 'shares') return String(Math.round(val / 1e3) / 1e3);
+      if (unit === 'pct') return String(Math.round(val * 1000) / 10);
+      return String(Math.round(val * 1000) / 1000);
+    }
+
+    function csvCell(s) {
+      s = String(s === null || s === undefined ? '' : s);
+      return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+
+    function companyCsv(c) {
+      var dates = yearList(c);
+      var lines = [['Line item', 'Chapter', 'Unit'].concat(dates)];
+      NUMBER_ROWS.forEach(function (r) {
+        if (r.group) { lines.push([r.group]); return; }
+        lines.push([r.label, r.ch, unitName(r.unit, c.meta.currency)].concat(dates.map(function (d, i) {
+          return csvValue(r.value(yearData(c, dates, i)), r.unit);
+        })));
+      });
+      return lines.map(function (l) { return l.map(csvCell).join(','); }).join('\r\n') + '\r\n';
+    }
+
+    function downloadText(text, name, type) {
+      var blob = new Blob([text], { type: type });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    function fmtDate(iso) {
+      var d = new Date(iso);
+      return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function tableHtml(c) {
+      var dates = yearList(c);
+      var labels = yearLabels(dates);
+      var html = '<p class="units">Money in millions of ' + esc(c.meta.currency || 'the reporting currency') + '; shares in millions. ' +
+        'Blank means EODHD reported nothing for that line. The chapter number is where the book discusses the line.</p>' +
+        '<div class="table-wrap"><table class="ntable"><thead><tr><th class="item" scope="col">Line item</th>' +
+        dates.map(function (d, i) { return '<th scope="col" title="' + esc(d) + '">' + esc(labels[i]) + '</th>'; }).join('') +
+        '</tr></thead><tbody>';
+      var years = dates.map(function (d, i) { return yearData(c, dates, i); });
+      NUMBER_ROWS.forEach(function (r) {
+        if (r.group) {
+          html += '<tr class="group"><th class="item" colspan="' + (dates.length + 1) + '">' + esc(r.group) + '</th></tr>';
+          return;
+        }
+        html += '<tr' + (r.ratio ? ' class="ratio"' : '') + '><th class="item" scope="row">' + esc(r.label) +
+          '<span class="ref">ch. ' + esc(r.ch) + '</span>' + (r.rule ? '<span class="rule">' + esc(r.rule) + '</span>' : '') + '</th>';
+        years.forEach(function (y) {
+          var val = r.value(y);
+          var text = fmtValue(val, r.unit);
+          html += '<td class="v' + (text === '' ? ' none' : (val < 0 ? ' neg' : '')) + '">' + (text === '' ? '\u2014' : text) + '</td>';
+        });
+        html += '</tr>';
+      });
+      return html + '</tbody></table></div>';
+    }
+
+    function rawTableHtml(title, stmt, dates, labels) {
+      var skip = { date: 1, filing_date: 1, currency_symbol: 1 };
+      var keys = {};
+      dates.forEach(function (d) { var row = stmt[d]; if (row) Object.keys(row).forEach(function (k) { if (!skip[k]) keys[k] = true; }); });
+      var names = Object.keys(keys).sort();
+      if (!names.length) return '';
+      var html = '<h4>' + esc(title) + '</h4><div class="table-wrap"><table class="ntable"><thead><tr><th class="item" scope="col">Field</th>' +
+        dates.map(function (d, i) { return '<th scope="col" title="' + esc(d) + '">' + esc(labels[i]) + '</th>'; }).join('') + '</tr></thead><tbody>';
+      names.forEach(function (k) {
+        html += '<tr><th class="item" scope="row">' + esc(k) + '</th>';
+        dates.forEach(function (d) {
+          var row = stmt[d] || {};
+          var n = num(row[k]);
+          var text = n === null ? (row[k] === null || row[k] === undefined ? '' : esc(String(row[k]))) : fmtInt(n);
+          html += '<td class="v' + (text === '' ? ' none' : (n !== null && n < 0 ? ' neg' : '')) + '">' + (text === '' ? '\u2014' : text) + '</td>';
+        });
+        html += '</tr>';
+      });
+      return html + '</tbody></table></div>';
+    }
+
+    function keptHtml(except) {
+      var ids = oldestFirst().reverse().filter(function (id) { return id !== except; });
+      if (!ids.length) return except ? '' : '<p class="kept">Nothing fetched yet. Each company you fetch is kept on this device.</p>';
+      return '<p class="kept">' + (except ? 'Also kept on this device: ' : 'Kept on this device: ') + ids.map(function (id) {
+        var co = numbers.companies[id];
+        return '<a href="#numbers/' + esc(id) + '">' + esc(co.meta && co.meta.name ? co.meta.name : id) + ' (' + esc(id) + ')</a>';
+      }).join(' \u00b7 ') + '</p>';
+    }
+
+    function formHtml(symbol) {
+      var remembered = tokenRemembered();
+      var token = getToken();
+      return '<form class="fetch-form" id="fetch-form" autocomplete="off">' +
+        '<div class="f"><label for="symbol">Ticker</label><input type="text" id="symbol" value="' + esc(symbol) + '" placeholder="KO.US" spellcheck="false"></div>' +
+        '<button type="submit" id="fetch">Fetch</button>' +
+        '<div class="f"><label for="token">EODHD API token</label><input type="password" id="token" value="' + esc(token) + '" placeholder="your API token" autocomplete="off"></div>' +
+        '<label class="remember"><input type="checkbox" id="remember"' + (remembered ? ' checked' : '') + '> Remember the token on this device</label>' +
+        '</form>' +
+        '<p class="hint">Tickers take EODHD\u2019s form, code dot exchange: KO.US, VOD.LSE, BMW.XETRA. A bare US ticker gets .US added. ' +
+        'Each fetch spends ten of your EODHD calls; the token stays in this browser and is never exported.</p>';
+    }
+
+    function companyHtml(c) {
+      var m = c.meta;
+      var bits = [];
+      if (m.exchange) bits.push(m.exchange);
+      if (m.currency) bits.push(m.currency);
+      if (m.fiscalYearEnd) bits.push('Fiscal year ends ' + m.fiscalYearEnd);
+      if (m.sector) bits.push(m.sector + (m.industry ? ', ' + m.industry : ''));
+      var dates = yearList(c), labels = yearLabels(dates);
+      return '<p class="kicker">Company numbers \u00b7 ' + esc(c.symbol) + '</p>' +
+        '<h2 class="headline">' + esc(m.name) + '</h2>' +
+        '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
+        '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>' +
+        '<button type="button" class="linkbtn" id="refresh">Fetch again</button>' +
+        '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
+        '<button type="button" class="linkbtn" id="forget">Forget this company</button></p>' +
+        keptHtml(c.symbol) +
+        (dates.length ? tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
+        (dates.length ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
+          rawTableHtml('Income statement', c.income, dates, labels) +
+          rawTableHtml('Balance sheet', c.balance, dates, labels) +
+          rawTableHtml('Cash flow statement', c.cashflow, dates, labels) + '</details>' : '');
+    }
+
+    function renderNumbers(fromHash) {
+      showView('numbers');
+      var symbol = fromHash ? normaliseSymbol(fromHash) : (numbers.last || '');
+      var company = symbol ? numbers.companies[symbol] : null;
+      app.innerHTML = '<section class="numbers">' + formHtml(symbol) +
+        '<p class="status" id="numbers-status" role="status" aria-live="polite"></p>' +
+        (company ? companyHtml(company) : keptHtml('')) + '</section>';
+      if (company) numbers.last = symbol;
+
+      var form = document.getElementById('fetch-form');
+      var symbolInput = document.getElementById('symbol');
+      var tokenInput = document.getElementById('token');
+      var rememberBox = document.getElementById('remember');
+      var button = document.getElementById('fetch');
+      var statusLine = document.getElementById('numbers-status');
+
+      function say(msg) { statusLine.textContent = msg; }
+      if (pendingNumbersStatus) { say(pendingNumbersStatus); pendingNumbersStatus = ''; }
+      else if (symbol && !company) say('Not fetched yet. Press Fetch to pull ' + symbol + ' from EODHD.');
+
+      function go(sym) {
+        var token = tokenInput.value.trim();
+        if (!sym) { say('Type a ticker, such as KO.US.'); symbolInput.focus(); return; }
+        if (!token) { say('Paste your EODHD API token.'); tokenInput.focus(); return; }
+        setToken(token, rememberBox.checked);
+        button.disabled = true;
+        say('Fetching ' + sym + ' from EODHD\u2026');
+        fetchFundamentals(sym, token).then(function (data) {
+          numbers.companies[sym] = extractCompany(sym, data);
+          numbers.last = sym;
+          var kept = saveNumbers();
+          pendingNumbersStatus = 'Fetched ' + sym + ' at ' + timeNow() + (kept ? '.' : ', but it could not be kept on this device.');
+          if (window.location.hash === '#numbers/' + sym) route(); else window.location.hash = 'numbers/' + sym;
+        }).catch(function (e) {
+          button.disabled = false;
+          say(e && e.message ? e.message : 'Something went wrong.');
+        });
+      }
+
+      form.addEventListener('submit', function (ev) { ev.preventDefault(); go(normaliseSymbol(symbolInput.value)); });
+      rememberBox.addEventListener('change', function () { setToken(tokenInput.value.trim(), rememberBox.checked); });
+
+      if (company) {
+        document.getElementById('refresh').addEventListener('click', function () { go(company.symbol); });
+        document.getElementById('csv').addEventListener('click', function () {
+          downloadText(companyCsv(company), 'what-would-warren-say-' + company.symbol + '-numbers.csv', 'text/csv');
+          say('Downloaded the table for ' + company.symbol + ' as a CSV file.');
+        });
+        document.getElementById('forget').addEventListener('click', function () {
+          delete numbers.companies[company.symbol];
+          if (numbers.last === company.symbol) numbers.last = '';
+          saveNumbers();
+          pendingNumbersStatus = 'Forgot ' + company.symbol + '.';
+          if (window.location.hash === '#numbers') route(); else window.location.hash = 'numbers';
+        });
+      }
+    }
+
+    var viewChapters = document.getElementById('view-chapters');
+    var viewNumbers = document.getElementById('view-numbers');
+    var sectionPick = document.getElementById('section-pick');
+
+    function showView(name) {
+      var onNumbers = name === 'numbers';
+      viewChapters.classList.toggle('active', !onNumbers);
+      viewNumbers.classList.toggle('active', onNumbers);
+      sectionPick.hidden = onNumbers;
+      if (onNumbers) hideTabs();
+    }
+
     function route() {
       if (pendingFlush) { pendingFlush(); pendingFlush = null; }
       var id = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
+      var numbersMatch = /^numbers(?:\/(.*))?$/i.exec(id);
+      if (numbersMatch) {
+        renderNumbers(numbersMatch[1] || '');
+        var co = numbers.last && numbers.companies[numbers.last];
+        document.title = (co && numbersMatch[1] ? co.meta.name + ' - ' : '') + 'Numbers - What Would Warren Say';
+        window.scrollTo(0, 0);
+        return;
+      }
+      showView('chapters');
       var ch = byId[id];
       if (ch) {
         lastInPart[ch.part] = ch.id;
