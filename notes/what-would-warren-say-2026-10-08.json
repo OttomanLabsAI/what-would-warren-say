@@ -1,0 +1,574 @@
+{
+  "app": "what-would-warren-say",
+  "version": 1,
+  "exportedAt": "2026-10-08T11:31:46.792Z",
+  "book": "Warren Buffett and the Interpretation of Financial Statements",
+  "entries": {
+    "1": {
+      "summary": "Identify a company with a durable competitive advantage.\n\nValue a company with a durable competitive advantage.",
+      "notes": "",
+      "type": "background",
+      "updated": "2026-10-08T10:55:45.312Z"
+    },
+    "2": {
+      "summary": "DCA companies make the most money over the longer term",
+      "notes": "",
+      "type": "background",
+      "updated": "2026-10-08T11:13:26.275Z"
+    },
+    "3": {
+      "summary": "- A company that sells a unique product/service.\n(product eg. Coca-Cola, Pepsi, Hershey's, Budweiser, Coors, Kraft, Waahington post, Proctor & Gamble, Philip Morris)\n(service eg. Moody's, H & R Block Inc. AMEX, Service Master Co., Wells Fargo - Institution specific, not people specific)\n\n- Low cost buyer/seller of product/service the public consistently needs. Big margins are traded for volume as increase in volume makes up for low margins. The best price in town becomes part of the consumer's story of where to shop.\n(eg. Wal-Mart, Costco, Nebraska, Furniture Mart, Borsheim Jewelers, Burlington Northern, Santa Fe Railway",
+      "notes": "",
+      "type": "background",
+      "updated": "2026-10-08T11:03:13.644Z"
+    },
+    "4": {
+      "summary": "-Durability creates wealth\n(Coca-Cola has been selling the same thing for well over a century)\n\n-Consistency in the product creates consistency in the companies profits.\n\n-The company doesn't have to spend millions to keep changing the product with R&D nor on re-tooling for the next product. Less debt means less interest meaning more money to expand or buy back stock, driving up earnings and the price of the stock.\n\n-Is it consistent? - High gross margin, little to no debt, not spending heavy on R&D?\n\n-All of this info can be found in Financial Statements\n",
+      "notes": "",
+      "type": "overview",
+      "updated": "2026-10-08T11:13:12.820Z"
+    },
+    "5": {
+      "summary": "Income Statement - How much is earned in a set period? Determines margins - Return equity, cosistency and direction of earnings, these thing determins DSA status.\n\nBalance Sheet - How much is in the bank? How much it owes? Subtract these and you get net worth. Amount of cash and long term debt are indicators of DCA.\n\nCash Flow Statement - Cash that flows in and out. Good to see how much is spent of capital improvements. Tracks bond/stock sales & repurchases.",
+      "notes": "",
+      "type": "overview",
+      "updated": "2026-10-08T11:17:47.457Z"
+    },
+    "6": {
+      "summary": "Warren uses MSN, Yahoo, SEC, Bloomberg",
+      "notes": "",
+      "type": "background",
+      "updated": "2026-10-08T11:18:10.001Z"
+    },
+    "7": {
+      "summary": "Warren starts with the income statement.\n\nExpenses, Revenue, Profit/Loss\n\nIndicates DSA or Mediocre where the latter shows a struggle year to year in a competitive market.",
+      "notes": "",
+      "type": "overview",
+      "updated": "2026-10-08T11:26:43.817Z"
+    },
+    "8": {
+      "summary": "-Amount of money that comes in in a set period\n\n-Big revenue doesn't mean profitable\n\n-Revenue without expenses means nothing\n\n-After revenue, take a long careul look at the expenses",
+      "notes": "",
+      "type": "metric",
+      "updated": "2026-10-08T11:27:55.014Z"
+    },
+    "9": {
+      "summary": "-AKA the cost of revenue\n\n-The lower the better\n\n-Find out what is included in the cost. It gives a good idea of how management is thinking about the business.\n\n-As a lone number it doesn't tell us much about DSA.\n\n-Determines gross profit",
+      "notes": "",
+      "type": "metric",
+      "updated": "2026-10-08T11:31:39.651Z"
+    },
+    "11": {
+      "summary": "A group of expenses, when added, make up the total operating expenses.\n\nThese are all the company's hard costs associated with research and development of new products, selling and administrative costs of getting the product to market, depreciation and amortization, restructuring and impairment charges, and the catch-all \"other\" that includes all non-operating, non-recurring expenses.",
+      "notes": "",
+      "type": "overview",
+      "updated": "2026-10-07T12:54:42.580Z"
+    },
+    "12": {
+      "summary": "",
+      "notes": "",
+      "type": "metric",
+      "updated": "2026-10-07T13:13:44.614Z"
+    },
+    "13": {
+      "summary": "",
+      "notes": "",
+      "type": "metric",
+      "updated": "2026-10-07T13:13:45.802Z"
+    },
+    "14": {
+      "summary": "",
+      "notes": "",
+      "type": "metric",
+      "updated": "2026-10-07T13:13:47.219Z"
+    },
+    "15": {
+      "summary": "",
+      "notes": "",
+      "type": "metric",
+      "updated": "2026-10-07T13:13:49.535Z"
+    },
+    "intro": {
+      "summary": "",
+      "notes": "",
+      "type": "background",
+      "updated": "2026-10-07T15:17:03.956Z"
+    }
+  },
+  "watchlists": [
+    {
+      "id": "my-watchlist",
+      "name": "My watchlist",
+      "items": [
+        {
+          "name": "AST SpaceMobile",
+          "symbol": "ASTS.US"
+        },
+        {
+          "name": "Applied Materials",
+          "symbol": "AMAT.US"
+        },
+        {
+          "name": "Canon",
+          "symbol": "CAJPY.US"
+        },
+        {
+          "name": "IREN",
+          "symbol": "IREN.US"
+        },
+        {
+          "name": "Hut 8",
+          "symbol": "HUT.US"
+        },
+        {
+          "name": "Astera Labs",
+          "symbol": "ALAB.US"
+        },
+        {
+          "name": "Seagate Technology",
+          "symbol": "STX.US"
+        },
+        {
+          "name": "Axe Compute",
+          "symbol": "AGPU.US"
+        },
+        {
+          "name": "GRAIL",
+          "symbol": "GRAL.US"
+        },
+        {
+          "name": "Richtech Robotics",
+          "symbol": "RR.US"
+        },
+        {
+          "name": "SMX (Security Matters)",
+          "symbol": "SMX.US"
+        },
+        {
+          "name": "Cloudflare",
+          "symbol": "NET.US"
+        },
+        {
+          "name": "Amazon",
+          "symbol": "AMZN.US"
+        },
+        {
+          "name": "Burberry",
+          "symbol": "BRBY.LSE"
+        },
+        {
+          "name": "Next Technology Holding",
+          "symbol": "NXTT.US"
+        },
+        {
+          "name": "DeFi Development",
+          "symbol": "DFDV.US"
+        },
+        {
+          "name": "Bitcoin",
+          "symbol": "BTC-USD.CC"
+        },
+        {
+          "name": "Meta Platforms",
+          "symbol": "META.US"
+        },
+        {
+          "name": "Strategy",
+          "symbol": "MSTR.US"
+        },
+        {
+          "name": "Estée Lauder",
+          "symbol": "EL.US"
+        },
+        {
+          "name": "L’Oréal",
+          "symbol": "OR.PA"
+        },
+        {
+          "name": "HCA Healthcare",
+          "symbol": "HCA.US"
+        },
+        {
+          "name": "Nano-X Imaging",
+          "symbol": "NNOX.US"
+        },
+        {
+          "name": "Recursion Pharmaceuticals",
+          "symbol": "RXRX.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "chips",
+      "name": "Chips",
+      "items": [
+        {
+          "name": "Cerebras Systems",
+          "symbol": "CBRS.US"
+        },
+        {
+          "name": "Arm",
+          "symbol": "ARM.US"
+        },
+        {
+          "name": "Micron Technology",
+          "symbol": "MU.US"
+        },
+        {
+          "name": "Nvidia",
+          "symbol": "NVDA.US"
+        },
+        {
+          "name": "Advanced Micro Devices",
+          "symbol": "AMD.US"
+        },
+        {
+          "name": "Intel",
+          "symbol": "INTC.US"
+        },
+        {
+          "name": "Qualcomm",
+          "symbol": "QCOM.US"
+        },
+        {
+          "name": "Broadcom",
+          "symbol": "AVGO.US"
+        },
+        {
+          "name": "Taiwan Semiconductor",
+          "symbol": "TSM.US"
+        },
+        {
+          "name": "Samsung Electronics",
+          "symbol": "SMSN.LSE"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "ram",
+      "name": "RAM",
+      "items": [
+        {
+          "name": "Micron Technology",
+          "symbol": "MU.US"
+        },
+        {
+          "name": "Samsung Electronics",
+          "symbol": "SMSN.LSE"
+        },
+        {
+          "name": "SK hynix",
+          "symbol": "HY9H.XETRA"
+        }
+      ],
+      "updated": "2026-10-07T17:52:07.300Z"
+    },
+    {
+      "id": "ram-ii",
+      "name": "RAM II",
+      "items": [
+        {
+          "name": "Western Digital",
+          "symbol": "WDC.US"
+        },
+        {
+          "name": "Sandisk",
+          "symbol": "SNDK.US"
+        },
+        {
+          "name": "Rambus",
+          "symbol": "RMBS.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "optical",
+      "name": "Optical",
+      "items": [
+        {
+          "name": "Corning",
+          "symbol": "GLW.US"
+        },
+        {
+          "name": "Lumentum",
+          "symbol": "LITE.US"
+        },
+        {
+          "name": "Coherent",
+          "symbol": "COHR.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "network-infrastructure",
+      "name": "Network Infrastructure",
+      "items": [
+        {
+          "name": "BlackBerry",
+          "symbol": "BB.US"
+        },
+        {
+          "name": "Marvell Technology",
+          "symbol": "MRVL.US"
+        },
+        {
+          "name": "Credo Technology",
+          "symbol": "CRDO.US"
+        },
+        {
+          "name": "Nokia",
+          "symbol": "NOK.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "cybersecurity",
+      "name": "Cybersecurity",
+      "items": [
+        {
+          "name": "Zscaler",
+          "symbol": "ZS.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "energy",
+      "name": "Energy",
+      "items": [
+        {
+          "name": "Siemens Energy",
+          "symbol": "ENR.XETRA"
+        },
+        {
+          "name": "Mitsubishi Electric",
+          "symbol": "MIELY.US"
+        },
+        {
+          "name": "BWX Technologies",
+          "symbol": "BWXT.US"
+        },
+        {
+          "name": "Rolls-Royce",
+          "symbol": "RR.LSE"
+        },
+        {
+          "name": "NANO Nuclear Energy",
+          "symbol": "NNE.US"
+        },
+        {
+          "name": "Constellation Energy",
+          "symbol": "CEG.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "transport",
+      "name": "Transport",
+      "items": [
+        {
+          "name": "Rivian Automotive",
+          "symbol": "RIVN.US"
+        },
+        {
+          "name": "Safran",
+          "symbol": "SAF.PA"
+        },
+        {
+          "name": "Uber Technologies",
+          "symbol": "UBER.US"
+        },
+        {
+          "name": "Ferrari",
+          "symbol": "RACE.US"
+        },
+        {
+          "name": "BYD",
+          "symbol": "BYDDY.US"
+        },
+        {
+          "name": "Toyota Motor",
+          "symbol": "TM.US"
+        },
+        {
+          "name": "Tesla",
+          "symbol": "TSLA.US"
+        },
+        {
+          "name": "Lucid",
+          "symbol": "LCID.US"
+        },
+        {
+          "name": "XPeng",
+          "symbol": "XPEV.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "software",
+      "name": "Software",
+      "items": [
+        {
+          "name": "SoundHound AI",
+          "symbol": "SOUN.US"
+        },
+        {
+          "name": "Take-Two Interactive",
+          "symbol": "TTWO.US"
+        },
+        {
+          "name": "CoreWeave",
+          "symbol": "CRWV.US"
+        },
+        {
+          "name": "CrowdStrike",
+          "symbol": "CRWD.US"
+        },
+        {
+          "name": "Adobe",
+          "symbol": "ADBE.US"
+        },
+        {
+          "name": "Strategy",
+          "symbol": "MSTR.US"
+        },
+        {
+          "name": "Oracle",
+          "symbol": "ORCL.US"
+        },
+        {
+          "name": "Dassault Systèmes",
+          "symbol": "DSY.PA"
+        },
+        {
+          "name": "Autodesk",
+          "symbol": "ADSK.US"
+        },
+        {
+          "name": "Unity Software",
+          "symbol": "U.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "tech-hardware",
+      "name": "Tech Hardware",
+      "items": [
+        {
+          "name": "IREN",
+          "symbol": "IREN.US"
+        },
+        {
+          "name": "STMicroelectronics",
+          "symbol": "STM.US"
+        },
+        {
+          "name": "Analog Devices",
+          "symbol": "ADI.US"
+        },
+        {
+          "name": "Chipotle Mexican Grill",
+          "symbol": "CMG.US"
+        },
+        {
+          "name": "Super Micro Computer",
+          "symbol": "SMCI.US"
+        },
+        {
+          "name": "Lumen Technologies",
+          "symbol": "LUMN.US"
+        },
+        {
+          "name": "Dell Technologies",
+          "symbol": "DELL.US"
+        },
+        {
+          "name": "Raspberry Pi",
+          "symbol": "RPI.LSE"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "technology",
+      "name": "Technology",
+      "items": [
+        {
+          "name": "BYD",
+          "symbol": "BYDDY.US"
+        },
+        {
+          "name": "Uber Technologies",
+          "symbol": "UBER.US"
+        },
+        {
+          "name": "Alphabet (Class A)",
+          "symbol": "GOOGL.US"
+        },
+        {
+          "name": "Tesla",
+          "symbol": "TSLA.US"
+        },
+        {
+          "name": "Nvidia",
+          "symbol": "NVDA.US"
+        },
+        {
+          "name": "Apple",
+          "symbol": "AAPL.US"
+        },
+        {
+          "name": "Amazon",
+          "symbol": "AMZN.US"
+        },
+        {
+          "name": "Meta Platforms",
+          "symbol": "META.US"
+        },
+        {
+          "name": "Samsung Electronics",
+          "symbol": "SMSN.LSE"
+        },
+        {
+          "name": "IBM",
+          "symbol": "IBM.US"
+        },
+        {
+          "name": "Microsoft",
+          "symbol": "MSFT.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "quantum",
+      "name": "Quantum",
+      "items": [
+        {
+          "name": "Quantum Computing",
+          "symbol": "QUBT.US"
+        }
+      ],
+      "updated": ""
+    },
+    {
+      "id": "lithography",
+      "name": "Lithography",
+      "items": [
+        {
+          "name": "Canon",
+          "symbol": "CAJPY.US"
+        }
+      ],
+      "updated": ""
+    }
+  ]
+}

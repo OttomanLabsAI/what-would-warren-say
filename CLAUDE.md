@@ -31,6 +31,7 @@ tools/upload-store.mjs  the command line over the uploader: a pull into the buck
 tools/bundle-samples.mjs  copies a pull's companies into public/data/ as the site's sample data
 tools/bundle-screen.mjs  copies a pull's screen rows into public/data/screen/ with an index, so companies open from their rows
 data/              the pull's output: git-ignored, EODHD-licensed, never committed
+notes/             the owner's exported notes, byte for byte: the source of BREAKDOWNS in index.html
 prompt text/       the records behind the version in service (see below)
 ```
 
@@ -51,6 +52,21 @@ a chapter from the file replaces the one here unless the one here is newer,
 and chapters absent from the file are left alone; an unknown `type` is dropped.
 The storage key and the export shape are a contract with existing exports:
 add fields, never rename or remove them, and change them only with a migration.
+
+Chapters the owner has finished are written up in `BREAKDOWNS` (keyed by
+chapter id): `type` (the owner's chapter type), `thesis`, `diagrams` (each
+`{ kind, title, … }` drawn by `diagramHtml`: `flow` boxes and arrows, `tree`
+a root with branches and chips, `cols` columns, `checks` a tick list with a
+note, `sum` lines adding to a total, `compare` labelled rows, `statement` the
+book's income-statement box with `rows`, a `rule` under one row and an
+`arrow` on the chapter's line, as in the owner's photographs for chapters 8
+and 9), `points` and `raw` (the owner's summary from the export, byte for
+byte, shown closed under "Your notes, as written"). `renderChapter` draws a
+breakdown instead of the boxes for those chapters, `entryFor` and
+`isWritten` make them count as written with their type in the contents, the
+marks and the tab dots, and local entries for them are left alone. The
+source is the owner's export under `notes/`; a new export with more
+finished chapters means writing them up here and keeping the file.
 
 The Companies view (the tab is labelled Companies; the code still calls it
 numbers: `renderNumbers`, `view-numbers`, `wwws.numbers.v1`) fetches EODHD
@@ -386,3 +402,4 @@ design are their own release, requested deliberately.
 | v1.19 | The masthead asks its question | The site's name now carries its question mark, on the masthead, in the browser tab and on the not-found page: What Would Warren Say? |
 | v1.20 | Every company on NASDAQ, NYSE and London, no key needed | Every company you pulled now opens on the site without a key: eighty with their full history, the rest from the pull's screen rows with their latest year's figures, and whatever is not on file, the earlier years, the quarters and the share price, is left blank with a note saying so. A new Screen tab lists every company of an exchange by the book's ratios, sortable and searchable, with the book's rules of thumb as tick-box filters. The store that will hold the full pull is built and waits only for its bucket. |
 | v1.21 | What each company does, under its name | A company's page now opens with what the company does: EODHD's description of the business, three lines at a time with More for the rest, and beside it the website, the head count, the year it listed and its country, all above the next report date and the price. Companies pulled before this carry the line once their files are rebuilt from the saved replies, which the pull page now does with one button and no calls. |
+| v1.22 | Ten chapters written up, boxes become breakdowns | The chapters you have finished, the first nine and the eleventh, now read as written-up breakdowns instead of boxes to type in: a thesis, a diagram of how the chapter's ideas fit together, the points, and your notes as you wrote them, kept underneath. Chapters 8 and 9 carry the book's own income-statement box from your photographs, with the arrow on the line each chapter is about. Your export is kept in the repository as it came. |

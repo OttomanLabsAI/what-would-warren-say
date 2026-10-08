@@ -279,6 +279,48 @@
     @media (min-width: 50rem) { .grid { columns: 2; column-gap: 2.5rem; } }
 
     footer { margin-top: 1rem; padding: 1rem 1rem 2rem; border-top: 3px double var(--ink); font-family: var(--sans); font-size: .74rem; letter-spacing: .04em; color: var(--ink-60); text-align: center; }
+    /* Breakdowns: a finished chapter written up from the owner's notes */
+    .breakdown .type-line { margin: -.9rem 0 1.1rem; font-family: var(--sans); font-size: .82rem; color: var(--ink-60); }
+    .breakdown .type-line .mark { margin-left: 0; }
+    .breakdown .thesis { margin: 0 0 1.3rem; font-family: var(--display); font-size: 1.3rem; line-height: 1.35; color: var(--ink); }
+    .diagram { margin: 0 0 1.5rem; font-family: var(--sans); }
+    .diagram .dtitle { margin: 0 0 .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .diagram .dnote { margin: .5rem 0 0; font-family: var(--text); font-style: italic; font-size: .95rem; color: var(--ink-60); }
+    .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: .5rem; }
+    .flow .step { flex: 1 1 11rem; min-width: 0; padding: .6rem .75rem; border: 1px solid var(--ink); background: var(--white); font-size: .9rem; line-height: 1.35; }
+    .flow .arrow { align-self: center; flex: none; color: var(--claret); font-size: 1.2rem; }
+    .tree .root { display: inline-block; padding: .5rem .8rem; background: var(--ink); color: var(--paper); font-size: .88rem; font-weight: 700; letter-spacing: .02em; }
+    .tree .branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .8rem; margin-top: .6rem; padding-top: .7rem; border-top: 2px solid var(--ink); }
+    .branch, .col, .check { padding: .7rem .85rem; border: 1px solid var(--rule); background: var(--white); min-width: 0; }
+    .branch h4, .col h4 { margin: 0 0 .35rem; font-size: .95rem; line-height: 1.3; }
+    .branch p, .col p { margin: .25rem 0; font-size: .88rem; line-height: 1.4; color: var(--ink-70); }
+    .col .sub { font-family: var(--text); font-style: italic; font-size: .95rem; color: var(--ink-60); }
+    .chips { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .55rem; }
+    .chip { padding: .15rem .5rem; border: 1px solid var(--rule); background: var(--paper); font-size: .78rem; color: var(--ink); }
+    .cols, .checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .8rem; }
+    .check { font-size: .92rem; font-weight: 600; }
+    .check .tick { margin-right: .5rem; color: var(--claret); font-weight: 700; }
+    .sum { max-width: 38rem; border: 1px solid var(--ink); background: var(--white); }
+    .sum .row { padding: .5rem .85rem; border-bottom: 1px solid var(--rule-light); font-size: .9rem; line-height: 1.35; }
+    .sum .row .plus { color: var(--claret); font-weight: 700; margin-right: .2rem; }
+    .sum .total { font-weight: 700; border-top: 2px solid var(--ink); border-bottom: 0; }
+    .compare .row { display: grid; grid-template-columns: minmax(9rem, 15rem) 1fr; gap: .8rem; padding: .5rem 0; border-bottom: 1px dotted var(--rule-light); font-size: .92rem; line-height: 1.4; }
+    .compare .row b { color: var(--claret); }
+    @media (max-width: 40rem) { .compare .row { grid-template-columns: 1fr; gap: .15rem; } }
+    .statement { display: inline-block; min-width: 18rem; max-width: 100%; box-sizing: border-box; padding: .9rem 1.1rem 1rem; border: 1px solid var(--ink); background: var(--white); font-family: var(--text); }
+    .statement h4 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+    .statement .unit { margin: .15rem 0 .7rem; font-size: .95rem; }
+    .statement table { border-collapse: collapse; width: 100%; }
+    .statement td { padding: .15rem 0; font-size: 1.02rem; }
+    .statement td.ar { width: 1.3rem; color: var(--ink); }
+    .statement td.v { text-align: right; padding-left: 2.5rem; font-variant-numeric: tabular-nums; }
+    .statement tr.underlined td { border-bottom: 1px solid var(--ink); }
+    .statement tr.underlined td.ar { border-bottom: 0; }
+    .points { margin: 0 0 1.2rem; padding-left: 1.2rem; font-size: 1.08rem; line-height: 1.5; }
+    .points li { margin: .35rem 0; }
+    .raw-notes { margin: 1rem 0 .5rem; }
+    .raw-notes summary { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-70); cursor: pointer; padding: .5rem 0; }
+    .raw-notes pre { margin: .4rem 0 0; padding: .85rem 1rem; border: 1px solid var(--rule); background: var(--white); white-space: pre-wrap; font-family: var(--text); font-size: 1.02rem; line-height: 1.5; }
     /* Phones: the sticky line-item column gives up most of its width so two years of figures fit beside it. Keep this block last. */
     @media (max-width: 40rem) {
       .ntable { font-size: .74rem; }
@@ -459,7 +501,220 @@
     }
 
     function writtenCount() {
-      return Object.keys(entries).filter(function (id) { return hasText(entries[id]); }).length;
+      return CHAPTERS.filter(isWritten).length;
+    }
+
+    // ---- breakdowns: the owner's finished chapters, written up --------------
+    // The owner's notes for these chapters (notes/what-would-warren-say-2026-10-08.json,
+    // kept raw) replace the boxes with a written-up breakdown: a thesis, one or
+    // more diagrams, the points, the book's own box where the chapter has one
+    // (chapters 8 and 9, from the owner's photographs), and the notes as written.
+    // A chapter here counts as written and carries the owner's chapter type.
+    var STATEMENT_BOX = { title: 'Income Statement', unit: '($ in millions)', rows: [['Revenue', '$10,000'], ['Cost of Goods Sold', '3,000'], ['Gross Profit', '$7,000']], rule: 1 };
+    var BREAKDOWNS = {
+      '1': {
+        type: 'background',
+        thesis: 'Two things, and only two: find a company with a durable competitive advantage, then work out what it is worth.',
+        diagrams: [{ kind: 'flow', title: 'The two revelations', steps: ['Identify a company with a durable competitive advantage', 'Value a company with a durable competitive advantage'] }],
+        points: [
+          'The first revelation is how to tell a company with a durable competitive advantage from the rest.',
+          'The second is how to value such a company once you have found it.',
+          'Everything that follows in the book serves one of these two.'
+        ],
+        raw: "Identify a company with a durable competitive advantage.\n\nValue a company with a durable competitive advantage."
+      },
+      '2': {
+        type: 'background',
+        thesis: 'The companies with a durable competitive advantage are the ones that make the most money over the longer term.',
+        diagrams: [{ kind: 'flow', title: 'The kind of business', steps: ['A durable competitive advantage', 'The most money', 'Over the longer term'] }],
+        points: [
+          'The business Warren wants is the one whose advantage lasts, because that is where the most money is made over the long run.',
+          'The long term is the point: a good year is not the test, a good decade is.'
+        ],
+        raw: "DCA companies make the most money over the longer term"
+      },
+      '3': {
+        type: 'background',
+        thesis: 'Two kinds of business have a durable advantage: the one that sells something unique, and the one that sells what everyone needs for less.',
+        diagrams: [{ kind: 'tree', root: 'Where a durable competitive advantage comes from', branches: [
+          { title: 'A unique product', lines: ['A product the public keeps coming back for, that no one else quite makes.'], chips: ['Coca-Cola', 'Pepsi', 'Hershey’s', 'Budweiser', 'Coors', 'Kraft', 'The Washington Post', 'Procter & Gamble', 'Philip Morris'] },
+          { title: 'A unique service', lines: ['The advantage belongs to the institution, not to the people in it.'], chips: ['Moody’s', 'H&R Block', 'American Express', 'ServiceMaster', 'Wells Fargo'] },
+          { title: 'The low-cost buyer and seller of what the public consistently needs', lines: ['Big margins are traded for volume, and the volume makes up for the thin margin.', 'The best price in town becomes part of the customer’s story of where to shop.'], chips: ['Wal-Mart', 'Costco', 'Nebraska Furniture Mart', 'Borsheim’s', 'Burlington Northern Santa Fe Railway'] }
+        ] }],
+        points: [
+          'Warren starts his search with two questions: does the company sell a unique product or service, or is it the low-cost buyer and seller of something the public consistently needs?',
+          'A unique product or service earns its margin because nothing else will do.',
+          'The low-cost seller earns its money on volume instead, and its price becomes its reputation.',
+          'In a service business the advantage has to sit with the institution; one that walks out of the door with its people is not durable.'
+        ],
+        raw: "- A company that sells a unique product/service.\n(product eg. Coca-Cola, Pepsi, Hershey's, Budweiser, Coors, Kraft, Waahington post, Proctor & Gamble, Philip Morris)\n(service eg. Moody's, H & R Block Inc. AMEX, Service Master Co., Wells Fargo - Institution specific, not people specific)\n\n- Low cost buyer/seller of product/service the public consistently needs. Big margins are traded for volume as increase in volume makes up for low margins. The best price in town becomes part of the consumer's story of where to shop.\n(eg. Wal-Mart, Costco, Nebraska, Furniture Mart, Borsheim Jewelers, Burlington Northern, Santa Fe Railway"
+      },
+      '4': {
+        type: 'overview',
+        thesis: 'Durability is what turns a good product into wealth: the same thing sold for decades, and the profits that come with it.',
+        diagrams: [
+          { kind: 'flow', title: 'How durability makes money', steps: ['The same product for decades: Coca-Cola has sold the same thing for well over a century', 'Consistent profits', 'No millions spent on R&D or re-tooling for the next product', 'Less debt, so less interest', 'More money to expand or buy back stock', 'Earnings per share rise', 'The share price follows'] },
+          { kind: 'checks', title: 'Is it consistent?', items: ['A high gross margin', 'Little or no debt', 'Not spending heavily on R&D'], note: 'All of this can be found in the financial statements.' }
+        ],
+        points: [
+          'Durability creates wealth. Coca-Cola has been selling the same thing for well over a century.',
+          'Consistency in the product creates consistency in the company’s profits.',
+          'A company that does not have to keep changing its product spends nothing on reinventing it: no research bill, no re-tooling.',
+          'Less debt means less interest, which leaves more money to expand or to buy back stock, and that drives up earnings and the price of the shares.',
+          'The test of consistency is three questions: is the gross margin high, is there little or no debt, and is R&D light?',
+          'Every one of those answers is in the financial statements.'
+        ],
+        raw: "-Durability creates wealth\n(Coca-Cola has been selling the same thing for well over a century)\n\n-Consistency in the product creates consistency in the companies profits.\n\n-The company doesn't have to spend millions to keep changing the product with R&D nor on re-tooling for the next product. Less debt means less interest meaning more money to expand or buy back stock, driving up earnings and the price of the stock.\n\n-Is it consistent? - High gross margin, little to no debt, not spending heavy on R&D?\n\n-All of this info can be found in Financial Statements\n"
+      },
+      '5': {
+        type: 'overview',
+        thesis: 'Three statements, three questions: what the company earns, what it owns and owes, and where its cash goes.',
+        diagrams: [{ kind: 'cols', title: 'The three financial statements', cols: [
+          { title: 'Income statement', sub: 'How much was earned in a set period', lines: ['Sets the margins and the return on equity.', 'Shows the consistency and direction of earnings.', 'Together these decide durable-advantage status.'] },
+          { title: 'Balance sheet', sub: 'How much is in the bank, and how much is owed', lines: ['Subtract one from the other and you have the net worth.', 'The amount of cash and of long-term debt are the indicators of a durable advantage.'] },
+          { title: 'Cash flow statement', sub: 'The cash that flows in and out', lines: ['Shows how much is spent on capital improvements.', 'Tracks bond and stock sales, and repurchases.'] }
+        ] }],
+        points: [
+          'The income statement answers how much the company earned over the period; its margins, its return on equity and the consistency and direction of its earnings are what decide whether the advantage is durable.',
+          'The balance sheet answers what the company has in the bank and what it owes; the difference is its net worth, and the cash and long-term debt lines are the tell.',
+          'The cash flow statement follows the cash itself: what goes on capital improvements, and what is raised or returned through bonds and shares.'
+        ],
+        raw: "Income Statement - How much is earned in a set period? Determines margins - Return equity, cosistency and direction of earnings, these thing determins DSA status.\n\nBalance Sheet - How much is in the bank? How much it owes? Subtract these and you get net worth. Amount of cash and long term debt are indicators of DCA.\n\nCash Flow Statement - Cash that flows in and out. Good to see how much is spent of capital improvements. Tracks bond/stock sales & repurchases."
+      },
+      '6': {
+        type: 'background',
+        thesis: 'The statements are public. Warren reads them where anyone can.',
+        diagrams: [{ kind: 'cols', title: 'Where Warren looks', cols: [
+          { title: 'MSN', sub: 'Financial statements and figures by company' },
+          { title: 'Yahoo', sub: 'The same, with the market’s view beside them' },
+          { title: 'The SEC', sub: 'The filings themselves, as the company reported them' },
+          { title: 'Bloomberg', sub: 'The professional’s terminal' }
+        ] }],
+        points: [
+          'Warren uses MSN, Yahoo, the SEC and Bloomberg.',
+          'Nothing here is private: the numbers the book works from are the ones the company files.',
+          'On this site the Companies tab lays the same statements out line by line, with the book’s chapter beside each.'
+        ],
+        raw: "Warren uses MSN, Yahoo, SEC, Bloomberg"
+      },
+      '7': {
+        type: 'overview',
+        thesis: 'Warren starts with the income statement: revenue less expenses is the profit or loss, and the pattern over the years says what kind of company it is.',
+        diagrams: [
+          { kind: 'flow', title: 'What the income statement holds', steps: ['Revenue', 'less Expenses', 'Profit or loss'] },
+          { kind: 'compare', title: 'What the pattern tells Warren', rows: [['A durable competitive advantage', 'Profits that hold, year after year.'], ['A mediocre business', 'A struggle year to year in a competitive market.']] }
+        ],
+        points: [
+          'The income statement is where Warren starts.',
+          'It carries three things: the revenue, the expenses, and the profit or loss that is left.',
+          'Read over the years it tells a durable advantage from a mediocre business, where the latter shows a struggle year to year in a competitive market.'
+        ],
+        raw: "Warren starts with the income statement.\n\nExpenses, Revenue, Profit/Loss\n\nIndicates DSA or Mediocre where the latter shows a struggle year to year in a competitive market."
+      },
+      '8': {
+        type: 'metric',
+        thesis: 'Revenue is the money that came in during the period. On its own it says nothing about profit.',
+        diagrams: [
+          { kind: 'statement', title: STATEMENT_BOX.title, unit: STATEMENT_BOX.unit, rows: STATEMENT_BOX.rows, rule: STATEMENT_BOX.rule, arrow: 0, caption: 'The box from the book, chapter 8. The arrow marks the line this chapter is about.' },
+          { kind: 'flow', title: 'Where it leads', steps: ['Revenue: what came in over the period', 'A long, careful look at the expenses', 'What is left is what counts'] }
+        ],
+        points: [
+          'Revenue is the amount of money that comes in over a set period.',
+          'Big revenue does not mean a profitable company.',
+          'Revenue without the expenses means nothing.',
+          'After revenue, take a long, careful look at the expenses.'
+        ],
+        raw: "-Amount of money that comes in in a set period\n\n-Big revenue doesn't mean profitable\n\n-Revenue without expenses means nothing\n\n-After revenue, take a long careul look at the expenses"
+      },
+      '9': {
+        type: 'metric',
+        thesis: 'The cost of goods sold, also called the cost of revenue, is what it cost to make or buy what was sold. For Warren, the lower the better.',
+        diagrams: [
+          { kind: 'statement', title: STATEMENT_BOX.title, unit: STATEMENT_BOX.unit, rows: STATEMENT_BOX.rows, rule: STATEMENT_BOX.rule, arrow: 1, caption: 'The box from the book, chapter 9. The arrow marks the line this chapter is about.' },
+          { kind: 'flow', title: 'What it determines', steps: ['Revenue', 'less Cost of goods sold', 'Gross profit'] }
+        ],
+        points: [
+          'Also known as the cost of revenue.',
+          'The lower the better.',
+          'Find out what the company counts in it: that gives a good idea of how management thinks about the business.',
+          'As a lone number it says little about a durable advantage.',
+          'It determines gross profit, which is where the next chapter begins.'
+        ],
+        raw: "-AKA the cost of revenue\n\n-The lower the better\n\n-Find out what is included in the cost. It gives a good idea of how management is thinking about the business.\n\n-As a lone number it doesn't tell us much about DSA.\n\n-Determines gross profit"
+      },
+      '11': {
+        type: 'overview',
+        thesis: 'Operating expenses are a group of costs that add up to one total, and each of them gets a chapter of its own.',
+        diagrams: [{ kind: 'sum', title: 'What adds up to total operating expenses', items: [
+          ['Research and development of new products', '13'],
+          ['Selling and administrative costs of getting the product to market', '12'],
+          ['Depreciation and amortisation', '14'],
+          ['Restructuring and impairment charges', ''],
+          ['Other: the catch-all for non-operating, non-recurring expenses', '16']
+        ], total: 'Total operating expenses' }],
+        points: [
+          'Operating expenses are a group of expenses which, added together, make up the total operating expenses.',
+          'They are the company’s hard costs: research and development of new products, the selling and administrative cost of getting the product to market, depreciation and amortisation, restructuring and impairment charges, and the catch-all “other” that holds everything non-operating and non-recurring.',
+          'The chapters that follow take them one at a time.'
+        ],
+        raw: "A group of expenses, when added, make up the total operating expenses.\n\nThese are all the company's hard costs associated with research and development of new products, selling and administrative costs of getting the product to market, depreciation and amortization, restructuring and impairment charges, and the catch-all \"other\" that includes all non-operating, non-recurring expenses."
+      }
+    };
+
+    function entryFor(ch) {
+      var b = BREAKDOWNS[ch.id];
+      if (b) return { summary: b.thesis, notes: '', type: b.type, builtIn: true };
+      return entries[ch.id] || null;
+    }
+
+    function isWritten(ch) {
+      return !!BREAKDOWNS[ch.id] || hasText(entries[ch.id]);
+    }
+
+    function diagramHtml(d) {
+      var title = d.title ? '<p class="dtitle">' + esc(d.title) + '</p>' : '';
+      if (d.kind === 'flow') {
+        return '<div class="diagram">' + title + '<div class="flow">' + d.steps.map(function (s, i) {
+          return (i ? '<span class="arrow" aria-hidden="true">→</span>' : '') + '<div class="step">' + esc(s) + '</div>';
+        }).join('') + '</div></div>';
+      }
+      if (d.kind === 'tree') {
+        return '<div class="diagram tree">' + title + '<div class="root">' + esc(d.root) + '</div><div class="branches">' + d.branches.map(function (b) {
+          return '<div class="branch"><h4>' + esc(b.title) + '</h4>' + (b.lines || []).map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') +
+            (b.chips && b.chips.length ? '<div class="chips">' + b.chips.map(function (c) { return '<span class="chip">' + esc(c) + '</span>'; }).join('') + '</div>' : '') + '</div>';
+        }).join('') + '</div></div>';
+      }
+      if (d.kind === 'cols') {
+        return '<div class="diagram">' + title + '<div class="cols">' + d.cols.map(function (c) {
+          return '<div class="col"><h4>' + esc(c.title) + '</h4>' + (c.sub ? '<p class="sub">' + esc(c.sub) + '</p>' : '') + (c.lines || []).map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>';
+        }).join('') + '</div></div>';
+      }
+      if (d.kind === 'checks') {
+        return '<div class="diagram">' + title + '<div class="checks">' + d.items.map(function (s) { return '<div class="check"><span class="tick" aria-hidden="true">✓</span>' + esc(s) + '</div>'; }).join('') + '</div>' +
+          (d.note ? '<p class="dnote">' + esc(d.note) + '</p>' : '') + '</div>';
+      }
+      if (d.kind === 'sum') {
+        return '<div class="diagram">' + title + '<div class="sum">' + d.items.map(function (it, i) {
+          return '<div class="row"><span>' + (i ? '<span class="plus" aria-hidden="true">+</span> ' : '') + esc(it[0]) + (it[1] ? ' <span class="ref">ch. ' + esc(it[1]) + '</span>' : '') + '</span></div>';
+        }).join('') + '<div class="row total"><span>' + esc(d.total) + '</span></div></div></div>';
+      }
+      if (d.kind === 'compare') {
+        return '<div class="diagram">' + title + '<div class="compare">' + d.rows.map(function (r) { return '<div class="row"><b>' + esc(r[0]) + '</b><span>' + esc(r[1]) + '</span></div>'; }).join('') + '</div></div>';
+      }
+      if (d.kind === 'statement') {
+        return '<div class="diagram">' + title + '<div class="statement"><h4>' + esc(d.title) + '</h4><p class="unit">' + esc(d.unit) + '</p><table>' + d.rows.map(function (r, i) {
+          return '<tr' + (i === d.rule ? ' class="underlined"' : '') + (i === d.arrow ? ' data-here="true"' : '') + '><td class="ar">' + (i === d.arrow ? '<span aria-label="This chapter’s line">→</span>' : '') + '</td><td>' + esc(r[0]) + '</td><td class="v">' + esc(r[1]) + '</td></tr>';
+        }).join('') + '</table></div>' + (d.caption ? '<p class="dnote">' + esc(d.caption) + '</p>' : '') + '</div>';
+      }
+      return '';
+    }
+
+    function breakdownHtml(ch, b) {
+      return '<p class="type-line"><span class="mark type-tag">' + esc(TYPE_NAMES[b.type]) + '</span> <span>Written up from your notes.</span></p>' +
+        '<p class="thesis">' + esc(b.thesis) + '</p>' +
+        b.diagrams.map(diagramHtml).join('') +
+        '<ul class="points">' + b.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
+        '<details class="raw-notes"><summary>Your notes, as written</summary><pre>' + esc(b.raw) + '</pre></details>';
     }
 
     // ---- helpers -----------------------------------------------------------
@@ -500,8 +755,9 @@
     }
 
     function marks(ch) {
-      var e = entries[ch.id];
+      var e = entryFor(ch);
       if (!e) return '';
+      if (e.builtIn) return ' <span class="mark type-tag">' + esc(TYPE_NAMES[e.type]) + '</span> <span class="mark">written up</span>';
       return (e.type ? ' <span class="mark type-tag">' + esc(TYPE_NAMES[e.type]) + '</span>' : '') +
              (e.summary ? ' <span class="mark">summary</span>' : '') +
              (e.notes ? ' <span class="mark">notes</span>' : '');
@@ -523,7 +779,7 @@
       tabsWrap.setAttribute('aria-label', 'Chapters in this section');
       tabsEl.innerHTML = partChapters[part].map(function (ch) {
         var selected = ch.id === currentId;
-        return '<a class="tab' + (hasText(entries[ch.id]) ? ' written' : '') + '" role="tab" href="#' + ch.id + '"' +
+        return '<a class="tab' + (isWritten(ch) ? ' written' : '') + '" role="tab" href="#' + ch.id + '"' +
           ' aria-selected="' + (selected ? 'true' : 'false') + '"' +
           ' title="' + esc(ch.title) + '" aria-label="' + esc(label(ch)) + '">' +
           (ch.num ? ch.num : 'Intro') + '</a>';
@@ -559,6 +815,18 @@
       var e = entries[ch.id] || { summary: '', notes: '', type: '' };
       var prev = CHAPTERS[ch.index - 1];
       var next = CHAPTERS[ch.index + 1];
+      var pager = '<nav class="pager">' +
+        (prev ? '<a href="#' + prev.id + '">&larr; ' + esc(label(prev)) + '</a>' : '<span></span>') +
+        (next ? '<a href="#' + next.id + '">' + esc(label(next)) + ' &rarr;</a>' : '<span></span>') +
+        '</nav>';
+      if (BREAKDOWNS[ch.id]) {
+        app.innerHTML = '<article class="article breakdown">' +
+          '<p class="kicker">' + esc(PARTS[ch.part]) + ' &middot; ' + (ch.num ? 'Chapter ' + ch.num : 'Introduction') + '</p>' +
+          '<h2 class="headline">' + esc(ch.title) + '</h2>' +
+          breakdownHtml(ch, BREAKDOWNS[ch.id]) + pager + '</article>';
+        pendingFlush = null;
+        return;
+      }
       app.innerHTML =
         '<article class="article">' +
         '<p class="kicker">' + esc(PARTS[ch.part]) + ' &middot; ' + (ch.num ? 'Chapter ' + ch.num : 'Introduction') + '</p>' +
@@ -574,11 +842,7 @@
         '<textarea id="summary" rows="8" placeholder="What this chapter says, in your own words."></textarea></div>' +
         '<div class="field"><label for="notes">Notes</label>' +
         '<textarea id="notes" rows="12" placeholder="Your notes: questions, examples, companies to check."></textarea></div>' +
-        '<p class="saved" id="saved"></p>' +
-        '<nav class="pager">' +
-        (prev ? '<a href="#' + prev.id + '">&larr; ' + esc(label(prev)) + '</a>' : '<span></span>') +
-        (next ? '<a href="#' + next.id + '">' + esc(label(next)) + ' &rarr;</a>' : '<span></span>') +
-        '</nav></article>';
+        '<p class="saved" id="saved"></p>' + pager + '</article>';
 
       var summary = document.getElementById('summary');
       var notes = document.getElementById('notes');
@@ -601,7 +865,7 @@
         var ok = saveEntries();
         saved.textContent = ok ? 'Saved ' + timeNow() : 'Not saved: this browser is blocking storage. Export before you leave.';
         var tab = tabsEl.querySelector('a[href="#' + ch.id + '"]');
-        if (tab) tab.classList.toggle('written', hasText(entries[ch.id]));
+        if (tab) tab.classList.toggle('written', isWritten(ch));
       }
       function onInput() {
         saved.textContent = 'Saving…';

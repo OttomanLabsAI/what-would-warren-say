@@ -10,7 +10,10 @@ numbered tabs picks the chapter, and the contents page lists every chapter in
 two columns. Each chapter has a chapter type, a summary box and a notes box
 that save as you type. Export writes everything you have written to a JSON
 file, and Import reads one back, so you can carry on another day or on another
-device.
+device. Chapters the owner has finished are written up instead: the boxes give
+way to a breakdown of the chapter, a thesis, diagrams, the points, the book's
+own income-statement box where the chapter has one, and the owner's notes as
+written; the raw export behind them is kept under `notes/`.
 
 **Companies.** Every company of NASDAQ, NYSE and London opens without a key.
 Eighty come bundled with their full history as sample data; the rest open
@@ -62,6 +65,7 @@ src/worker.js      the EODHD relay and the store; every other request goes to th
 wrangler.jsonc     Worker + assets config, and the store's bucket binding
 package.json       wrangler as a devDependency, dev/deploy/check/pull/upload scripts
 tools/             the puller, the local pull page and the store uploader (see below)
+notes/             the owner's exported notes, raw: the source of the written-up chapters
 prompt text/       the prompt and reply behind the version in service
 CLAUDE.md          standing policy for working in this repo
 ```
