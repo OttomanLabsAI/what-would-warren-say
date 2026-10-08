@@ -19,7 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { exec } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { createContext, loadUniverse, pull, writeScreens, usage, MARKETS, loadSampleWatchlists, parseArgs, CALLS_PER_COMPANY } from './lib/pull.mjs';
+import { createContext, loadUniverse, pull, writeScreens, reextract, usage, MARKETS, loadSampleWatchlists, parseArgs, CALLS_PER_COMPANY } from './lib/pull.mjs';
 import { uploadStore, DEFAULT_BUCKET } from './lib/store.mjs';
 
 const args = parseArgs(process.argv.slice(2));
@@ -30,7 +30,7 @@ const PORT = args.port === undefined ? 8787 : parseInt(args.port, 10);
 const TOKEN_FILE = path.join(OUT, 'eodhd-token.txt');
 const R2_FILE = path.join(OUT, 'r2.json');
 
-const state = { running: false, stopRequested: false, what: '', startedAt: '', finishedAt: '', progress: null, summary: null, lists: 0, error: '', usageBefore: null, usageAfter: null, files: [], log: [],
+const state = { running: false, stopRequested: false, what: '', startedAt: '', finishedAt: '', progress: null, summary: null, rebuild: null, lists: 0, error: '', usageBefore: null, usageAfter: null, files: [], log: [],
   send: { running: false, stopRequested: false, startedAt: '', finishedAt: '', progress: null, summary: null, error: '' } };
 let watchlists = [], watchlistError = '';
 try { watchlists = loadSampleWatchlists(ROOT); } catch (e) { watchlistError = e.message; }
@@ -54,10 +54,18 @@ function log(line) {
 }
 
 async function run(job) {
-  Object.assign(state, { running: true, stopRequested: false, startedAt: new Date().toISOString(), finishedAt: '', progress: null, summary: null, lists: 0, error: '', usageBefore: null, usageAfter: null, files: [] });
+  Object.assign(state, { running: true, stopRequested: false, startedAt: new Date().toISOString(), finishedAt: '', progress: null, summary: null, rebuild: null, lists: 0, error: '', usageBefore: null, usageAfter: null, files: [] });
   try {
     const opts = { out: OUT, base: BASE, token, parallel: 4, limit: job.limit || Infinity, refreshDays: job.refresh ? 0 : null, log, onProgress: p => { state.progress = p; }, shouldStop: () => state.stopRequested };
-    if (job.watchlist) {
+    if (job.reextract) {
+      // every company again from the raw replies on disk: no calls, no token needed
+      state.what = 'a rebuild from the saved replies';
+      log('Rebuilding every company from the saved replies.');
+      const ctx = createContext(opts);
+      state.rebuild = reextract(ctx);
+      const index = writeScreens(ctx);
+      state.files = ['pulled.json'].concat(Object.keys(index.venues).map(v => 'screen/' + v + '.json'), Object.keys(index.venues).map(v => 'screen/' + v + '.csv'), ['screen/index.json', 'companies/ (one file per company)', 'rows/ (one row per company)']);
+    } else if (job.watchlist) {
       const list = watchlists.find(w => w.name === job.watchlist);
       if (!list) throw new Error('no sample watchlist called ' + job.watchlist);
       opts.only = list.items.map(it => it.symbol);
@@ -70,14 +78,16 @@ async function run(job) {
       state.what = market.name;
       state.lists = market.exchanges.length;
     }
-    log('Starting on ' + state.what + '.');
-    const ctx = createContext(opts);
-    try { state.usageBefore = await usage(ctx); } catch (e) { log('Could not read your usage from EODHD: ' + e.message); }
-    const universe = await loadUniverse(ctx);
-    state.summary = await pull(ctx, universe);
-    const index = writeScreens(ctx);
-    state.files = (opts.only ? [] : ['symbols.json']).concat(['pulled.json'], Object.keys(index.venues).map(v => 'screen/' + v + '.json'), Object.keys(index.venues).map(v => 'screen/' + v + '.csv'), ['screen/index.json', 'companies/ (one file per company)', 'raw/ (one gzipped reply per company)']);
-    try { state.usageAfter = await usage(ctx); } catch (e) { log('Could not read your usage from EODHD: ' + e.message); }
+    if (!job.reextract) {
+      log('Starting on ' + state.what + '.');
+      const ctx = createContext(opts);
+      try { state.usageBefore = await usage(ctx); } catch (e) { log('Could not read your usage from EODHD: ' + e.message); }
+      const universe = await loadUniverse(ctx);
+      state.summary = await pull(ctx, universe);
+      const index = writeScreens(ctx);
+      state.files = (opts.only ? [] : ['symbols.json']).concat(['pulled.json'], Object.keys(index.venues).map(v => 'screen/' + v + '.json'), Object.keys(index.venues).map(v => 'screen/' + v + '.csv'), ['screen/index.json', 'companies/ (one file per company)', 'raw/ (one gzipped reply per company)']);
+      try { state.usageAfter = await usage(ctx); } catch (e) { log('Could not read your usage from EODHD: ' + e.message); }
+    }
   } catch (e) {
     state.error = e && e.message ? e.message : String(e);
     log('Stopped: ' + state.error);
@@ -133,6 +143,7 @@ const server = http.createServer(async (req, res) => {
     if (state.running) return sendJson(res, 409, { error: 'A pull is already running.' });
     let body;
     try { body = await readBody(req); } catch (e) { return sendJson(res, 400, { error: 'Bad request.' }); }
+    if (body.reextract) { run({ reextract: true }); return sendJson(res, 200, { ok: true }); }
     const typed = String(body.token || '').trim();
     if (typed) token = typed;
     if (!token) return sendJson(res, 400, { error: 'Paste your EODHD API token.' });
@@ -238,7 +249,7 @@ const PAGE = `<!doctype html>
     <div class="f"><label class="t" for="watchlist">Or a sample watchlist</label><select id="watchlist"></select><p class="hint" id="watchlist-hint"></p></div>
     <div class="f"><label class="check"><input type="checkbox" id="refresh"> Pull again companies already on disk</label></div>
     <div class="f"><label class="t" for="limit">At most this many companies this run</label><input type="number" id="limit" min="1" placeholder="all of them"></div>
-    <div class="buttons"><button type="submit" id="start">Start</button><button type="button" class="secondary" id="stop" disabled>Stop</button><span class="hint" id="cost"></span></div>
+    <div class="buttons"><button type="submit" id="start">Start</button><button type="button" class="secondary" id="stop" disabled>Stop</button><button type="button" class="secondary" id="rebuild" title="Every company again from the replies saved on this machine: no calls, no token">Rebuild from saved replies</button><span class="hint" id="cost"></span></div>
   </form>
   <div class="status" id="status"></div>
   <div class="status" id="usage"></div>
@@ -274,7 +285,7 @@ const PAGE = `<!doctype html>
     if (!filled) fill(s);
     $('token-hint').textContent = s.remembered ? 'A token is remembered on this machine: leave the box empty to use it, or paste another.' : (s.hasToken ? 'Using the token pasted earlier this session.' : 'The token is used from this machine only and never leaves it except to reach EODHD.');
     $('market').disabled = !!$('watchlist').value;
-    $('start').disabled = s.running; $('stop').disabled = !s.running;
+    $('start').disabled = s.running; $('stop').disabled = !s.running; $('rebuild').disabled = s.running || s.send.running;
     var html = '<b class="k">' + (s.running ? 'Running' : (s.finishedAt ? 'Finished' : 'Ready')) + '</b>';
     if (s.running || s.finishedAt) html += '<div>' + esc(s.what) + (s.startedAt ? ', started ' + new Date(s.startedAt).toLocaleTimeString() : '') + (s.finishedAt ? ', finished ' + new Date(s.finishedAt).toLocaleTimeString() : '') + '</div>';
     var p = s.progress;
@@ -283,7 +294,8 @@ const PAGE = `<!doctype html>
       if (s.running || !s.summary) html += '<dl><dt>Pulled</dt><dd>' + fmt(p.done) + ' of ' + fmt(p.total) + (p.current ? ', last ' + esc(p.current) : '') + '</dd>' +
         '<dt>Of which</dt><dd>' + fmt(p.ok) + ' with figures, ' + fmt(p.missing) + ' with none at EODHD, ' + fmt(p.refused) + ' refused by the plan, ' + fmt(p.error) + ' errors</dd>' +
         '<dt>Calls spent this run</dt><dd>about ' + fmt(p.calls + s.lists) + '</dd></dl>';
-    } else if (s.running) html += '<div>Listing the companies…</div>';
+    } else if (s.running) html += '<div>' + (/rebuild/.test(s.what) ? 'Rebuilding every company from the saved replies…' : 'Listing the companies…') + '</div>';
+    if (s.rebuild && !s.running) html += '<dl><dt>Rebuilt</dt><dd>' + fmt(s.rebuild.rebuilt) + ' companies from the saved replies' + (s.rebuild.missing ? '; ' + fmt(s.rebuild.missing) + ' had no saved reply' : '') + '</dd></dl>';
     if (s.summary && !s.running) {
       var m = s.summary;
       html += '<dl><dt>Companies</dt><dd>' + fmt(m.universe) + ' in the universe, ' + fmt(m.due) + ' to pull</dd>' +
@@ -336,6 +348,11 @@ const PAGE = `<!doctype html>
       .then(function (r) { return r.json(); }).then(function (j) { if (j.error) lastError = j.error; $('token').value = ''; poll(); });
   });
   $('stop').addEventListener('click', function () { fetch('/api/stop', { method: 'POST' }).then(poll); });
+  $('rebuild').addEventListener('click', function () {
+    lastError = '';
+    fetch('/api/start', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ reextract: true }) })
+      .then(function (r) { return r.json(); }).then(function (j) { if (j.error) lastError = j.error; poll(); });
+  });
   $('send-form').addEventListener('submit', function (ev) {
     ev.preventDefault();
     lastSendError = '';

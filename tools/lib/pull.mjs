@@ -285,12 +285,21 @@ export function nextReport(src) {
   return best;
 }
 
-export function extractCompany(symbol, data) {
+// A short form of the business description for a screen row: whole sentences, about 320 characters.
+export function shortAbout(text) {
+  const s = String(text || '').replace(/\s+/g, ' ').trim();
+  if (s.length <= 320) return s;
+  const cut = s.slice(0, 320);
+  const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('; '));
+  return (end > 120 ? cut.slice(0, end + 1) : cut.replace(/\s+\S*$/, '') + '\u2026').trim();
+}
+
+export function extractCompany(symbol, data, fetchedAt) {
   const fin = data.Financials || {};
   const g = data.General && typeof data.General === 'object' ? data.General : {};
   const c = {
     symbol,
-    fetchedAt: new Date().toISOString(),
+    fetchedAt: fetchedAt || new Date().toISOString(),
     meta: {
       code: String(g.Code || symbol),
       name: String(g.Name || symbol),
@@ -298,7 +307,14 @@ export function extractCompany(symbol, data) {
       currency: String(g.CurrencyCode || (fin.Income_Statement && fin.Income_Statement.currency_symbol) || ''),
       fiscalYearEnd: String(g.FiscalYearEnd || ''),
       sector: String(g.Sector || ''),
-      industry: String(g.Industry || '')
+      industry: String(g.Industry || ''),
+      // what the company does, and the facts beside it, from the same General block
+      description: String(g.Description || '').trim(),
+      web: String(g.WebURL || '').trim(),
+      employees: num(g.FullTimeEmployees),
+      ipo: String(g.IPODate || '').trim(),
+      country: String(g.CountryName || '').trim(),
+      address: String(g.Address || '').trim()
     },
     income: yearlyOf(fin.Income_Statement),
     balance: yearlyOf(fin.Balance_Sheet),
@@ -367,7 +383,8 @@ function epsOf(y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y
 
 export function screenRow(m, c) {
   const dates = yearList(c);
-  const row = { symbol: c.symbol, name: m.name, exchange: m.exchange, currency: c.meta.currency, sector: c.meta.sector, industry: c.meta.industry, fiscalYearEnd: c.meta.fiscalYearEnd, pulledAt: m.pulledAt, nextReport: c.next ? c.next.date : null, nextReportWhen: c.next ? c.next.when : null, nextEpsEstimate: c.next ? c.next.estimate : null, year: null, years: dates.length };
+  const row = { symbol: c.symbol, name: m.name, exchange: m.exchange, currency: c.meta.currency, sector: c.meta.sector, industry: c.meta.industry, fiscalYearEnd: c.meta.fiscalYearEnd, pulledAt: m.pulledAt, nextReport: c.next ? c.next.date : null, nextReportWhen: c.next ? c.next.when : null, nextEpsEstimate: c.next ? c.next.estimate : null,
+    about: shortAbout(c.meta.description), web: c.meta.web || '', employees: num(c.meta.employees), ipo: c.meta.ipo || '', country: c.meta.country || '', year: null, years: dates.length };
   if (!dates.length) return row;
   const i = dates.length - 1, y = yearData(c, dates, i), start = Math.max(0, dates.length - 10);
   const gp = grossProfit(y), rev = v(y.inc, 'totalRevenue'), ni = v(y.inc, 'netIncome');
@@ -401,6 +418,26 @@ export function screenRow(m, c) {
     dividendsPaid: (() => { const d = v(y.cf, 'dividendsPaid'); return d === null ? null : Math.abs(d); })()
   });
   return row;
+}
+
+// Rebuild every company's file and row from the raw reply kept on disk: no
+// calls, the same shapes, with whatever fields the extraction has gained since.
+export function reextract(ctx) {
+  let rebuilt = 0, missing = 0;
+  for (const symbol of Object.keys(ctx.manifest)) {
+    const m = ctx.manifest[symbol];
+    if (!m || m.status !== 'ok') continue;
+    const file = path.join(ctx.out, 'raw', symbol + '.json.gz');
+    let data = null;
+    try { data = JSON.parse(zlib.gunzipSync(fs.readFileSync(file)).toString('utf8')); } catch (e) { data = null; }
+    if (!data || typeof data !== 'object') { missing++; continue; }
+    const c = extractCompany(symbol, data, m.pulledAt);
+    writeJson(path.join(ctx.out, 'companies', symbol + '.json'), c);
+    writeJson(path.join(ctx.out, 'rows', symbol + '.json'), screenRow(m, c));
+    rebuilt++;
+  }
+  ctx.log('Rebuilt ' + rebuilt + ' companies from the saved replies' + (missing ? '; ' + missing + ' had no saved reply' : '') + '.');
+  return { rebuilt, missing };
 }
 
 export function recomputeRows(ctx) {

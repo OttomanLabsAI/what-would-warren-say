@@ -18,7 +18,9 @@ from the bundled screen rows with their latest year's figures, the lines the
 row does not hold left blank with a note, as is the share price without a
 key. Once the store, an R2 bucket in your Cloudflare account, is filled, every
 company opens with its full history. With your own EODHD API token the page
-fetches any company's fundamentals live. Either way it lays out the yearly history of the figures
+fetches any company's fundamentals live. Under the company's name sits what it
+does, EODHD's business description with the website, head count, listing year
+and country beside it, three lines at a time with More for the rest. Either way it lays out the yearly history of the figures
 the book walks through: every statement line with the chapter beside it, and
 the book's ratios with its rule of thumb under each. With a token in the box
 the company's current share price sits above the table, with the day's change
@@ -193,6 +195,13 @@ lives in `data/eodhd-token.txt`, never in the repository), a Start and a Stop
 button, a progress bar, the calls spent this run, and EODHD's own count of
 calls used today before and after the run. Pass `--port`, `--out`, `--base`
 or `--no-open` if the defaults do not suit.
+
+**Rebuilding without calls.** The extraction gains fields over time, the
+business description among them, and the raw replies on disk already hold
+them: the pull page's **Rebuild from saved replies** button, or
+`npm run pull -- --reextract`, writes every company's file and row again
+from those replies, spending nothing, and rewrites the screen files. Run it
+after updating the tools, then bundle and release as usual.
 
 **The command line.** `tools/pull-fundamentals.mjs` does the same without a
 page:

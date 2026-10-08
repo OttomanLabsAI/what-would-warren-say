@@ -121,6 +121,17 @@
     details.raw h4 { font-family: var(--sans); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); margin: 1.2rem 0 .4rem; }
     @media (max-width: 40rem) { .fetch-form { grid-template-columns: 1fr; } }
     .next-report { margin: -.7rem 0 .6rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
+    .about { display: flex; gap: .2rem .8rem; align-items: baseline; margin: -.7rem 0 .8rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
+    .about + .next-report { margin-top: 0; }
+    .about > b { flex: none; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .about-body { min-width: 0; flex: 1 1 auto; }
+    .about-text { margin: 0; font-family: var(--text); font-size: 1.02rem; line-height: 1.45; }
+    .about-text.clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+    .about .linkbtn { margin-top: .15rem; }
+    .about .when { color: var(--ink-60); font-size: .85rem; }
+    .facts { margin: .3rem 0 0; font-size: .82rem; color: var(--ink-60); }
+    .facts a { color: var(--teal); text-decoration: none; }
+    .facts a:hover { text-decoration: underline; }
     .screen-controls { display: flex; flex-wrap: wrap; gap: .9rem 2rem; align-items: flex-start; margin: 0 0 1rem; font-family: var(--sans); }
     .screen-controls .f { display: flex; flex-direction: column; gap: .35rem; }
     .screen-controls label.t, .rules legend { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); padding: 0; }
@@ -795,7 +806,13 @@
           currency: String(g.CurrencyCode || (fin.Income_Statement && fin.Income_Statement.currency_symbol) || ''),
           fiscalYearEnd: String(g.FiscalYearEnd || ''),
           sector: String(g.Sector || ''),
-          industry: String(g.Industry || '')
+          industry: String(g.Industry || ''),
+          description: String(g.Description || '').trim(),
+          web: String(g.WebURL || '').trim(),
+          employees: num(g.FullTimeEmployees),
+          ipo: String(g.IPODate || '').trim(),
+          country: String(g.CountryName || '').trim(),
+          address: String(g.Address || '').trim()
         },
         income: yearlyOf(fin.Income_Statement),
         balance: yearlyOf(fin.Balance_Sheet),
@@ -1264,6 +1281,7 @@
       var newest = dates.slice().reverse(), newestLabels = labels.slice().reverse();
       return '<p class="kicker">Company numbers \u00b7 ' + esc(c.symbol) + '</p>' +
         '<h2 class="headline">' + esc(m.name) + '</h2>' +
+        aboutHtml(c) +
         nextReportHtml(c) +
         priceHtml(c) +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
@@ -1277,6 +1295,28 @@
           rawTableHtml('Income statement', c.income, newest, newestLabels) +
           rawTableHtml('Balance sheet', c.balance, newest, newestLabels) +
           rawTableHtml('Cash flow statement', c.cashflow, newest, newestLabels) + '</details>' : '');
+    }
+
+    // What the company does, from EODHD's General block: the description, shown
+    // three lines at a time with More when it runs on, and the facts beside it.
+    // A company kept or pulled before these fields existed says so.
+    var ABOUT_CLAMP = 320;
+    function aboutHtml(c) {
+      var m = c.meta || {}, facts = [];
+      if (m.web) {
+        var url = /^https?:\/\//i.test(m.web) ? m.web : 'https://' + m.web;
+        facts.push('<a href="' + esc(url) + '" rel="noopener">' + esc(url.replace(/^https?:\/\//i, '').replace(/\/.*$/, '')) + '</a>');
+      }
+      if (isNum(m.employees) && m.employees > 0) facts.push(fmtCount(Math.round(m.employees)) + ' employees');
+      if (m.ipo && /^\d{4}/.test(m.ipo)) facts.push('Listed since ' + esc(m.ipo.slice(0, 4)));
+      if (m.country) facts.push(esc(m.country));
+      var text = String(m.description || '').trim();
+      if (!text && !facts.length) return '<div class="about" id="about"><b>About</b><div class="about-body"><p class="about-text"><span class="when">' + (c.rowOnly ? 'Not on file in the screen rows; a live fetch brings it.' : 'Not on file; fetch again to see it.') + '</span></p></div></div>';
+      return '<div class="about" id="about"><b>About</b><div class="about-body">' +
+        (text ? '<p class="about-text' + (text.length > ABOUT_CLAMP ? ' clamped' : '') + '" id="about-text">' + esc(text) + '</p>' +
+          (text.length > ABOUT_CLAMP ? '<button type="button" class="linkbtn" id="about-more" aria-expanded="false" aria-controls="about-text">More</button>' : '') :
+          '<p class="about-text"><span class="when">No description on file.</span></p>') +
+        (facts.length ? '<p class="facts">' + facts.join(' \u00b7 ') + '</p>' : '') + '</div></div>';
     }
 
     // Sample data: companies pulled by the owner and bundled with the site under
@@ -1422,7 +1462,8 @@
       if (!row) return null;
       var c = {
         symbol: symbol,
-        meta: { name: row.name || symbol, exchange: row.exchange || venue, currency: row.currency || '', sector: row.sector || '', industry: row.industry || '', fiscalYearEnd: row.fiscalYearEnd || '' },
+        meta: { name: row.name || symbol, exchange: row.exchange || venue, currency: row.currency || '', sector: row.sector || '', industry: row.industry || '', fiscalYearEnd: row.fiscalYearEnd || '',
+          description: String(row.about || ''), web: String(row.web || ''), employees: isNum(row.employees) ? row.employees : null, ipo: String(row.ipo || ''), country: String(row.country || '') },
         income: {}, balance: {}, cashflow: {}, shares: {}, eps: {},
         next: row.nextReport ? { date: String(row.nextReport), quarter: null, when: row.nextReportWhen || '', estimate: isNum(row.nextEpsEstimate) ? row.nextEpsEstimate : null } : null,
         fetchedAt: row.pulledAt || '', rowOnly: true, row: row
@@ -1528,6 +1569,13 @@
 
       if (shown) {
         var company = shown;
+        var more = document.getElementById('about-more');
+        if (more) more.addEventListener('click', function () {
+          var t = document.getElementById('about-text');
+          var open = !t.classList.toggle('clamped');
+          more.textContent = open ? 'Less' : 'More';
+          more.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
         wirePrice(company, tokenInput, rememberBox);
         document.getElementById('refresh').addEventListener('click', function () { go(company.symbol); });
         document.getElementById('csv').addEventListener('click', function () {

@@ -82,7 +82,15 @@ carries quarters after the last year end. A company also keeps `next`, the
 earliest report still to come from EODHD's `Earnings.History` (`date`,
 `quarter`, `when`, `estimate`, or `null`; `nextReport` finds it), shown under
 the headline by `nextReportHtml`; a company kept before `next` existed shows
-a "fetch again" line. Every line of the table carries a `button.graph`
+a "fetch again" line. Under the headline, above the next-report and price
+lines, `aboutHtml` shows what the company does: `meta.description` (EODHD's
+`General.Description`), clamped to three lines with a More button past
+`ABOUT_CLAMP` characters, and a facts line from `meta.web`, `meta.employees`,
+`meta.ipo` and `meta.country` (`General.WebURL`, `FullTimeEmployees`,
+`IPODate`, `CountryName`; `meta.address` is kept but not shown). A company
+without the fields, kept or pulled before they existed, says "Not on file"
+in the same place; a row company shows the row's `about`, a short form of
+the description, with its `web`, `employees`, `ipo` and `country`. Every line of the table carries a `button.graph`
 (`data-row` is its index in `NUMBER_ROWS`) that opens one `<dialog
 class="graph-dialog">`, built once by `ensureGraphDialog`: `graphPeriods` and
 `graphValues` give the series (yearly, or quarterly through `quarterData` so
@@ -229,9 +237,15 @@ with the token from `EODHD_TOKEN`; `tools/pull-app.mjs` is a local page on
 dropdowns, Start and Stop, progress, the calls spent and EODHD's own count,
 the token kept in memory or in `data/eodhd-token.txt` when "remember" is
 ticked. Neither puts the token in the repository or the site. A pull stops
-on EODHD's 402 and resumes next run. The engine's company shape, next-report
-rule and ratio formulas mirror `extractCompany`, `nextReport` and
-`NUMBER_ROWS` in `index.html`: change them together.
+on EODHD's 402 and resumes next run. `reextract` rebuilds every company's
+file and row from the raw replies on disk with no calls, keeping each
+company's `pulledAt` as its `fetchedAt`, so a field added to the extraction
+reaches the whole pull without refetching: `--reextract` on the command
+line, the "Rebuild from saved replies" button on the pull page. `shortAbout`
+cuts the description to whole sentences of about 320 characters for the
+screen row's `about`. The engine's company shape, next-report rule and ratio
+formulas mirror `extractCompany`, `nextReport` and `NUMBER_ROWS` in
+`index.html`: change them together.
 
 `tools/lib/store.mjs` sends a pull to the store: `sign` (AWS Signature
 Version 4 in its header form, region `auto`, service `s3`, checked against
@@ -371,3 +385,4 @@ design are their own release, requested deliberately.
 | v1.18 | Adding to a watchlist set aside for now | The two ways of putting a company into a watchlist, the dropdown on a company's page and the form under each list, are gone for now and will come back later in another form. The lists themselves stay as they were: open, rename, remove a company, make and delete a list, and bring the starting lists back. |
 | v1.19 | The masthead asks its question | The site's name now carries its question mark, on the masthead, in the browser tab and on the not-found page: What Would Warren Say? |
 | v1.20 | Every company on NASDAQ, NYSE and London, no key needed | Every company you pulled now opens on the site without a key: eighty with their full history, the rest from the pull's screen rows with their latest year's figures, and whatever is not on file, the earlier years, the quarters and the share price, is left blank with a note saying so. A new Screen tab lists every company of an exchange by the book's ratios, sortable and searchable, with the book's rules of thumb as tick-box filters. The store that will hold the full pull is built and waits only for its bucket. |
+| v1.21 | What each company does, under its name | A company's page now opens with what the company does: EODHD's description of the business, three lines at a time with More for the rest, and beside it the website, the head count, the year it listed and its country, all above the next report date and the price. Companies pulled before this carry the line once their files are rebuilt from the saved replies, which the pull page now does with one button and no calls. |

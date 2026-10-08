@@ -20,6 +20,7 @@
 //   --parallel <n>          fetches in flight at once; default 4
 //   --screen-only           rebuild the screen files from what is on disk, no fetching
 //   --recompute             rebuild every company's screen row from its file first
+//   --reextract             rebuild every company's file and row from the saved replies, no fetching
 //   --base <url>            EODHD's base; default https://eodhd.com/api/
 //
 // Each company costs ten EODHD calls and each symbol list one. A run stops on
@@ -37,7 +38,7 @@
 //   screen/<VENUE>.csv      the same rows for a spreadsheet
 //   screen/index.json       the screen files, their counts and dates
 
-import { createContext, loadUniverse, pull, writeScreens, recomputeRows, parseArgs, DEFAULT_EXCHANGES, DEFAULT_US } from './lib/pull.mjs';
+import { createContext, loadUniverse, pull, writeScreens, recomputeRows, reextract, parseArgs, DEFAULT_EXCHANGES, DEFAULT_US } from './lib/pull.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const TOKEN = process.env.EODHD_TOKEN || '';
@@ -58,8 +59,9 @@ async function main() {
     log: console.log,
     onProgress: (p) => { if (p.done % 25 === 0) console.log(p.done + ' of ' + p.total + ' (' + p.ok + ' ok, ' + p.missing + ' missing, ' + p.refused + ' refused, ' + p.error + ' errors)'); }
   });
-  if (args.recompute) recomputeRows(ctx);
-  if (!args['screen-only']) {
+  if (args.reextract) reextract(ctx);
+  else if (args.recompute) recomputeRows(ctx);
+  if (!args['screen-only'] && !args.reextract) {
     if (!TOKEN) throw new Error('set EODHD_TOKEN to your EODHD API token');
     const universe = await loadUniverse(ctx);
     await pull(ctx, universe);

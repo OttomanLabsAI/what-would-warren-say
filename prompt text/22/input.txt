@@ -1,0 +1,3 @@
+does the api have  small description of what the company does?
+
+add that information into the company above the stock price
