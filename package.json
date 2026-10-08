@@ -10,7 +10,8 @@
     "pull": "node tools/pull-fundamentals.mjs",
     "pull-app": "node tools/pull-app.mjs",
     "bundle-samples": "node tools/bundle-samples.mjs",
-    "upload-store": "node tools/upload-store.mjs"
+    "upload-store": "node tools/upload-store.mjs",
+    "bundle-screen": "node tools/bundle-screen.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

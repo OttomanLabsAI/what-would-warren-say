@@ -11,3 +11,5 @@ so that holds all of the data to make the app work?
 but i have the data now, can't i use it on my own data store?
 
 i want it to work without a password or key as there are no users right now
+
+Make it fetch companies without the api key now that you have the data. Any information that’s not available, like the latest stock price, should be blank with a note

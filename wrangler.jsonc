@@ -16,12 +16,13 @@
     // Upstream for the relay; overridden in tests with --var EODHD_BASE:...
     "EODHD_BASE": "https://eodhd.com/api/"
   },
-  "r2_buckets": [
-    // The store: the owner's pull, uploaded from their machine with
-    // tools/upload-store.mjs and read by the Worker at /api/data/. The bucket
-    // is made once in the Cloudflare dashboard, under this name, before deploying.
-    { "binding": "DATA", "bucket_name": "wwws-data" }
-  ],
+  // The store: the owner's pull, uploaded from their machine with
+  // tools/upload-store.mjs and read by the Worker at /api/data/ through the
+  // binding below. The bucket must exist in the account before a deploy that
+  // carries the binding, or the deploy fails, so the binding is commented out
+  // until the bucket wwws-data has been made in the Cloudflare dashboard.
+  // Until then every store path answers 404 and the page reads the bundled rows.
+  // "r2_buckets": [{ "binding": "DATA", "bucket_name": "wwws-data" }],
   "observability": {
     "enabled": true
   }

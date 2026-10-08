@@ -12,11 +12,13 @@ that save as you type. Export writes everything you have written to a JSON
 file, and Import reads one back, so you can carry on another day or on another
 device.
 
-**Companies.** Every company of the exchanges you have pulled sits in the
-site's store, an R2 bucket in your Cloudflare account, and opens without a
-call or a key; eighty more come bundled with the site as sample data. For any
-other ticker, give it your own EODHD API token and it fetches the company's
-fundamentals. Either way it lays out the full yearly history of the figures
+**Companies.** Every company of NASDAQ, NYSE and London opens without a key.
+Eighty come bundled with their full history as sample data; the rest open
+from the bundled screen rows with their latest year's figures, the lines the
+row does not hold left blank with a note, as is the share price without a
+key. Once the store, an R2 bucket in your Cloudflare account, is filled, every
+company opens with its full history. With your own EODHD API token the page
+fetches any company's fundamentals live. Either way it lays out the yearly history of the figures
 the book walks through: every statement line with the chapter beside it, and
 the book's ratios with its rule of thumb under each. With a token in the box
 the company's current share price sits above the table, with the day's change
@@ -48,6 +50,7 @@ static asset by that Worker's assets binding.
 public/
   index.html       all four views: companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages (one file, hash routes)
   data/            sample data: index.json and companies/<SYMBOL>.json, written by tools/bundle-samples.mjs
+  data/screen/     the pull's screen rows per venue and an index, written by tools/bundle-screen.mjs
   404.html         not-found page in the same style, links back home
   favicon.svg
   robots.txt
@@ -65,7 +68,8 @@ CLAUDE.md          standing policy for working in this repo
 
 - `#` and `#companies` show the Companies view, `#companies/KO.US` a company:
   the kept copy if you fetched it, else the store's copy if the company is
-  there, else the sample file if there is one, else
+  there, else the sample file if there is one, else its bundled screen row
+  with the latest year only, else
   the form filled in. `#numbers` and `#numbers/KO.US` still work as the old
   addresses.
 - `#chapters` shows the contents; `#intro` and `#1` to `#57` show a chapter
@@ -210,12 +214,19 @@ environment and never enters the repository or the site.
 
 ## The store: sending a pull to the site
 
-The site reads the pull from a store of your own: an R2 bucket named
+Until the store exists the site carries the pull's screen rows itself:
+`npm run bundle-screen` copies `data/screen/<VENUE>.json` into
+`public/data/screen/` with an index of the venues and every symbol's venue,
+and the page opens any company from its row and lists them in the Screen.
+
+The full pull is read from a store of your own: an R2 bucket named
 `wwws-data` in the same Cloudflare account the site runs in, bound to the
 Worker as `DATA` and served on the site's own origin at `/api/data/…`, open
 to anyone, with no key. Make the bucket once in the Cloudflare dashboard
-(R2 Object Storage, Create bucket, the name above) before the first deploy
-that carries the binding; a deploy with a bucket that does not exist fails.
+(R2 Object Storage, Create bucket, the name above); then uncomment the
+`r2_buckets` line in `wrangler.jsonc` and release. A deploy that carries the
+binding before the bucket exists fails, which is why the line is commented
+out for now.
 
 Then send a pull up, either from the pull page's second form, **Send to the
 site**, or from the command line:
@@ -247,8 +258,9 @@ Cloudflare Access in front of the data paths on a domain of your own.
 The repository is connected to Cloudflare Workers Builds, so every push to
 `main` deploys to production. Connect it once in the Cloudflare dashboard
 (Workers & Pages, Create, Import a repository) if that has not been done yet.
-The Worker needs no secrets. Its one binding beyond the assets is the store's
-bucket, `wwws-data`, which must exist in the account before a deploy with it.
+The Worker needs no secrets. Its one binding beyond the assets, the store's
+bucket `wwws-data`, is commented out in `wrangler.jsonc` until the bucket
+exists in the account; a deploy with the binding and no bucket fails.
 
 ## Fonts
 

@@ -940,6 +940,7 @@
     }
 
     function cellValue(c, dates, col, r) {
+      if (c.rowOnly) return col.kind === 'year' && !col.todate && r.rowKey ? num(c.row[r.rowKey]) : null;
       if (col.kind === 'year') return col.todate ? null : r.value(yearData(c, dates, col.index));
       var y = quarterData(c, col.date, !!r.annual);
       return y ? r.value(y) : null;
@@ -965,27 +966,27 @@
     // unit: money (millions), pct, x (two decimals), years, shares (millions).
     var NUMBER_ROWS = [
       { group: 'Income statement' },
-      { label: 'Revenue', ch: '8', unit: 'money', value: function (y) { return v(y.inc, 'totalRevenue'); } },
+      { label: 'Revenue', rowKey: 'revenue', ch: '8', unit: 'money', value: function (y) { return v(y.inc, 'totalRevenue'); } },
       { label: 'Cost of goods sold', ch: '9', unit: 'money', value: function (y) { return v(y.inc, 'costOfRevenue'); } },
-      { label: 'Gross profit', ch: '10', unit: 'money', value: grossProfit },
-      { label: 'Gross margin', ch: '10', unit: 'pct', ratio: true, rule: '40% and up points to a durable advantage; under 20% is a competitive business.', value: function (y) { return div(grossProfit(y), v(y.inc, 'totalRevenue')); } },
+      { label: 'Gross profit', rowKey: 'grossProfit', ch: '10', unit: 'money', value: grossProfit },
+      { label: 'Gross margin', rowKey: 'grossMargin', ch: '10', unit: 'pct', ratio: true, rule: '40% and up points to a durable advantage; under 20% is a competitive business.', value: function (y) { return div(grossProfit(y), v(y.inc, 'totalRevenue')); } },
       { label: 'Selling, general and administrative', ch: '12', unit: 'money', value: function (y) { return v(y.inc, 'sellingGeneralAdministrative'); } },
-      { label: 'SG&A as a share of gross profit', ch: '12', unit: 'pct', ratio: true, rule: 'Under 30% is excellent; what matters most is that it stays steady year to year.', value: function (y) { return div(v(y.inc, 'sellingGeneralAdministrative'), grossProfit(y)); } },
+      { label: 'SG&A as a share of gross profit', rowKey: 'sgaOfGrossProfit', ch: '12', unit: 'pct', ratio: true, rule: 'Under 30% is excellent; what matters most is that it stays steady year to year.', value: function (y) { return div(v(y.inc, 'sellingGeneralAdministrative'), grossProfit(y)); } },
       { label: 'Research and development', ch: '13', unit: 'money', value: function (y) { return v(y.inc, 'researchDevelopment'); } },
-      { label: 'R&D as a share of gross profit', ch: '13', unit: 'pct', ratio: true, rule: 'Heavy, constant spending just to keep up is a weakness, not a moat.', value: function (y) { return div(v(y.inc, 'researchDevelopment'), grossProfit(y)); } },
+      { label: 'R&D as a share of gross profit', rowKey: 'rdOfGrossProfit', ch: '13', unit: 'pct', ratio: true, rule: 'Heavy, constant spending just to keep up is a weakness, not a moat.', value: function (y) { return div(v(y.inc, 'researchDevelopment'), grossProfit(y)); } },
       { label: 'Depreciation and amortisation', ch: '14', unit: 'money', value: function (y) { return v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'); } },
-      { label: 'Depreciation as a share of gross profit', ch: '14', unit: 'pct', ratio: true, rule: 'Durable advantages tend to run low here, around 10% or less.', value: function (y) { return div(v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'), grossProfit(y)); } },
+      { label: 'Depreciation as a share of gross profit', rowKey: 'depreciationOfGrossProfit', ch: '14', unit: 'pct', ratio: true, rule: 'Durable advantages tend to run low here, around 10% or less.', value: function (y) { return div(v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'), grossProfit(y)); } },
       { label: 'Operating income', ch: '11', unit: 'money', value: function (y) { return v(y.inc, 'operatingIncome'); } },
       { label: 'Interest expense', ch: '15', unit: 'money', value: function (y) { return v(y.inc, 'interestExpense'); } },
-      { label: 'Interest as a share of operating income', ch: '15', unit: 'pct', ratio: true, rule: 'Under 15% for a durable consumer business; none at all is best.', value: function (y) { return div(v(y.inc, 'interestExpense'), v(y.inc, 'operatingIncome')); } },
+      { label: 'Interest as a share of operating income', rowKey: 'interestOfOperatingIncome', ch: '15', unit: 'pct', ratio: true, rule: 'Under 15% for a durable consumer business; none at all is best.', value: function (y) { return div(v(y.inc, 'interestExpense'), v(y.inc, 'operatingIncome')); } },
       { label: 'Other income and gains, net', ch: '16', unit: 'money', value: function (y) { return v(y.inc, 'nonOperatingIncomeNetOther', 'totalOtherIncomeExpenseNet'); } },
       { label: 'Income before tax', ch: '17', unit: 'money', value: function (y) { return v(y.inc, 'incomeBeforeTax'); } },
       { label: 'Income tax', ch: '18', unit: 'money', value: function (y) { return v(y.inc, 'incomeTaxExpense', 'taxProvision'); } },
-      { label: 'Effective tax rate', ch: '18', unit: 'pct', ratio: true, rule: 'Should sit near the going corporate rate; a company paying far less may be flattering its earnings.', value: function (y) { return div(v(y.inc, 'incomeTaxExpense', 'taxProvision'), v(y.inc, 'incomeBeforeTax')); } },
-      { label: 'Net earnings', ch: '19', unit: 'money', value: function (y) { return v(y.inc, 'netIncome'); } },
-      { label: 'Net margin', ch: '19', unit: 'pct', ratio: true, rule: 'Over 20% suggests a durable advantage; under 10% a competitive business.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.inc, 'totalRevenue')); } },
-      { label: 'Earnings per share', ch: '20', unit: 'x', rule: 'A steady upward trend over ten years is what to look for.', value: function (y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y.shares); } },
-      { label: 'Shares outstanding', ch: '20', unit: 'shares', value: function (y) { return y.shares; } },
+      { label: 'Effective tax rate', rowKey: 'taxRate', ch: '18', unit: 'pct', ratio: true, rule: 'Should sit near the going corporate rate; a company paying far less may be flattering its earnings.', value: function (y) { return div(v(y.inc, 'incomeTaxExpense', 'taxProvision'), v(y.inc, 'incomeBeforeTax')); } },
+      { label: 'Net earnings', rowKey: 'netEarnings', ch: '19', unit: 'money', value: function (y) { return v(y.inc, 'netIncome'); } },
+      { label: 'Net margin', rowKey: 'netMargin', ch: '19', unit: 'pct', ratio: true, rule: 'Over 20% suggests a durable advantage; under 10% a competitive business.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.inc, 'totalRevenue')); } },
+      { label: 'Earnings per share', rowKey: 'eps', ch: '20', unit: 'x', rule: 'A steady upward trend over ten years is what to look for.', value: function (y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y.shares); } },
+      { label: 'Shares outstanding', rowKey: 'sharesOutstanding', ch: '20', unit: 'shares', value: function (y) { return y.shares; } },
       { group: 'Balance sheet' },
       { label: 'Cash and cash equivalents', ch: '24', unit: 'money', value: function (y) { return v(y.bal, 'cashAndEquivalents', 'cash'); } },
       { label: 'Short-term investments', ch: '24', unit: 'money', value: function (y) { return v(y.bal, 'shortTermInvestments'); } },
@@ -993,40 +994,40 @@
       { label: 'Net receivables', ch: '26', unit: 'money', value: function (y) { return v(y.bal, 'netReceivables'); } },
       { label: 'Prepaid expenses and other current assets', ch: '27', unit: 'money', value: function (y) { return v(y.bal, 'otherCurrentAssets'); } },
       { label: 'Total current assets', ch: '28', unit: 'money', value: function (y) { return v(y.bal, 'totalCurrentAssets'); } },
-      { label: 'Current ratio', ch: '28', unit: 'x', ratio: true, rule: 'Above 1 is the textbook comfort; a durable business can run below it on sheer earning power.', value: function (y) { return div(v(y.bal, 'totalCurrentAssets'), v(y.bal, 'totalCurrentLiabilities')); } },
+      { label: 'Current ratio', rowKey: 'currentRatio', ch: '28', unit: 'x', ratio: true, rule: 'Above 1 is the textbook comfort; a durable business can run below it on sheer earning power.', value: function (y) { return div(v(y.bal, 'totalCurrentAssets'), v(y.bal, 'totalCurrentLiabilities')); } },
       { label: 'Property, plant and equipment', ch: '29', unit: 'money', value: function (y) { return v(y.bal, 'propertyPlantEquipment', 'propertyPlantAndEquipmentNet'); } },
       { label: 'Goodwill', ch: '30', unit: 'money', value: function (y) { return v(y.bal, 'goodWill'); } },
       { label: 'Intangible assets', ch: '31', unit: 'money', value: function (y) { return v(y.bal, 'intangibleAssets'); } },
       { label: 'Long-term investments', ch: '32', unit: 'money', value: function (y) { return v(y.bal, 'longTermInvestments'); } },
       { label: 'Other long-term assets', ch: '33', unit: 'money', value: function (y) { return v(y.bal, 'nonCurrrentAssetsOther', 'nonCurrentAssetsOther', 'otherAssets'); } },
       { label: 'Total assets', ch: '34', unit: 'money', value: function (y) { return v(y.bal, 'totalAssets'); } },
-      { label: 'Return on total assets', ch: '34', unit: 'pct', ratio: true, annual: true, rule: 'High is good, but a very high return on a small asset base can mean the moat is easy to cross.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalAssets')); } },
+      { label: 'Return on total assets', rowKey: 'returnOnAssets', ch: '34', unit: 'pct', ratio: true, annual: true, rule: 'High is good, but a very high return on a small asset base can mean the moat is easy to cross.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalAssets')); } },
       { label: 'Accounts payable', ch: '36', unit: 'money', value: function (y) { return v(y.bal, 'accountsPayable'); } },
       { label: 'Accrued and other current liabilities', ch: '36', unit: 'money', value: function (y) { return v(y.bal, 'otherCurrentLiab'); } },
       { label: 'Short-term debt', ch: '37', unit: 'money', value: function (y) { return v(y.bal, 'shortTermDebt', 'shortLongTermDebt'); } },
       { label: 'Long-term debt coming due', ch: '38', unit: 'money', value: function (y) { return v(y.bal, 'shortLongTermDebt'); } },
       { label: 'Total current liabilities', ch: '39', unit: 'money', value: function (y) { return v(y.bal, 'totalCurrentLiabilities'); } },
-      { label: 'Long-term debt', ch: '40', unit: 'money', value: function (y) { return v(y.bal, 'longTermDebt', 'longTermDebtTotal'); } },
-      { label: 'Years of net earnings to clear long-term debt', ch: '40', unit: 'years', ratio: true, annual: true, rule: 'A durable business could pay it all off within three or four years.', value: function (y) { return div(v(y.bal, 'longTermDebt', 'longTermDebtTotal'), v(y.inc, 'netIncome')); } },
+      { label: 'Long-term debt', rowKey: 'longTermDebt', ch: '40', unit: 'money', value: function (y) { return v(y.bal, 'longTermDebt', 'longTermDebtTotal'); } },
+      { label: 'Years of net earnings to clear long-term debt', rowKey: 'yearsToClearDebt', ch: '40', unit: 'years', ratio: true, annual: true, rule: 'A durable business could pay it all off within three or four years.', value: function (y) { return div(v(y.bal, 'longTermDebt', 'longTermDebtTotal'), v(y.inc, 'netIncome')); } },
       { label: 'Deferred taxes and other long-term liabilities', ch: '41', unit: 'money', value: function (y) { return v(y.bal, 'deferredLongTermLiab'); } },
       { label: 'Minority interest', ch: '41', unit: 'money', value: function (y) { return v(y.bal, 'noncontrollingInterestInConsolidatedEntity', 'minorityInterest'); } },
       { label: 'Total liabilities', ch: '42', unit: 'money', value: function (y) { return v(y.bal, 'totalLiab'); } },
-      { label: 'Debt to shareholders\u2019 equity', ch: '42', unit: 'x', ratio: true, rule: 'Below 0.80 is what to look for; buybacks distort it, so add treasury stock back to equity.', value: function (y) { return div(v(y.bal, 'totalLiab'), v(y.bal, 'totalStockholderEquity')); } },
+      { label: 'Debt to shareholders\u2019 equity', rowKey: 'debtToEquity', ch: '42', unit: 'x', ratio: true, rule: 'Below 0.80 is what to look for; buybacks distort it, so add treasury stock back to equity.', value: function (y) { return div(v(y.bal, 'totalLiab'), v(y.bal, 'totalStockholderEquity')); } },
       { label: 'Shareholders\u2019 equity', ch: '43', unit: 'money', value: function (y) { return v(y.bal, 'totalStockholderEquity'); } },
       { label: 'Book value per share', ch: '43', unit: 'x', ratio: true, value: function (y) { return div(v(y.bal, 'totalStockholderEquity'), y.shares); } },
       { label: 'Common stock', ch: '44', unit: 'money', value: function (y) { return v(y.bal, 'commonStock'); } },
       { label: 'Additional paid-in capital', ch: '44', unit: 'money', value: function (y) { return v(y.bal, 'additionalPaidInCapital'); } },
       { label: 'Preferred stock', ch: '44', unit: 'money', value: function (y) { return v(y.bal, 'preferredStockTotalEquity', 'preferredStockRedeemable'); } },
       { label: 'Retained earnings', ch: '45', unit: 'money', value: function (y) { return v(y.bal, 'retainedEarnings'); } },
-      { label: 'Retained earnings growth', ch: '45', unit: 'pct', ratio: true, rule: 'The pile should grow year after year; a shrinking one is a warning.', value: function (y) { var now = v(y.bal, 'retainedEarnings'), prev = v(y.prevBal, 'retainedEarnings'); return (now !== null && prev) ? (now - prev) / Math.abs(prev) : null; } },
-      { label: 'Treasury stock', ch: '46', unit: 'money', rule: 'Its presence is a good sign: cash was spare enough to buy the shares back.', value: function (y) { return v(y.bal, 'treasuryStock'); } },
-      { label: 'Return on shareholders\u2019 equity', ch: '47', unit: 'pct', ratio: true, annual: true, rule: 'High and consistent is the mark; equity near zero after big buybacks makes the figure meaningless.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalStockholderEquity')); } },
+      { label: 'Retained earnings growth', rowKey: 'retainedEarningsGrowth', ch: '45', unit: 'pct', ratio: true, rule: 'The pile should grow year after year; a shrinking one is a warning.', value: function (y) { var now = v(y.bal, 'retainedEarnings'), prev = v(y.prevBal, 'retainedEarnings'); return (now !== null && prev) ? (now - prev) / Math.abs(prev) : null; } },
+      { label: 'Treasury stock', rowKey: 'treasuryStock', ch: '46', unit: 'money', rule: 'Its presence is a good sign: cash was spare enough to buy the shares back.', value: function (y) { return v(y.bal, 'treasuryStock'); } },
+      { label: 'Return on shareholders\u2019 equity', rowKey: 'returnOnEquity', ch: '47', unit: 'pct', ratio: true, annual: true, rule: 'High and consistent is the mark; equity near zero after big buybacks makes the figure meaningless.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.bal, 'totalStockholderEquity')); } },
       { group: 'Cash flow statement' },
       { label: 'Cash from operations', ch: '50', unit: 'money', value: function (y) { return v(y.cf, 'totalCashFromOperatingActivities'); } },
       { label: 'Capital expenditures', ch: '51', unit: 'money', value: capex },
-      { label: 'Capital expenditures as a share of net earnings', ch: '51', unit: 'pct', ratio: true, annual: true, rule: 'Under 50% is good; under 25% is where durable advantages usually sit.', value: function (y) { return div(capex(y), v(y.inc, 'netIncome')); } },
-      { label: 'Stock bought back, net', ch: '52', unit: 'money', rule: 'Buybacks raise your share of the business without a tax bill.', value: function (y) { var s = v(y.cf, 'salePurchaseOfStock'); return s === null ? null : -s; } },
-      { label: 'Dividends paid', ch: '52', unit: 'money', value: function (y) { var d = v(y.cf, 'dividendsPaid'); return d === null ? null : Math.abs(d); } },
+      { label: 'Capital expenditures as a share of net earnings', rowKey: 'capexOfNetEarnings', ch: '51', unit: 'pct', ratio: true, annual: true, rule: 'Under 50% is good; under 25% is where durable advantages usually sit.', value: function (y) { return div(capex(y), v(y.inc, 'netIncome')); } },
+      { label: 'Stock bought back, net', rowKey: 'stockBoughtBack', ch: '52', unit: 'money', rule: 'Buybacks raise your share of the business without a tax bill.', value: function (y) { var s = v(y.cf, 'salePurchaseOfStock'); return s === null ? null : -s; } },
+      { label: 'Dividends paid', rowKey: 'dividendsPaid', ch: '52', unit: 'money', value: function (y) { var d = v(y.cf, 'dividendsPaid'); return d === null ? null : Math.abs(d); } },
       { label: 'Free cash flow', ch: '51', unit: 'money', value: function (y) { var f = v(y.cf, 'freeCashFlow'); if (f !== null) return f; var o = v(y.cf, 'totalCashFromOperatingActivities'), c = capex(y); return (o !== null && c !== null) ? o - c : null; } }
     ];
 
@@ -1128,7 +1129,7 @@
         }
         html += '<tr' + (r.ratio ? ' class="ratio"' : '') + '><th class="item" scope="row">' + esc(r.label) +
           ' <span class="ref">ch. ' + esc(r.ch) + '</span>' +
-          '<button type="button" class="graph" data-row="' + index + '" aria-label="Graph ' + esc(r.label) + '" title="Graph this line">' + GRAPH_ICON + '</button>' +
+          (c.rowOnly ? '' : '<button type="button" class="graph" data-row="' + index + '" aria-label="Graph ' + esc(r.label) + '" title="Graph this line">' + GRAPH_ICON + '</button>') +
           (r.rule ? '<span class="rule">' + esc(r.rule) + '</span>' : '') + '</th>';
         cols.forEach(function (col) {
           var val = cellValue(c, dates, col, r);
@@ -1266,12 +1267,13 @@
         nextReportHtml(c) +
         priceHtml(c) +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
-        (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.store ? '<span>In the store, pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
-        '<button type="button" class="linkbtn" id="refresh">' + (c.sample || c.store ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
+        (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.store ? '<span>In the store, pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.rowOnly ? '<span>Latest year only, from the screen rows pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
+        '<button type="button" class="linkbtn" id="refresh">' + (c.sample || c.store || c.rowOnly ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
         '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
-        (c.sample || c.store ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + '</p>' +
-        (dates.length ? tableHtml(c) : '<p class="hint">EODHD returned no yearly statements for this company.</p>') +
-        (dates.length ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
+        (c.sample || c.store || c.rowOnly ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + '</p>' +
+        (c.rowOnly && dates.length ? '<p class="hint rowonly">Only the latest year is on file for this company, from the screen rows of the pull. Blank lines, earlier years and the quarters are not on file; a live fetch with an EODHD key brings them all.</p>' : '') +
+        (dates.length ? tableHtml(c) : (c.rowOnly ? '<p class="hint rowonly">EODHD had no statements for this company when it was pulled.</p>' : '<p class="hint">EODHD returned no yearly statements for this company.</p>')) +
+        (dates.length && !c.rowOnly ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
           rawTableHtml('Income statement', c.income, newest, newestLabels) +
           rawTableHtml('Balance sheet', c.balance, newest, newestLabels) +
           rawTableHtml('Cash flow statement', c.cashflow, newest, newestLabels) + '</details>' : '');
@@ -1365,6 +1367,81 @@
 
     var VENUE_NAMES = { NASDAQ: 'NASDAQ', NYSE: 'New York', US: 'United States', LSE: 'London', PA: 'Paris', XETRA: 'Xetra', SHG: 'Shanghai', SHE: 'Shenzhen', KO: 'Korea', KQ: 'KOSDAQ', CC: 'Crypto' };
 
+    // The screen rows bundled with the site under data/screen/ (tools/bundle-screen.mjs):
+    // one row per company of the pulled venues with the latest year's figures and
+    // ratios. A company that is neither kept, in the store nor a bundled sample opens
+    // from its row, the lines the row holds filled in and everything else blank, with
+    // a note. index.json lists the venues and every symbol's venue.
+    var bundle = { index: null, failed: false, loading: null, rows: {}, loadingRows: {}, failedRows: {} };
+    var rowCompanies = {};
+
+    function loadBundleIndex() {
+      if (bundle.loading) return bundle.loading;
+      bundle.loading = window.fetch('data/screen/index.json').then(function (res) { return res.ok ? res.json() : null; }).then(function (d) {
+        if (d && d.venues && typeof d.venues === 'object' && d.symbols && typeof d.symbols === 'object') bundle.index = d; else bundle.failed = true;
+      }).catch(function () { bundle.failed = true; }).then(function () {
+        var id = window.location.hash.replace(/^#\/?/, '');
+        if (/^(companies|numbers)/i.test(id) || id === '') route();
+      });
+      return bundle.loading;
+    }
+
+    function bundleVenue(symbol) {
+      return bundle.index && Object.prototype.hasOwnProperty.call(bundle.index.symbols, symbol) ? String(bundle.index.symbols[symbol]) : '';
+    }
+
+    function bundleCount() {
+      var d = bundle.index, n = 0;
+      if (!d) return 0;
+      Object.keys(d.venues).forEach(function (v) { n += d.venues[v].withStatements || 0; });
+      return n;
+    }
+
+    function loadBundleRows(venue) {
+      if (bundle.loadingRows[venue]) return;
+      bundle.loadingRows[venue] = true;
+      window.fetch('data/screen/' + encodeURIComponent(venue) + '.json').then(function (res) {
+        if (!res.ok) throw new Error('status ' + res.status);
+        return res.json();
+      }).then(function (rows) {
+        if (!Array.isArray(rows)) throw new Error('not a screen file');
+        bundle.rows[venue] = prepareScreenRows(rows);
+      }).catch(function () {
+        bundle.failedRows[venue] = true;
+      }).then(function () {
+        bundle.loadingRows[venue] = false;
+        var id = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
+        if (/^(?:numbers|companies)\//i.test(id)) route();
+      });
+    }
+
+    function rowCompany(symbol) {
+      if (rowCompanies[symbol]) return rowCompanies[symbol];
+      var venue = bundleVenue(symbol), data = venue ? bundle.rows[venue] : null;
+      var row = data && data.all[symbol];
+      if (!row) return null;
+      var c = {
+        symbol: symbol,
+        meta: { name: row.name || symbol, exchange: row.exchange || venue, currency: row.currency || '', sector: row.sector || '', industry: row.industry || '', fiscalYearEnd: row.fiscalYearEnd || '' },
+        income: {}, balance: {}, cashflow: {}, shares: {}, eps: {},
+        next: row.nextReport ? { date: String(row.nextReport), quarter: null, when: row.nextReportWhen || '', estimate: isNum(row.nextEpsEstimate) ? row.nextEpsEstimate : null } : null,
+        fetchedAt: row.pulledAt || '', rowOnly: true, row: row
+      };
+      if (row.year) { c.income[row.year] = {}; c.balance[row.year] = {}; c.cashflow[row.year] = {}; }
+      rowCompanies[symbol] = c;
+      return c;
+    }
+
+    function bundleHtml() {
+      var d = bundle.index, total = bundleCount();
+      if (store.index || !d || !total) return '';
+      var venues = Object.keys(d.venues).filter(function (v) { return d.venues[v].withStatements > 0; })
+        .sort(function (a, b) { return d.venues[b].withStatements - d.venues[a].withStatements || a.localeCompare(b); });
+      return '<p class="kept store bundle">On file with their latest year, no key needed: ' + fmtCount(total) + ' companies, pulled ' + esc(fmtDate(d.pulledUpTo)) + ':' +
+        venues.map(function (v) { return '<b>' + esc(VENUE_NAMES[v] || v) + '</b>' + fmtCount(d.venues[v].withStatements); }).join(' \u00b7') +
+        '. Type a ticker above to open one, or sort and filter them in the <a href="#screen">Screen</a>.</p>';
+    }
+
     function samplesHtml() {
       var d = samples.index;
       if (!d || !d.companies.length) return '';
@@ -1384,7 +1461,7 @@
       showView('numbers');
       var symbol = fromHash ? normaliseSymbol(fromHash) : (numbers.last || '');
       var company = symbol ? numbers.companies[symbol] : null;
-      var stored = null, sample = null, loading = false;
+      var stored = null, sample = null, rowed = null, loading = false;
       if (!company && symbol) {
         if (!store.index && !store.failed) { loading = true; loadStoreIndex(); }
         else if (inStore(symbol) && !store.missing[symbol]) {
@@ -1395,11 +1472,21 @@
           sample = samples.cache[symbol] || null;
           if (!sample) { loading = true; loadSample(symbol); }
         }
+        if (!stored && !sample && !loading) {
+          if (!bundle.index && !bundle.failed) { loading = true; loadBundleIndex(); }
+          else {
+            var venue = bundleVenue(symbol);
+            if (venue && !bundle.failedRows[venue]) {
+              rowed = rowCompany(symbol);
+              if (!rowed && !bundle.rows[venue]) { loading = true; loadBundleRows(venue); }
+            }
+          }
+        }
       }
-      var shown = company || stored || sample;
+      var shown = company || stored || sample || rowed;
       app.innerHTML = '<section class="numbers">' + formHtml(symbol) +
         '<p class="status" id="numbers-status" role="status" aria-live="polite"></p>' +
-        (shown ? companyHtml(shown) : (loading ? '<p class="kept">Opening ' + esc(symbol) + '\u2026</p>' : storeHtml() + samplesHtml() + keptHtml(''))) + '</section>';
+        (shown ? companyHtml(shown) : (loading ? '<p class="kept">Opening ' + esc(symbol) + '\u2026</p>' : storeHtml() + bundleHtml() + samplesHtml() + keptHtml(''))) + '</section>';
       currentCompany = shown || null;
       if (company) numbers.last = symbol;
 
@@ -1414,6 +1501,7 @@
       if (pendingNumbersStatus) { say(pendingNumbersStatus); pendingNumbersStatus = ''; }
       else if (symbol && store.missing[symbol] && !shown) say('The store\u2019s file for ' + symbol + ' could not be opened. Press Fetch to pull it from EODHD.');
       else if (symbol && samples.failed[symbol] && !shown) say('The sample file for ' + symbol + ' could not be opened. Press Fetch to pull it from EODHD.');
+      else if (symbol && !shown && !loading && bundleVenue(symbol) && bundle.failedRows[bundleVenue(symbol)]) say('The screen rows for ' + symbol + ' could not be opened. Press Fetch to pull it from EODHD.');
       else if (symbol && !shown && !loading) say('Not fetched yet. Press Fetch to pull ' + symbol + ' from EODHD.');
 
       function go(sym) {
@@ -1504,23 +1592,27 @@
     ];
     var VENUE_ORDER = ['NASDAQ', 'NYSE', 'LSE', 'XETRA', 'PA', 'SHG', 'SHE', 'KO', 'KQ', 'US', 'CC'];
     var SCREEN_PAGE = 200;
-    var screen = { index: null, failed: false, loading: null, rows: {}, failedRows: {}, loadingRows: {} };
+    var screen = { index: null, failed: false, loading: null, source: '', rows: {}, failedRows: {}, loadingRows: {} };
     var screenState = { venue: '', sort: 'rules', dir: 'desc', query: '', rules: {}, shown: SCREEN_PAGE };
 
     function onScreen() { return /^#\/?screen/i.test(window.location.hash); }
 
     function loadScreenIndex() {
       if (screen.loading) return screen.loading;
-      screen.loading = window.fetch('api/data/screen/index.json').then(function (res) { return res.ok ? res.json() : null; }).then(function (d) {
-        if (d && d.venues && typeof d.venues === 'object') screen.index = d; else screen.failed = true;
+      screen.loading = window.fetch('api/data/screen/index.json').then(function (res) { return res.ok ? res.json() : null; }).catch(function () { return null; }).then(function (d) {
+        if (d && d.venues && typeof d.venues === 'object') { screen.index = d; screen.source = 'api/data/screen/'; return; }
+        return loadBundleIndex().then(function () {
+          if (bundle.index) { screen.index = bundle.index; screen.source = 'data/screen/'; } else screen.failed = true;
+        });
       }).catch(function () { screen.failed = true; }).then(function () { if (onScreen()) route(); });
       return screen.loading;
     }
 
     function prepareScreenRows(rows) {
-      var out = { rows: [], without: 0 };
+      var out = { rows: [], without: 0, all: {} };
       rows.forEach(function (r) {
         if (!r || typeof r !== 'object' || !r.symbol) return;
+        out.all[r.symbol] = r;
         if (!r.year) { out.without++; return; }
         r.rulesMet = SCREEN_RULES.map(function (rule) { return rule.test(r); });
         r.rules = r.rulesMet.filter(Boolean).length;
@@ -1533,7 +1625,7 @@
     function loadScreenRows(venue) {
       if (screen.loadingRows[venue]) return;
       screen.loadingRows[venue] = true;
-      window.fetch('api/data/screen/' + encodeURIComponent(venue) + '.json').then(function (res) {
+      window.fetch((screen.source || 'api/data/screen/') + encodeURIComponent(venue) + '.json').then(function (res) {
         if (!res.ok) throw new Error('status ' + res.status);
         return res.json();
       }).then(function (rows) {
@@ -1666,7 +1758,7 @@
         hideTabs();
         screenState.venue = '';
         app.innerHTML = '<section class="screen"><p class="kicker">Screen</p><h2 class="headline">Nothing to screen yet</h2>' +
-          '<p class="hint">The store has no screen rows. Send a pull to the site from the local pull page, and every company of its venues will be listed here by the book\u2019s ratios, with its rules of thumb as filters.</p></section>';
+          '<p class="hint">No screen rows are on file. Bundle a pull\u2019s rows into the site or send them to the store, and every company of its venues will be listed here by the book\u2019s ratios, with its rules of thumb as filters.</p></section>';
         return;
       }
       var wanted = fromHash ? String(fromHash).toUpperCase() : '';
@@ -2404,7 +2496,7 @@
       } else if ((e && e.loading) || getToken()) {
         inner = '<span class="when">Fetching the latest price…</span>';
       } else {
-        inner = '<span class="when">One call away: paste your EODHD token above.</span><button type="button" class="linkbtn" id="price-get">Get the price</button>';
+        inner = '<span class="when">Not available without an EODHD key.</span>';
       }
       return '<p class="price" id="price"><b>Price</b>' + inner + '</p>';
     }
@@ -2422,6 +2514,18 @@
       });
       var graph = document.getElementById('price-graph');
       if (graph) graph.addEventListener('click', function () { openPriceGraph(c); });
+      if (!tokenInput.priceWired) {
+        tokenInput.priceWired = true;
+        tokenInput.addEventListener('change', function () {
+          var typed = tokenInput.value.trim();
+          if (!typed) return;
+          setToken(typed, rememberBox.checked);
+          var cur = quotes[c.symbol];
+          if (cur && (cur.q || cur.loading)) return;
+          delete quotes[c.symbol];
+          refreshPrice(c, tokenInput, rememberBox);
+        });
+      }
       var e = quotes[c.symbol];
       if ((!e || (!e.loading && !e.q && !e.error) || (e.q && Date.now() - e.at > QUOTE_LIFE)) && getToken()) fetchQuote(c, tokenInput, rememberBox);
     }
@@ -2757,6 +2861,7 @@
     route();
     loadSamples();
     loadStoreIndex();
+    loadBundleIndex();
   })();
   </script>
 </body>

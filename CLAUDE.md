@@ -14,13 +14,14 @@ Builds, so **every push to `main` deploys to production**.
 public/            everything served as assets
   index.html       all four views (companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages): one file
   data/            sample data: index.json + companies/<SYMBOL>.json, from tools/bundle-samples.mjs (git-tracked, EODHD-derived)
+  data/screen/     the pull's screen rows: <VENUE>.json + index.json (venues, symbol -> venue), from tools/bundle-screen.mjs
   404.html         same masthead and palette as index.html
   favicon.svg
   _headers         security + caching headers
   robots.txt
   assets/fonts/    Playfair Display + Newsreader woff2 (OFL), the only assets
 src/worker.js      /api/eodhd/{fundamentals,real-time,eod,intraday}/<symbol> -> eodhd.com; /api/data/<key> -> the R2 bucket (binding DATA); everything else -> env.ASSETS
-wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var + r2_buckets DATA -> wwws-data
+wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var; r2_buckets DATA -> wwws-data commented out until the bucket exists
 package.json       wrangler devDependency + dev/deploy/check/pull/pull-app/bundle-samples/upload-store scripts
 tools/lib/pull.mjs  the pull engine: lists, fetches, extracts, screens; mirrors the page's extraction
 tools/lib/store.mjs  the store uploader: SigV4 over R2's S3 API, the upload plan, index.json, uploaded.json
@@ -28,6 +29,7 @@ tools/pull-fundamentals.mjs  the command line over the engine: whole exchanges i
 tools/pull-app.mjs  a local page over the engine: market or sample-watchlist dropdowns, Start, Stop, calls spent, Send to the site
 tools/upload-store.mjs  the command line over the uploader: a pull into the bucket
 tools/bundle-samples.mjs  copies a pull's companies into public/data/ as the site's sample data
+tools/bundle-screen.mjs  copies a pull's screen rows into public/data/screen/ with an index, so companies open from their rows
 data/              the pull's output: git-ignored, EODHD-licensed, never committed
 prompt text/       the records behind the version in service (see below)
 ```
@@ -107,6 +109,28 @@ pulled", offers "Fetch a live copy" and has no Forget. The company page
 carries no "also kept" line and no units paragraph: the owner had them
 removed.
 
+The bundled screen rows (`public/data/screen/<VENUE>.json` plus `index.json`
+with `venues: { <VENUE>: { file, companies, withStatements, pulledUpTo } }`
+and `symbols: { <SYMBOL>: <VENUE> }`, written by `tools/bundle-screen.mjs`
+from `data/screen/`) let any company of the pulled venues open without a
+key. The page loads the index at boot (`loadBundleIndex`); a company that is
+neither kept, in the store nor a bundled sample is built from its row
+(`rowCompany`: `rowOnly: true`, `row`, one empty year in each statement so
+the table has a column, `next` from the row's report fields, `fetchedAt`
+from `pulledAt`), the venue's rows fetched once (`loadBundleRows`, shared
+shape with the Screen's `prepareScreenRows`, whose `all` maps symbol to
+row). `NUMBER_ROWS` entries carry `rowKey`, the screen-row field that holds
+the line, and `cellValue` returns that field for a row-only company and
+blank for every other line; the page says "Latest year only, from the
+screen rows pulled", shows a note above the table, no graph buttons, no
+quarters, no raw fields and no Forget, and "EODHD had no statements" for a
+row without a year. The home page counts the companies on file by venue
+(`bundleHtml`, shown when there is no store). The order a company is shown
+from is: the kept copy, the store, a bundled sample, its row, the fetch form.
+Without a key the price line reads "Not available without an EODHD key."
+with no button; a key typed into the token box fetches it (`wirePrice`
+listens to the box's change event).
+
 The store is the owner's pull of whole exchanges in the R2 bucket `wwws-data`
 (binding `DATA`), served by the Worker at `/api/data/<key>` with no key and
 no gate (`store()` in `src/worker.js`: GET and HEAD, keys checked against
@@ -127,10 +151,15 @@ after "numbers kept" and before "sample data". The store is open because the
 owner chose so while the site has no readers but them, knowing EODHD's
 personal plans forbid redistribution; Cloudflare Access on a custom domain is
 the step up if that changes. The bucket must exist in the account before a
-deploy that carries the binding, or the deploy fails.
+deploy that carries the binding, or the deploy fails: the `r2_buckets` line
+in `wrangler.jsonc` stays commented out until the owner has made the bucket,
+and until then every store path answers 404 and the page falls back to the
+bundled rows.
 
 The Screen view (`#screen`, `#screen/<VENUE>`, `renderScreen`) lists every
-company of a venue from `screen/<VENUE>.json`: `SCREEN_COLUMNS` (the row's
+company of a venue from `screen/<VENUE>.json`, read from the store when it
+has an index and otherwise from the bundled rows (`screen.source` is the
+base path chosen by `loadScreenIndex`): `SCREEN_COLUMNS` (the row's
 figures and ratios, with their units), `SCREEN_RULES` (the book's rules of
 thumb as predicates on a row, each with its chapter; keep them in step with
 the `rule` texts in `NUMBER_ROWS`), `VENUE_ORDER` (the tab order; the first
@@ -341,4 +370,4 @@ design are their own release, requested deliberately.
 | v1.17 | The numbers table readable on a phone | On a phone the names of the lines no longer take the whole width of the table: they sit in a narrow column, with two years of figures beside them and the rest a swipe away. The statement headings, Income statement, Balance sheet and Cash flow statement, now stay put as the table scrolls sideways, as the line names already did. |
 | v1.18 | Adding to a watchlist set aside for now | The two ways of putting a company into a watchlist, the dropdown on a company's page and the form under each list, are gone for now and will come back later in another form. The lists themselves stay as they were: open, rename, remove a company, make and delete a list, and bring the starting lists back. |
 | v1.19 | The masthead asks its question | The site's name now carries its question mark, on the masthead, in the browser tab and on the not-found page: What Would Warren Say? |
-| v1.20 | Every pulled company on the site, plus a screen | The companies you pull now live in a store of your own, a bucket in your Cloudflare account that the local pull page fills with one button, and the site opens any of them without a call or a key. A new Screen tab lists every company of an exchange by the book's ratios, sortable and searchable, with the book's rules of thumb as tick-box filters and a count of how many each company meets. |
+| v1.20 | Every company on NASDAQ, NYSE and London, no key needed | Every company you pulled now opens on the site without a key: eighty with their full history, the rest from the pull's screen rows with their latest year's figures, and whatever is not on file, the earlier years, the quarters and the share price, is left blank with a note saying so. A new Screen tab lists every company of an exchange by the book's ratios, sortable and searchable, with the book's rules of thumb as tick-box filters. The store that will hold the full pull is built and waits only for its bucket. |
