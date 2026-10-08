@@ -1,7 +1,7 @@
 {
   "app": "what-would-warren-say",
   "version": 1,
-  "exportedAt": "2026-10-08T14:08:05.003Z",
+  "exportedAt": "2026-10-08T14:16:59.583Z",
   "book": "Warren Buffett and the Interpretation of Financial Statements",
   "entries": {
     "1": {
@@ -89,10 +89,10 @@
       "updated": "2026-10-08T14:08:02.445Z"
     },
     "15": {
-      "summary": "",
+      "summary": "Companies with high interest payouts either:\n-Are in a fiercely competitive industry where a large cap ex is requited to stay competitive\n-Have excellent business economics where the debt was bought in a leveraged buyout\n\nDCA companies have little or no interest expenses.\n\nProctor & gamble - 8% of Operating Income\nWrigley's & Co. 7%\n\nGoodyear - 49%\nSouthwest Airlines 9%\n\nUnited Airlines - 61%\n\nAmerican Airlines -92%\n\nWells Fargo - 30% - Wells Fargo is high, but it is the lowest of America's big 5 banks and has a AAA rating from Standard & Poor's\n\nA DCA tends to have less that 15% of operating income as Interest Expenses\n\nIn any industry, the company with the lowest interest expense to operating income ratio is the most likely to have to have a competitive advantage",
       "notes": "",
       "type": "metric",
-      "updated": "2026-10-07T13:13:49.535Z"
+      "updated": "2026-10-08T14:16:56.936Z"
     },
     "intro": {
       "summary": "",
