@@ -296,6 +296,14 @@
     .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: .5rem; }
     .flow .step { flex: 1 1 11rem; min-width: 0; padding: .6rem .75rem; border: 1px solid var(--ink); background: var(--white); font-size: .9rem; line-height: 1.35; }
     .flow .arrow { align-self: center; flex: none; color: var(--claret); font-size: 1.2rem; }
+    .flow .step .num { display: block; margin: 0 0 .25rem; font-size: .68rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .equation { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .6rem; }
+    .equation + .equation { margin-top: .5rem; }
+    .equation .term { padding: .6rem .9rem; border: 1px solid var(--ink); background: var(--white); font-size: .95rem; line-height: 1.3; }
+    .equation .term.result { font-weight: 700; }
+    .equation .op { color: var(--claret); font-size: 1.4rem; font-weight: 700; line-height: 1; }
+    .equation.example .term { padding: .35rem .7rem; border-color: var(--rule); font-size: .88rem; color: var(--ink-70); font-variant-numeric: tabular-nums; }
+    .equation.example .op { font-size: 1.1rem; }
     .tree .root { display: inline-block; padding: .5rem .8rem; background: var(--ink); color: var(--paper); font-size: .88rem; font-weight: 700; letter-spacing: .02em; }
     .tree .branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .8rem; margin-top: .6rem; padding-top: .7rem; border-top: 2px solid var(--ink); }
     .branch, .col, .check { padding: .7rem .85rem; border: 1px solid var(--rule); background: var(--white); min-width: 0; }
@@ -611,7 +619,7 @@
         type: 'overview',
         thesis: 'Warren starts with the income statement: revenue less expenses is the profit or loss, and the pattern over the years says what kind of company it is.',
         diagrams: [
-          { kind: 'flow', title: 'What the income statement holds', steps: ['Revenue', 'less Expenses', 'Profit or loss'] },
+          { kind: 'equation', title: 'What the income statement holds', terms: ['Revenue', 'Expenses', 'Profit or loss'], ops: ['−', '='] },
           { kind: 'compare', title: 'What the pattern tells Warren', rows: [['A Durable Competitive Advantage', 'Profits that hold, year after year.'], ['A mediocre business', 'A struggle year to year in a competitive market.']] }
         ],
         points: [
@@ -626,7 +634,7 @@
         thesis: 'Revenue is the money that came in during the period. On its own it says nothing about profit.',
         diagrams: [
           { kind: 'statement', title: STATEMENT_BOX.title, unit: STATEMENT_BOX.unit, rows: STATEMENT_BOX.rows, rule: STATEMENT_BOX.rule, arrow: 0, caption: 'The box from the book, chapter 8. The arrow marks the line this chapter is about.' },
-          { kind: 'flow', title: 'Where it leads', steps: ['Revenue: what came in over the period', 'A long, careful look at the expenses', 'What is left is what counts'] }
+          { kind: 'flow', title: 'How to read it', numbered: true, steps: ['Read the revenue as the money that came in over the period, and nothing more.', 'Do not mistake big revenue for profit.', 'Take a long, careful look at the expenses.', 'Judge the company on what is left.'] }
         ],
         points: [
           'Revenue is the amount of money that comes in over a set period.',
@@ -641,7 +649,7 @@
         thesis: 'The cost of goods sold, also called the cost of revenue, is what it cost to make or buy what was sold. For Warren, the lower the better.',
         diagrams: [
           { kind: 'statement', title: STATEMENT_BOX.title, unit: STATEMENT_BOX.unit, rows: STATEMENT_BOX.rows, rule: STATEMENT_BOX.rule, arrow: 1, caption: 'The box from the book, chapter 9. The arrow marks the line this chapter is about.' },
-          { kind: 'flow', title: 'What it determines', steps: ['Revenue', 'less Cost of goods sold', 'Gross profit'] }
+          { kind: 'equation', title: 'What it determines', terms: ['Revenue', 'Cost of goods sold', 'Gross profit'], ops: ['−', '='] }
         ],
         points: [
           'Also known as the cost of revenue.',
@@ -651,6 +659,34 @@
           'It determines gross profit, which is where the next chapter begins.'
         ],
         raw: "-AKA the cost of revenue\n\n-The lower the better\n\n-Find out what is included in the cost. It gives a good idea of how management is thinking about the business.\n\n-As a lone number it doesn't tell us much about DSA.\n\n-Determines gross profit"
+      },
+      '10': {
+        type: 'metric',
+        thesis: 'Gross profit on its own says little. The gross profit margin, gross profit divided by revenue, says a great deal about the economic nature of a business.',
+        diagrams: [
+          { kind: 'statement', title: STATEMENT_BOX.title, unit: STATEMENT_BOX.unit, rows: STATEMENT_BOX.rows, rule: STATEMENT_BOX.rule, arrow: 2, caption: 'The same box as chapters 8 and 9. The arrow marks the line this chapter is about.' },
+          { kind: 'equation', title: 'Gross profit', terms: ['Revenue', 'Cost of the raw goods and the labour to make them', 'Gross profit'], ops: ['−', '='], note: 'Selling and administrative costs, depreciation and the interest cost of running the business are not taken out here.' },
+          { kind: 'equation', title: 'Gross profit margin', terms: ['Gross profit', 'Revenue', 'Gross profit margin'], ops: ['÷', '='], example: ['$7,000', '$10,000', '70%'] },
+          { kind: 'compare', title: 'What the margin says', rows: [['40% and up', 'Tends to have a Durable Competitive Advantage, with exceptions.'], ['Under 40%', 'A highly competitive industry, where competition hurts margins, with exceptions.'], ['Under 20%', 'A fiercely competitive industry.']] },
+          { kind: 'cols', title: 'The margins Warren points to', cols: [
+            { title: 'High and consistent', sub: 'Excellent long-term economics working in their favour', lines: ['Coca-Cola, 60% and more, year after year', 'Moody’s, 73%', 'Burlington Northern Santa Fe Railway, 61%', 'Wrigley, 51%'] },
+            { title: 'Low and struggling', sub: 'Competition eating the margin', lines: ['United Airlines, 14%, and always in and out of bankruptcy', 'General Motors, 21%', 'US Steel, 17%', 'Goodyear, 20%, in a bad economy'] },
+            { title: 'Technology', sub: 'Which Warren stays away from, because he says he does not understand it', lines: ['Microsoft, 79%', 'Apple, 33%', 'Does that mean Microsoft has the better economics?'] }
+          ] }
+        ],
+        points: [
+          'Gross profit is revenue less the cost of the raw goods and the labour that made them. It does not include the selling and administrative costs, depreciation or the interest cost of running the business.',
+          'Gross profit does not tell us much. The gross profit margin can tell us a lot about the economic nature of a business.',
+          'Companies with consistently higher gross profit margins have excellent long-term economics working in their favour, and those without do not.',
+          'A Durable Competitive Advantage creates the higher margin: it gives the freedom to price the product or service well in excess of the cost of goods sold.',
+          '40% and up tends to mean a Durable Competitive Advantage, with exceptions. Under 40% points to a highly competitive industry where competition hurts margins, again with exceptions. Under 20% is a fiercely competitive industry.',
+          'Companies without a Durable Competitive Advantage are never going to make us rich.',
+          'The gross profit margin test is not failsafe, but it is an early indicator that a company has a Durable Competitive Advantage.',
+          'Track the last ten years to be sure of consistency, because consistency is the name of the game.',
+          'Warren stays away from technology because, he says, he does not understand it. Microsoft at 79% against Apple at 33% raises the question whether Microsoft has the better economics.',
+          'High research costs, high selling and administrative costs and high interest on debt can strip the potential from a high-margin company. They are a thorn in the side of any company, and they are called operating expenses.'
+        ],
+        raw: "GP Margin = GP / Revenue\neg. 7000 / 10000 = 70%\n\nGP = Revenue - cost of raw good  and labor to make the goods\n\nDoesn't include sales & admin costs, depreciation, interest costs of running the business\n\nGP doesn't tell us much but GP margin can tell us a lot about the economic nature of a business\n\nConsistently higher GP Margins show excellent long term economics working in their favour than those that don't\n(eg. Coca-Cola shows 60% + consistently, Moody's 73%, Burlington Northern Santa Fe Railway 61%, Wrigely & Co. 51%)\n(Contrast eg. United Airlines 14% and always in & out of bankruptcy, GM 21%, US Steel 17% Goodyear 20% in a bad economy)\n\nWarren stays away from technology because he says he doesn't understand it.\nMicrosoft 79%\nApple 33%\nIndicates that Microsoft has better economics?\n\nDCA creates higher margins hence allows the freedom to price the products/services well in excess of cost of goods sold.\n\n40%+ tend to have DCA but there are exceptions\n\nLower than 40% indicates a highly competitive industry where competition hurts margins but there are exceptions\n\nBelow 20% indicates fiercely competitive industry\n\nCompanies without a competitve advantage are never going to make use rich\n\nThe GP Margin test is not failsafe but it is an early indicator that they have DCA\n\nTrack the last 10 years to ensure consistency as consistency is the name of the game\n\nhigh research costs, high sellin & admin costs and high interest on debt can strip the competitive advantage potential from a high GP margin company. They can be a thorn in the side of any company. These are called operating expenses"
       },
       '11': {
         type: 'overview',
@@ -684,8 +720,8 @@
     function diagramHtml(d) {
       var title = d.title ? '<p class="dtitle">' + wr(d.title) + '</p>' : '';
       if (d.kind === 'flow') {
-        return '<div class="diagram">' + title + '<div class="flow">' + d.steps.map(function (s, i) {
-          return (i ? '<span class="arrow" aria-hidden="true">→</span>' : '') + '<div class="step">' + wr(s) + '</div>';
+        return '<div class="diagram">' + title + '<div class="flow' + (d.numbered ? ' numbered' : '') + '">' + d.steps.map(function (s, i) {
+          return (i ? '<span class="arrow" aria-hidden="true">→</span>' : '') + '<div class="step">' + (d.numbered ? '<span class="num">Step ' + (i + 1) + '</span>' : '') + wr(s) + '</div>';
         }).join('') + '</div></div>';
       }
       if (d.kind === 'tree') {
@@ -707,6 +743,14 @@
         return '<div class="diagram">' + title + '<div class="sum">' + d.items.map(function (it, i) {
           return '<div class="row"><span>' + (i ? '<span class="plus" aria-hidden="true">+</span> ' : '') + wr(it[0]) + (it[1] ? ' <span class="ref">ch. ' + wr(it[1]) + '</span>' : '') + '</span></div>';
         }).join('') + '<div class="row total"><span>' + wr(d.total) + '</span></div></div></div>';
+      }
+      if (d.kind === 'equation') {
+        var eqRow = function (terms, cls) {
+          return '<div class="equation' + (cls ? ' ' + cls : '') + '">' + terms.map(function (t, i) {
+            return (i ? '<span class="op">' + wr(d.ops[i - 1]) + '</span>' : '') + '<div class="term' + (i === terms.length - 1 ? ' result' : '') + '">' + wr(t) + '</div>';
+          }).join('') + '</div>';
+        };
+        return '<div class="diagram">' + title + eqRow(d.terms, '') + (d.example ? eqRow(d.example, 'example') : '') + (d.note ? '<p class="dnote">' + wr(d.note) + '</p>' : '') + '</div>';
       }
       if (d.kind === 'compare') {
         return '<div class="diagram">' + title + '<div class="compare">' + d.rows.map(function (r) { return '<div class="row"><b>' + wr(r[0]) + '</b><span>' + wr(r[1]) + '</span></div>'; }).join('') + '</div></div>';

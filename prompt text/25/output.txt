@@ -1,7 +1,0 @@
-v1.24 is on main. The price chart no longer prints the latest price at the end of the line. The current price now sits as a big figure at the top right of the chart's window, next to Close, with the day's change and the time of the quote beneath it.
-
-The figure is the quote the page already shows under the company's name, so it is the current price rather than the close of the last bar in the span. The change reads in claret when the day is down. On a phone the figure sits under the company's name, above the Close button. The graphs behind the table's lines keep their end label.
-
-Verified: thirteen headless-browser suites pass against the fixtures. The price-chart suite now checks that no end label is drawn on any span, that the figure at the top right is the quote with its change and time, that it sits right of the title and left of Close, and that it fits a phone. The line graphs still carry their end label. The deploy dry run passes, and the rendered home and not-found pages look as before. I looked over the five-year chart on desktop and phone by eye.
-
-The v1.23 ledger title is trimmed to nine words in this push, as promised.

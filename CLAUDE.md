@@ -55,17 +55,23 @@ add fields, never rename or remove them, and change them only with a migration.
 
 Chapters the owner has finished are written up in `BREAKDOWNS` (keyed by
 chapter id): `type` (the owner's chapter type), `thesis`, `diagrams` (each
-`{ kind, title, … }` drawn by `diagramHtml`: `flow` boxes and arrows, `tree`
+`{ kind, title, … }` drawn by `diagramHtml`: `flow` boxes and arrows, with
+`numbered: true` a "Step 1, Step 2" label in each box so it reads as
+instructions (chapter 8), `equation` `terms` joined by `ops` (a claret −, ÷
+or =, the last term the bold result) with an optional `example` row of
+figures and a `note`, which is how the owner wants "revenue less expenses"
+shown (chapters 7, 9 and 10), `tree`
 a root with branches and chips, `cols` columns, `checks` a tick list with a
 note, `sum` lines adding to a total, `compare` labelled rows, `statement` the
 book's income-statement box with `rows`, a `rule` under one row and an
 `arrow` on the chapter's line, as in the owner's photographs for chapters 8
-and 9), `points` and `raw` (the owner's summary from the export, byte for
+and 9 and reused with the arrow on Gross Profit for chapter 10), `points` and `raw` (the owner's summary from the export, byte for
 byte, shown closed under "Your notes, as written"). `renderChapter` draws a
 breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
-source is the owner's export under `notes/`; a new export with more
+source is the owner's export under `notes/` (the latest export replaces
+the file of the same name; chapters 1 to 11 so far); a new export with more
 finished chapters means writing them up here and keeping the file. DCA in
 the owner's notes is the book's Durable Competitive Advantage: a write-up
 says it in full, as `TERM`, wherever it is mentioned (never the short form,
@@ -416,3 +422,4 @@ design are their own release, requested deliberately.
 | v1.22 | Ten chapters written up, boxes become breakdowns | The chapters you have finished, the first nine and the eleventh, now read as written-up breakdowns instead of boxes to type in: a thesis, a diagram of how the chapter's ideas fit together, the points, and your notes as you wrote them, kept underneath. Chapters 8 and 9 carry the book's own income-statement box from your photographs, with the arrow on the line each chapter is about. Your export is kept in the repository as it came. |
 | v1.23 | Five years by default, the advantage named in full | The share-price chart now opens on its five-year span, and the graph behind any line of the table opens on the last five years, with the other spans and windows one click away as before. The written-up chapters now say Durable Competitive Advantage in full and in bold wherever your notes say DCA, while the notes themselves stay as you wrote them. |
 | v1.24 | The current price, big, above its chart | The share-price chart no longer prints the latest price beside the end of the line. The current price now sits as a big figure at the top right of the chart's window, with the day's change and the time of the quote beneath it, where the eye goes first. |
+| v1.25 | Chapter 10 written up, the arithmetic as equations | Gross profit and the gross profit margin, chapter 10, now read as a written-up breakdown from your notes: the book's box with the arrow on gross profit, the two equations with the book's example, what the margin says at 40% and 20%, the margins Warren points to, and your notes as written. The income statement and cost of goods sold chapters now show their arithmetic as equations rather than a chain of boxes, and the revenue chapter's chain reads as numbered instructions. |

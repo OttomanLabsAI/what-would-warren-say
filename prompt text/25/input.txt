@@ -1,1 +1,0 @@
-remove the current price from the graph and put it in a big number up top right
