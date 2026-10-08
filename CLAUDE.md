@@ -71,18 +71,21 @@ give examples has a `body` instead of `diagrams` and `points`: the parts in
 the order of the notes, each a diagram, `{ points: [...] }` or `{ examples:
 [...] }`, the examples `{ title, sub, items, inline }` groups drawn by
 `examplesHtml` as a section of their own wherever the notes have them,
-headed "Examples from your notes" and dated with `EXAMPLES_NOTE` (the
-book's first edition of 2008 and the 2011 second edition the owner reads;
-the figures of that time), `inline` running plain names in one line.
-Chapter 3 has the tree, the examples, then the points; chapter 10 the box,
-the two equations, points, the examples, a point, the margin table, points.
-`partHtml` draws a part; a chapter without a body draws its diagrams, then
-its points. `renderChapter` draws a
+headed "Examples from your notes" and, on a chapter's first such section
+only, dated with `EXAMPLES_NOTE` (the book's first edition of 2008 and the
+2011 second edition the owner reads; the figures of that time), `inline`
+running plain names in one line. Chapter 3 has the tree, the examples,
+then the points; chapter 10 the box, the two equations, points, the
+examples, a point, the margin table, points; chapter 12 points, the SG&A
+equation, examples, the share table, a point, examples; chapter 13 the
+table of how a research-built advantage dies, an example, a point,
+examples, points. `partHtml` draws a part; a chapter without a body draws
+its diagrams, then its points. `renderChapter` draws a
 breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
 source is the owner's export under `notes/` (the latest export replaces
-the file of the same name; chapters 1 to 11 so far); a new export with more
+the file of the same name; chapters 1 to 13 so far); a new export with more
 finished chapters means writing them up here and keeping the file. DCA in
 the owner's notes is the book's Durable Competitive Advantage: a write-up
 says it in full, as `TERM`, wherever it is mentioned (never the short form,
@@ -435,3 +438,4 @@ design are their own release, requested deliberately.
 | v1.24 | The current price, big, above its chart | The share-price chart no longer prints the latest price beside the end of the line. The current price now sits as a big figure at the top right of the chart's window, with the day's change and the time of the quote beneath it, where the eye goes first. |
 | v1.25 | Chapter 10 written up, the arithmetic as equations | Gross profit and the gross profit margin, chapter 10, now read as a written-up breakdown from your notes: the book's box with the arrow on gross profit, the two equations with the book's example, what the margin says at 40% and 20%, the margins Warren points to, and your notes as written. The income statement and cost of goods sold chapters now show their arithmetic as equations rather than a chain of boxes, and the revenue chapter's chain reads as numbered instructions. |
 | v1.26 | The notes' examples in a section of their own | The companies and margins your notes give as examples now sit in a section of their own, headed Examples from your notes, placed where your notes have them: between the kinds of business and the points on chapter 3, and between the points on gross margin and the rule of thumb on chapter 10, whose parts now run in the order of your notes. A line under the heading says they are the book's examples, from its first edition of 2008 and the 2011 second edition you are reading, and that the figures are of that time. |
+| v1.27 | Chapters 12 and 13 written up, costs and research | Selling, general and administrative expenses, chapter 12, and research and development, chapter 13, now read as written-up breakdowns from your notes, in the order you wrote them: what SG&A is and why it must stay low and steady, the test of its share of gross profit with the book's averages and the swings at General Motors and Ford, and what the share says; then the two ways a research-built advantage dies, Microsoft and Google, Merck and Intel against Coca-Cola and Moody's, and why Warren wants a sure thing. |

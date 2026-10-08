@@ -720,6 +720,53 @@
           'The chapters that follow take them one at a time.'
         ],
         raw: "A group of expenses, when added, make up the total operating expenses.\n\nThese are all the company's hard costs associated with research and development of new products, selling and administrative costs of getting the product to market, depreciation and amortization, restructuring and impairment charges, and the catch-all \"other\" that includes all non-operating, non-recurring expenses."
+      },
+      '12': {
+        type: 'metric',
+        thesis: 'Selling, general and administrative expenses have to be low and, above all, consistent. The share of the gross profit they take is one of Warren’s tests of a Durable Competitive Advantage.',
+        body: [
+          { points: [
+            'SG&A is selling, general and administrative expenses: management salaries, advertising, travel, legal fees, commissions, all payroll costs and the like.',
+            'SG&A needs to be consistent.',
+            'A company that cannot cut its SG&A fast watches those costs eat more and more of the gross profit.',
+            'Lower SG&A, held consistently, is key to a Durable Competitive Advantage.'
+          ] },
+          { kind: 'equation', title: 'The test', terms: ['SG&A', 'Gross profit', 'SG&A as a share of gross profit'], ops: ['÷', '='], note: '30% and below is great.' },
+          { examples: [
+            { title: 'Averages', items: ['Coca-Cola, 59%', 'Moody’s, 25%', 'Procter & Gamble, 61%'] },
+            { title: 'Swinging wildly', items: ['General Motors, 28% to 83% in five years', 'Ford, 89% to 780% in five years, losing money like crazy'] }
+          ] },
+          { kind: 'compare', title: 'What the share says', rows: [['30% and below', 'Great.'], ['30% to 80%', 'Many great companies with a Durable Competitive Advantage sit in this range.'], ['Close to and above 100%', 'A highly competitive industry, where nobody has a Durable Competitive Advantage that lasts.']] },
+          { points: [
+            'Low to medium SG&A with high research costs, heavy capital spending or heavy interest on debt has the same problems as a high-SG&A company.'
+          ] },
+          { examples: [
+            { title: 'Low SG&A, high costs elsewhere', items: ['Intel', 'Goodyear, 72% SG&A with heavy capital spending and the interest on the debt that funds it, without which it would not stay competitive for long'] }
+          ] }
+        ],
+        raw: "SGA = Selling, General, and Administrative Expenses\n\nIncludes management salaries, advertising, travel costs, legal fees, commissions, all payroll costs, etc.\n\nSGA needs to be consistent\n\nIf a company cant cut SGA costs fast, these costs eat more of the gross profit\n\nLower SGA & consistency is key to DCA\n\nRatio of SGA to GP of 30% and below is great\n\nCoca-Cola average 59%\nMoody's average 25%\nProctor & Gamble average 61%\n\nGM 28% to 83% in 5 years\n\nFord 89% to 780% in 5 years - losing money like crazy\n\nThere are many great companies in the 30% to 80% range with DCA\n\nclsoe to and above 100% indicates a highly competitive industry where nobody has a sustainable competivie advantage.\n\nLow to medium SGA with high R&D costs, Capital expenditure or interest expenses on debt still have the same problems as a high SGA company eg. Intel and Goodyear.\n\nGoodyear 72% SGA with high Cap ex & interest from debt to fund the cap ex, but if it didnt add the debt to fund the cap ex, they wouldn't stay comepetitive for very long "
+      },
+      '13': {
+        type: 'metric',
+        thesis: 'An advantage that has to be reinvented is not a sure thing: newer technology or an expiring patent can take it away, and Warren is not interested in anything that is not a sure thing.',
+        body: [
+          { kind: 'compare', title: 'How a research-built advantage dies', rows: [['Newer technology', 'When the Durable Competitive Advantage comes from a technical lead, there is always the threat that newer technology will replace it: today’s advantage may become tomorrow’s obsolescence.'], ['An expiring patent', 'A Durable Competitive Advantage protected by a patent, as in pharmaceuticals, disappears when the patent runs out.']] },
+          { examples: [
+            { title: 'Newer technology', items: ['Microsoft and Google, each afraid of the other’s advances'] }
+          ] },
+          { points: [
+            'A company that must keep spending on research to invent new products usually has to redesign and update its sales programmes too, so high selling and administrative costs follow.'
+          ] },
+          { examples: [
+            { title: 'Living on research', items: ['Merck & Co, 29% of gross profit on research and 49% on selling and administration, 78% in all; if it fails to invent the next multimillion-dollar drug, it loses its Durable Competitive Advantage when its patents expire', 'Intel, as the leader in its field, about 30% of gross profit on research, or it would lose its Durable Competitive Advantage within a few years'] },
+            { title: 'Nothing to reinvent', items: ['Coca-Cola and Moody’s, with no worry of losing their Durable Competitive Advantage, unlike Intel and Merck'] }
+          ] },
+          { points: [
+            'A company that relies heavily on research carries an inherent flaw in its Durable Competitive Advantage, which puts its long-term economics at risk: it is not a sure thing.',
+            'If it is not a sure thing, Warren is not interested.'
+          ] }
+        ],
+        raw: "If DCA comes from tech advancement, there is always a threat that newer tech will replace it. Eg. Microsoft is afraid of the technological advancements of Google and vice versa as today's competitive advantage may become tomorrow's obsolescence. \n\nIf a competitive advantage is protected by a patent, such as pharmaceuticals, at some point the patent will expire and the competitive advantage will disappear.\n\nThese companies that need to continue spending on R&D and invent new products usually must also redesign and update sales programs which means high SGA spending as a consequence.\n\nMerck & Co must spend 29% of its GP on R&D and 49% of its GP on SGA which, when combines, totals 78% of its GP. If it fails to invent. the next multimillion-dollar-selling drug, it loses its competitive advantage when its patents expire.\n\nIntel, when it was the leader in it field, spent approx 30% of its GP on R&D. If it didn't it would lose its competitive advantage in a few years.\n\nThere is no worry of losing DCA with Coca-Cola and Moody's, unlike Intel and Merck & Co.\n\nComapnies that rely headily on R&D have an inherent flaw in their competitive advantage that will put their long term economics at risk which means that they are not a sure thing.\n\nIf it's not a sure thing, Warren Buffet is not interested."
       }
     };
 
@@ -791,9 +838,9 @@
     // the points, dated: the book's examples are of 2008, its first edition,
     // and of the 2011 second edition the owner reads.
     var EXAMPLES_NOTE = 'The book’s examples, as written for its first edition in 2008 and its second edition of 2011, the one these notes are read from. The figures are of that time.';
-    function examplesHtml(groups) {
+    function examplesHtml(groups, dated) {
       if (!groups || !groups.length) return '';
-      return '<div class="examples"><p class="dtitle">Examples from your notes</p><p class="dated">' + esc(EXAMPLES_NOTE) + '</p>' + groups.map(function (g) {
+      return '<div class="examples"><p class="dtitle">Examples from your notes</p>' + (dated ? '<p class="dated">' + esc(EXAMPLES_NOTE) + '</p>' : '') + groups.map(function (g) {
         return '<div class="row"><b>' + wr(g.title) + '</b><div>' + (g.sub ? '<p class="sub">' + wr(g.sub) + '</p>' : '') +
           '<ul' + (g.inline ? ' class="inline"' : '') + '>' + g.items.map(function (it) { return '<li>' + wr(it) + '</li>'; }).join('') + '</ul></div></div>';
       }).join('') + '</div>';
@@ -802,17 +849,18 @@
     // A breakdown's body runs in the order of the owner's notes: diagrams,
     // runs of points and the examples section wherever the notes have them.
     // A chapter without a body draws its diagrams, then its points.
-    function partHtml(part) {
+    function partHtml(part, first) {
       if (part.points) return '<ul class="points">' + part.points.map(function (p) { return '<li>' + wr(p) + '</li>'; }).join('') + '</ul>';
-      if (part.examples) return examplesHtml(part.examples);
+      if (part.examples) return examplesHtml(part.examples, first);
       return diagramHtml(part);
     }
 
     function breakdownHtml(ch, b) {
       var body = b.body || (b.diagrams || []).concat(b.points ? [{ points: b.points }] : []);
+      var dated = false;
       return '<p class="type-line"><span class="mark type-tag">' + esc(TYPE_NAMES[b.type]) + '</span> <span>Written up from your notes.</span></p>' +
         '<p class="thesis">' + wr(b.thesis) + '</p>' +
-        body.map(partHtml).join('') +
+        body.map(function (part) { var h = partHtml(part, !dated); if (part.examples) dated = true; return h; }).join('') +
         '<details class="raw-notes"><summary>Your notes, as written</summary><pre>' + esc(b.raw) + '</pre></details>';
     }
 
