@@ -586,9 +586,21 @@ export function writeScreens(ctx) {
     index.venues[venue] = { file: venue + '.json', csv: venue + '.csv', companies: rows.length, pulledUpTo: newest };
   }
   writeJson(path.join(ctx.out, 'screen', 'index.json'), index);
+  writeJson(path.join(ctx.out, 'screen', 'names.json'), namesFile(byVenue));
   const total = Object.values(index.venues).reduce((n, x) => n + x.companies, 0);
   ctx.log('Screen files: ' + Object.keys(index.venues).map(v => v + ' ' + index.venues[v].companies).join(', ') + ' (' + total + ' companies).');
   return index;
+}
+
+// the names file the page's search reads: every company of the screens as
+// [symbol, name, venue], by name, one line a company and nothing else
+export function namesFile(rowsByVenue) {
+  const companies = [];
+  for (const venue of Object.keys(rowsByVenue)) {
+    for (const r of rowsByVenue[venue] || []) if (r && r.symbol) companies.push([String(r.symbol), String(r.name || r.symbol), venue]);
+  }
+  companies.sort((a, b) => a[1].localeCompare(b[1], 'en') || a[0].localeCompare(b[0]));
+  return { builtAt: new Date().toISOString(), companies };
 }
 
 // ---- the sample watchlists, read from the page so there is one copy ---------------

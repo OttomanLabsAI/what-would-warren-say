@@ -4,14 +4,15 @@
 // and the Screen has rows to show before the store is filled. Reads
 // data/screen/<VENUE>.json and writes public/data/screen/<VENUE>.json plus
 // index.json: the venues, how many companies each holds, and every symbol's
-// venue. Run it after a pull, then release as usual.
+// venue; and names.json, every company's symbol, name and venue, which the
+// company search reads. Run it after a pull, then release as usual.
 //
 //   npm run bundle-screen             # from data/screen/ into public/data/screen/
 //   node tools/bundle-screen.mjs [--data data] [--out public/data/screen]
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseArgs, readJson, writeJson } from './lib/pull.mjs';
+import { parseArgs, readJson, writeJson, namesFile } from './lib/pull.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const DATA = path.resolve(args.data || 'data');
@@ -23,7 +24,7 @@ if (!index || !index.venues) { console.error('No screen files at ' + DATA + ': a
 fs.mkdirSync(OUT, { recursive: true });
 for (const f of fs.readdirSync(OUT)) if (f.endsWith('.json')) fs.unlinkSync(path.join(OUT, f));
 
-const venues = {}, symbols = {}, hasYear = {};
+const venues = {}, symbols = {}, hasYear = {}, rowsByVenue = {};
 let pulledUpTo = '', bytes = 0;
 for (const venue of Object.keys(index.venues).sort()) {
   const src = path.join(DATA, 'screen', venue + '.json');
@@ -31,6 +32,7 @@ for (const venue of Object.keys(index.venues).sort()) {
   if (!Array.isArray(rows) || !rows.length) continue;
   fs.copyFileSync(src, path.join(OUT, venue + '.json'));
   bytes += fs.statSync(src).size;
+  rowsByVenue[venue] = rows;
   let withStatements = 0, newest = '';
   for (const r of rows) {
     if (!r || !r.symbol) continue;
@@ -43,5 +45,6 @@ for (const venue of Object.keys(index.venues).sort()) {
   if (newest > pulledUpTo) pulledUpTo = newest;
 }
 writeJson(path.join(OUT, 'index.json'), { builtAt: new Date().toISOString(), pulledUpTo, venues, symbols });
+writeJson(path.join(OUT, 'names.json'), namesFile(rowsByVenue));
 const total = Object.values(venues).reduce((n, v) => n + v.withStatements, 0);
 console.log('Bundled ' + Object.keys(venues).length + ' venues, ' + Object.keys(symbols).length + ' companies (' + total + ' with statements, ' + Math.round(bytes / 1e5) / 10 + ' MB) into ' + OUT + '.');

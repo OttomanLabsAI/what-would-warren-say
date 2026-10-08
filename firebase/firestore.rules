@@ -5,15 +5,18 @@ rules_version = '2';
 // email and password under the hood: the address is <username>@users.wwws.invalid,
 // never mailed). Everything a reader keeps lives under users/{uid}: the profile,
 // the watchlists (the generic "My watchlist" and the custom lists with their
-// voluntary description) and the chapter notes. Nobody reads another reader's
-// documents; usernames/{name} holds each claimed username so two readers cannot
-// share one. Kept company numbers and the EODHD key never go up.
+// voluntary description) and the chapter notes, and the profile carries the
+// reader's secret key, which says a request is theirs and is made anew on
+// request. Nobody reads another reader's documents; usernames/{name} holds
+// each claimed username so two readers cannot share one. Kept company numbers
+// and the EODHD key never go up.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
     function text(v, max) { return v is string && v.size() <= max; }
     function usernameOk(name) { return name is string && name == name.lower() && name.matches('^[a-z0-9][a-z0-9._-]{2,19}$'); }
+    function secretKeyOk(data) { return !('secretKey' in data) || (data.secretKey is string && data.secretKey.matches('^wwws_[A-Za-z0-9_-]{32}$')); }
 
     // The claim on a username: made once, by the account that takes it, never changed.
     match /usernames/{name} {
@@ -29,7 +32,9 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(['name', 'surname', 'username', 'usernameLower', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['name', 'surname', 'username', 'usernameLower', 'createdAt', 'updatedAt', 'secretKey', 'secretKeyAt'])
+        && secretKeyOk(request.resource.data)
+        && (!('secretKeyAt' in request.resource.data) || text(request.resource.data.secretKeyAt, 40))
         && text(request.resource.data.name, 80) && request.resource.data.name.size() > 0
         && text(request.resource.data.surname, 80) && request.resource.data.surname.size() > 0
         && text(request.resource.data.username, 20)

@@ -14,7 +14,7 @@ Builds, so **every push to `main` deploys to production**.
 public/            everything served as assets
   index.html       all five views (companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages, account): one file
   data/            sample data: index.json + companies/<SYMBOL>.json, from tools/bundle-samples.mjs (git-tracked, EODHD-derived)
-  data/screen/     the pull's screen rows: <VENUE>.json + index.json (venues, symbol -> venue), from tools/bundle-screen.mjs
+  data/screen/     the pull's screen rows: <VENUE>.json + index.json (venues, symbol -> venue) + names.json (every company's symbol, name and venue, for the search), from tools/bundle-screen.mjs
   404.html         same masthead and palette as index.html
   favicon.svg
   _headers         security + caching headers
@@ -199,6 +199,29 @@ Without a key the price line reads "Not available without an EODHD key."
 with no button; a key typed into the token box fetches it (`wirePrice`
 listens to the box's change event).
 
+The company search. The box on the Companies view (labelled "Company or
+ticker", a combobox with the listbox `#suggest` under it) suggests
+companies as the reader types: `suggestionsFor` ranks the pool from
+`searchPool` (the kept copies, then the samples, then every name on file
+from `screen/names.json`, `[symbol, name, venue]` a company, written by
+`writeScreens`, copied by `bundle-screen.mjs`, sent to the store by the
+uploader, and fetched by `loadNames` on the first keystroke from the
+store when it has an index, else the bundle) by an exact ticker or code,
+then a ticker prefix, a name prefix, a word prefix, then anything
+containing the text, accents and punctuation ignored (`fold`), a kept
+copy before a sample before the rest, and a code of letters before one
+that starts with a digit (London's international book lists Apple as
+0R2V), eight at most, each with its name, ticker, venue and where it is
+from. The arrows move the highlight, Enter opens the highlighted
+company, Escape and leaving the box close the list, a click or tap opens
+one; opening goes to `#companies/<SYMBOL>`, from file, with no call. On
+submit a ticker (`tickerShaped`: no spaces and a dot) or a bare code that
+is a company on file fetches as before (`go`); a name opens its best
+match; a word with no match that could be a code fetches it; anything
+else says it is not on file. Without the names file the kept copies and
+the samples still suggest. The Screen's own find box already matches
+names and tickers.
+
 The store is the owner's pull of whole exchanges in the R2 bucket `wwws-data`
 (binding `DATA`), served by the Worker at `/api/data/<key>` with no key and
 no gate (`store()` in `src/worker.js`: GET and HEAD, keys checked against
@@ -337,11 +360,19 @@ at Firebase the username is the address `<username>@users.wwws.invalid`
 (`usernameEmail`), never mailed. Sign-up (`signUp`) creates the auth
 account, claims `usernames/<lowercase>` (create-only, `{ uid }`), writes
 the profile `users/{uid}` (`name`, `surname`, `username`, `usernameLower`,
-`createdAt`, `updatedAt`) and syncs; if a step fails the half-made auth
-account is deleted again. Sign-in (`signIn`) reads the profile and syncs;
-`signOut` clears the session. The session is kept under
+`createdAt`, `updatedAt`, `secretKey`, `secretKeyAt`) and syncs; if a
+step fails the half-made auth account is deleted again. Sign-in
+(`signIn`) reads the profile and syncs, and gives an account from before
+the keys its key; `signOut` clears the session. The session is kept under
 `wwws.account.v1` (`uid`, `refreshToken`, `name`, `surname`, `username`,
-`syncedAt`); the ID token stays in memory. The data: `users/{uid}/
+`syncedAt`, `createdAt`, `secretKey`, `secretKeyAt`); the ID token stays
+in memory. The secret key (`makeSecretKey`: `wwws_` and 32 characters of
+URL-safe base64 from 24 random bytes, `SECRET_KEY_RE`) says a request is
+the reader's own, in an email for instance; the Account page shows it in
+`#acct-key` with Copy and "Make a new key" (`rotateSecretKey` writes the
+whole profile again, `profileDoc`, after a confirm; the old key is dead
+at once), and the rules allow it only in that shape. It is never
+exported. The data: `users/{uid}/
 watchlists/{listId}` (`name`, `description`, `items`, `generic`,
 `updated`) and `users/{uid}/data/entries` (`entries`, `updated`: the
 chapter notes). Company numbers and the EODHD key never go up. Sync
@@ -559,3 +590,4 @@ design are their own release, requested deliberately.
 | v1.32 | The book's boxes for six chapters, and chapter 16 | Chapters 11 to 16 now open with the book's own income-statement box from your photographs, the arrow on each chapter's line, down to the interest expense and the gain on the sale of assets. Chapter 16, the gain or loss on the sale of assets and the catch-all other, is written up from your notes: the equation, the book's property as a worked example, and why Warren takes these one-off items out before judging a business. |
 | v1.33 | Stock splits on file, the price chart restated | Every company now carries its stock splits from EODHD, fetched with its fundamentals, and the share-price chart divides the prices before each split by its ratio, so a four-for-one no longer reads as a crash. The company page lists the splits under the next report date. The per-share figures in the table needed nothing: EODHD restates them already, as your own pull shows. |
 | v1.34 | The month of a split no longer reads as a crash | On the all-time chart the month in which a company split was divided once too often, so Nvidia's June 2024 fell from 109 to 12 and back. Each weekly and monthly bar is now judged by the day its closing price was struck, the end of its week or month, rather than the date the bar is labelled with, and the month of a split reads as it traded. |
+| v1.35 | Search by name, a secret key, five more markets | The company box now takes a name as well as a ticker and suggests companies as you type, from everything on file: the arrows and Enter, or a click, open one at once without spending a call, and a typed ticker still fetches as before. Every account now carries a secret key, shown on the Account page with a Copy button, to say a request is yours in an email or the like; if it leaks, one click makes a new one and the old one stops working at once. Your new pull is on the site too: the companies of the Korea Stock Exchange, KOSDAQ, Shanghai, Shenzhen and Xetra now open from their rows and screen beside London, NASDAQ and New York, 17,609 companies with their latest year in all. |

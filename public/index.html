@@ -75,6 +75,17 @@
     .fetch-form .f > label, .add-form .f > label { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
     .fetch-form input[type="text"], .fetch-form input[type="password"], .add-form input[type="text"] { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); width: 100%; box-sizing: border-box; }
     .fetch-form input:focus, .add-form input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .fetch-form .f.find { position: relative; }
+    .suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 0; padding: 0; list-style: none; background: var(--white); border: 1px solid var(--ink); border-top: 0; box-shadow: 0 8px 18px rgba(51, 48, 46, .14); max-height: 19rem; overflow-y: auto; font-family: var(--sans); font-size: .92rem; }
+    .suggest[hidden] { display: none; }
+    .suggest li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .6rem; padding: .45rem .65rem; cursor: pointer; border-top: 1px solid var(--paper-deep); }
+    .suggest li:first-child { border-top: 0; }
+    .suggest li[aria-selected="true"], .suggest li:hover { background: var(--paper); }
+    .suggest .sym { font-size: .76rem; font-weight: 700; letter-spacing: .06em; color: var(--claret); }
+    .suggest .where { margin-left: auto; font-size: .76rem; color: var(--ink-60); }
+    .secret { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin: 0 0 .5rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
+    .secret b { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .secret code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9rem; background: var(--white); border: 1px solid var(--ink); padding: .25rem .5rem; word-break: break-all; user-select: all; }
     .remember { display: flex; align-items: center; gap: .45rem; font-family: var(--sans); font-size: .82rem; color: var(--ink-70); padding-bottom: .55rem; }
     .remember input { margin: 0; accent-color: var(--claret); }
     .hint { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); margin: .25rem 0 1rem; }
@@ -1835,12 +1846,13 @@
       var remembered = tokenRemembered();
       var token = getToken();
       return '<form class="fetch-form" id="fetch-form" autocomplete="off">' +
-        '<div class="f"><label for="symbol">Ticker</label><input type="text" id="symbol" value="' + esc(symbol) + '" placeholder="KO.US" spellcheck="false"></div>' +
+        '<div class="f find"><label for="symbol">Company or ticker</label><input type="text" id="symbol" value="' + esc(symbol) + '" placeholder="Coca-Cola or KO.US" spellcheck="false" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="suggest">' +
+        '<ul class="suggest" id="suggest" role="listbox" aria-label="Companies on file" hidden></ul></div>' +
         '<button type="submit" id="fetch">Fetch</button>' +
         '<div class="f"><label for="token">EODHD API token</label><input type="password" id="token" value="' + esc(token) + '" placeholder="your API token" autocomplete="off"></div>' +
         '<label class="remember"><input type="checkbox" id="remember"' + (remembered ? ' checked' : '') + '> Remember the token on this device</label>' +
         '</form>' +
-        '<p class="hint">Tickers take EODHD\u2019s form, code dot exchange: KO.US, VOD.LSE, BMW.XETRA. A bare US ticker gets .US added. ' +
+        '<p class="hint">Type a company name to open it from what is on file, with suggestions as you type, or an EODHD ticker to fetch it: code dot exchange, KO.US, VOD.LSE, BMW.XETRA; a bare US ticker gets .US added. ' +
         'Each fetch spends eleven of your EODHD calls, ten for the fundamentals and one for the split history; the token stays in this browser and is never exported.</p>';
     }
 
@@ -2050,6 +2062,77 @@
       });
     }
 
+    // ---- the company search: every name and ticker on file, suggested as you type ----
+    // The names file (screen/names.json, [symbol, name, venue] a company, from
+    // the store when it has one, else the bundle) is fetched on the first
+    // keystroke and kept for the session; the kept copies and the samples are
+    // suggested from the start. A typed ticker still fetches; a typed name opens.
+    var names = { list: null, loading: null, failed: false };
+
+    function fold(s) {
+      s = String(s || '').toLowerCase();
+      try { s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch (e) {}
+      return s;
+    }
+
+    function searchEntry(symbol, name, where, venue) {
+      var f = fold(name || symbol).replace(/^the\s+/, ''), sym = String(symbol).toUpperCase();
+      return { symbol: String(symbol), name: name || String(symbol), where: where, venue: venue || '', f: f, sq: f.replace(/[^a-z0-9]+/g, ''), sym: sym, code: sym.split('.')[0] };
+    }
+
+    function loadNames() {
+      if (names.loading) return names.loading;
+      var sources = store.index ? ['api/data/screen/names.json', 'data/screen/names.json'] : ['data/screen/names.json'];
+      function tryAt(i) {
+        if (i >= sources.length) { names.failed = true; return Promise.resolve(null); }
+        return window.fetch(sources[i]).then(function (res) { return res.ok ? res.json() : null; }).then(function (d) {
+          if (!d || !Array.isArray(d.companies)) return tryAt(i + 1);
+          names.list = [];
+          d.companies.forEach(function (c) { if (Array.isArray(c) && c[0]) names.list.push(searchEntry(c[0], c[1] ? String(c[1]) : '', '', c[2] ? String(c[2]) : '')); });
+          return names.list;
+        }).catch(function () { return tryAt(i + 1); });
+      }
+      names.loading = tryAt(0);
+      return names.loading;
+    }
+
+    // what can be suggested: the kept copies first, then the samples, then every name on file
+    function searchPool() {
+      var pool = [], seen = {};
+      function add(e) { if (!e.symbol || seen[e.symbol]) return; seen[e.symbol] = true; pool.push(e); }
+      Object.keys(numbers.companies).forEach(function (id) { var c = numbers.companies[id]; add(searchEntry(id, c.meta && c.meta.name, 'numbers kept', c.meta && c.meta.exchange)); });
+      if (samples.index) samples.index.companies.forEach(function (c) { if (c && c.symbol) add(searchEntry(String(c.symbol), c.name ? String(c.name) : '', 'sample data', c.exchange ? String(c.exchange) : '')); });
+      (names.list || []).forEach(function (e) { if (!seen[e.symbol]) { e.where = inStore(e.symbol) ? 'in the store' : 'on file'; add(e); } });
+      return pool;
+    }
+
+    // the best eight for what was typed: a ticker or its code first, then a name
+    // that starts so, a word that starts so, then anything that contains it
+    function suggestionsFor(q) {
+      var raw = String(q || '').trim();
+      if (!raw) return [];
+      var fq = fold(raw), sq = fq.replace(/[^a-z0-9]+/g, ''), uq = raw.toUpperCase().replace(/\s+/g, '');
+      if (!sq) return [];
+      var out = [];
+      searchPool().forEach(function (e) {
+        var rank;
+        if (e.sym === uq || e.code === uq) rank = 0;
+        else if (e.code.indexOf(uq) === 0 || e.sym.indexOf(uq) === 0) rank = 1;
+        else if (e.f.indexOf(fq) === 0 || e.sq.indexOf(sq) === 0) rank = 2;
+        else if (e.f.indexOf(' ' + fq) >= 0) rank = 3;
+        else if (e.f.indexOf(fq) >= 0 || e.sq.indexOf(sq) >= 0 || e.sym.indexOf(uq) >= 0) rank = 4;
+        else return;
+        e.rank = rank;
+        out.push({ e: e, rank: rank, pref: e.where === 'numbers kept' ? 0 : e.where === 'sample data' ? 1 : 2, digit: /^[0-9]/.test(e.code) ? 1 : 0 });
+      });
+      out.sort(function (a, b) { return a.rank - b.rank || a.pref - b.pref || a.digit - b.digit || a.e.name.length - b.e.name.length || (a.e.name < b.e.name ? -1 : a.e.name > b.e.name ? 1 : 0) || (a.e.symbol < b.e.symbol ? -1 : 1); });
+      return out.slice(0, 8).map(function (o) { return o.e; });
+    }
+
+    function tickerShaped(raw) {
+      return /^[A-Za-z0-9.^-]+$/.test(raw) && raw.indexOf('.') >= 0;
+    }
+
     function rowCompany(symbol) {
       if (rowCompanies[symbol]) return rowCompanies[symbol];
       var venue = bundleVenue(symbol), data = venue ? bundle.rows[venue] : null;
@@ -2075,7 +2158,7 @@
         .sort(function (a, b) { return d.venues[b].withStatements - d.venues[a].withStatements || a.localeCompare(b); });
       return '<p class="kept store bundle">On file with their latest year, no key needed: ' + fmtCount(total) + ' companies, pulled ' + esc(fmtDate(d.pulledUpTo)) + ':' +
         venues.map(function (v) { return '<b>' + esc(VENUE_NAMES[v] || v) + '</b>' + fmtCount(d.venues[v].withStatements); }).join(' \u00b7') +
-        '. Type a ticker above to open one, or sort and filter them in the <a href="#screen">Screen</a>.</p>';
+        '. Type a name or a ticker above to open one, or sort and filter them in the <a href="#screen">Screen</a>.</p>';
     }
 
     function samplesHtml() {
@@ -2162,7 +2245,76 @@
         });
       }
 
-      form.addEventListener('submit', function (ev) { ev.preventDefault(); go(normaliseSymbol(symbolInput.value)); });
+      var suggestBox = document.getElementById('suggest');
+      var sgShown = [], sgActive = -1;
+      function closeSuggest() {
+        sgShown = []; sgActive = -1;
+        suggestBox.hidden = true; suggestBox.innerHTML = '';
+        symbolInput.setAttribute('aria-expanded', 'false');
+        symbolInput.removeAttribute('aria-activedescendant');
+      }
+      function highlight(i) {
+        sgActive = i;
+        Array.prototype.forEach.call(suggestBox.children, function (li, k) { li.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+        if (i >= 0) { symbolInput.setAttribute('aria-activedescendant', 'suggest-' + i); if (suggestBox.children[i].scrollIntoView) suggestBox.children[i].scrollIntoView({ block: 'nearest' }); }
+        else symbolInput.removeAttribute('aria-activedescendant');
+      }
+      function drawSuggest() {
+        sgShown = suggestionsFor(symbolInput.value);
+        if (!sgShown.length) { closeSuggest(); return; }
+        suggestBox.innerHTML = sgShown.map(function (e, i) {
+          var where = (VENUE_NAMES[e.venue] || e.venue || '') + (e.where ? (e.venue ? ' \u00b7 ' : '') + e.where : '');
+          return '<li role="option" id="suggest-' + i + '" data-symbol="' + esc(e.symbol) + '" aria-selected="false"><span class="nm">' + esc(e.name) + '</span><span class="sym">' + esc(e.symbol) + '</span>' + (where ? '<span class="where">' + esc(where) + '</span>' : '') + '</li>';
+        }).join('');
+        suggestBox.hidden = false; sgActive = -1;
+        symbolInput.setAttribute('aria-expanded', 'true');
+      }
+      function openSuggestion(e) {
+        closeSuggest();
+        symbolInput.value = e.symbol;
+        if (window.location.hash === '#companies/' + e.symbol) route(); else window.location.hash = 'companies/' + e.symbol;
+      }
+      symbolInput.addEventListener('input', function () {
+        if (!symbolInput.value.trim()) { closeSuggest(); return; }
+        if (!names.list && !names.failed) loadNames().then(function () { if (document.activeElement === symbolInput && symbolInput.value.trim()) drawSuggest(); });
+        drawSuggest();
+      });
+      symbolInput.addEventListener('keydown', function (ev) {
+        if (suggestBox.hidden) { if (ev.key === 'ArrowDown' && symbolInput.value.trim()) { ev.preventDefault(); drawSuggest(); } return; }
+        if (ev.key === 'ArrowDown') { ev.preventDefault(); highlight((sgActive + 1) % sgShown.length); }
+        else if (ev.key === 'ArrowUp') { ev.preventDefault(); highlight((sgActive - 1 + sgShown.length) % sgShown.length); }
+        else if (ev.key === 'Escape') { ev.preventDefault(); closeSuggest(); }
+        else if (ev.key === 'Enter' && sgActive >= 0) { ev.preventDefault(); openSuggestion(sgShown[sgActive]); }
+      });
+      symbolInput.addEventListener('blur', function () { setTimeout(function () { if (document.activeElement !== symbolInput) closeSuggest(); }, 150); });
+      suggestBox.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+      suggestBox.addEventListener('click', function (ev) {
+        var li = ev.target.closest ? ev.target.closest('li[data-symbol]') : null;
+        if (!li) return;
+        var pick = sgShown.filter(function (e) { return e.symbol === li.getAttribute('data-symbol'); })[0];
+        if (pick) openSuggestion(pick);
+      });
+      // a ticker, or a code that is on file, fetches; a name opens its best match; a
+      // short word that only turns up inside names is taken for a ticker and fetched
+      function decide(raw) {
+        var list = suggestionsFor(raw), uq = raw.toUpperCase().replace(/\s+/g, '');
+        var exact = list.filter(function (e) { return e.sym === uq || e.code === uq; })[0];
+        var codeLike = /^[A-Za-z0-9.^-]{1,6}$/.test(raw);
+        if (tickerShaped(raw) || exact) { go(normaliseSymbol(raw)); return; }
+        if (list.length && (list[0].rank <= 2 || !codeLike)) { openSuggestion(list[0]); return; }
+        if (/^[A-Za-z0-9.^-]+$/.test(raw)) { go(normaliseSymbol(raw)); return; }
+        say('No company called \u201c' + raw + '\u201d is on file. Type its EODHD ticker, such as KO.US, to fetch it.');
+        symbolInput.focus();
+      }
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var raw = symbolInput.value.trim();
+        closeSuggest();
+        if (!raw) { say('Type a company name, or a ticker such as KO.US.'); symbolInput.focus(); return; }
+        if (tickerShaped(raw) || names.list || names.failed) { decide(raw); return; }
+        say('Looking up ' + raw + '\u2026');
+        loadNames().then(function () { decide(raw); }, function () { decide(raw); });
+      });
       rememberBox.addEventListener('change', function () { setToken(tokenInput.value.trim(), rememberBox.checked); });
 
       if (shown) {
@@ -2506,6 +2658,34 @@
 
     function usernameEmail(username) { return username.toLowerCase() + '@' + USERNAME_DOMAIN; }
 
+    // The account's secret key: what says a request is the reader's own, in an
+    // email for instance. Made at sign-up (or at sign-in for an account without
+    // one), kept in the profile and the session, shown on the Account page, and
+    // made anew on request, the old one dead at once.
+    var SECRET_KEY_RE = /^wwws_[A-Za-z0-9_-]{32}$/;
+    function makeSecretKey() {
+      var bytes = new Uint8Array(24);
+      window.crypto.getRandomValues(bytes);
+      var bin = '';
+      for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return 'wwws_' + window.btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    // the profile as the store keeps it, from the session's account
+    function profileDoc(updatedAt) {
+      return { name: account.name, surname: account.surname, username: account.username, usernameLower: account.username.toLowerCase(), createdAt: account.createdAt || updatedAt, updatedAt: updatedAt, secretKey: account.secretKey, secretKeyAt: account.secretKeyAt };
+    }
+
+    function rotateSecretKey() {
+      if (!account) return Promise.reject(new Error('Sign in first.'));
+      var now = new Date().toISOString(), old = { key: account.secretKey, at: account.secretKeyAt };
+      account.secretKey = makeSecretKey(); account.secretKeyAt = now;
+      return setDoc(['users', account.uid], profileDoc(now)).then(function () { saveAccount(); return account.secretKey; }, function (e) {
+        account.secretKey = old.key; account.secretKeyAt = old.at;
+        throw e;
+      });
+    }
+
     function unreachable() { return new Error('Could not reach the account service. Check your connection and try again.'); }
 
     function authError(data) {
@@ -2639,12 +2819,12 @@
       var made = null;
       return authCall('signUp', { email: usernameEmail(uname), password: password, returnSecureToken: true }).then(function (d) {
         made = d;
-        account = { uid: d.localId, refreshToken: d.refreshToken, name: name.trim(), surname: surname.trim(), username: uname, syncedAt: '' };
+        var now = new Date().toISOString();
+        account = { uid: d.localId, refreshToken: d.refreshToken, name: name.trim(), surname: surname.trim(), username: uname, syncedAt: '', createdAt: now, secretKey: makeSecretKey(), secretKeyAt: now };
         idToken = d.idToken; idTokenAt = Date.now();
         return setDoc(['usernames', lower], { uid: d.localId }, true);
       }).then(function () {
-        var now = new Date().toISOString();
-        return setDoc(['users', account.uid], { name: account.name, surname: account.surname, username: uname, usernameLower: lower, createdAt: now, updatedAt: now });
+        return setDoc(['users', account.uid], profileDoc(account.createdAt));
       }).then(function () {
         saveAccount();
         return syncAll();
@@ -2672,7 +2852,18 @@
           account.name = typeof profile.name === 'string' ? profile.name : '';
           account.surname = typeof profile.surname === 'string' ? profile.surname : '';
           account.username = typeof profile.username === 'string' && profile.username ? profile.username : uname;
+          account.createdAt = typeof profile.createdAt === 'string' ? profile.createdAt : '';
+          if (typeof profile.secretKey === 'string' && SECRET_KEY_RE.test(profile.secretKey)) { account.secretKey = profile.secretKey; account.secretKeyAt = typeof profile.secretKeyAt === 'string' ? profile.secretKeyAt : ''; }
         }
+        // an account from before the keys, or a profile that is not there: it gets its key now
+        if (!account.secretKey) {
+          var now = new Date().toISOString();
+          account.secretKey = makeSecretKey(); account.secretKeyAt = now;
+          if (!account.name && !account.surname) return null;
+          return setDoc(['users', account.uid], profileDoc(now));
+        }
+        return null;
+      }).then(function () {
         saveAccount();
         return syncAll();
       }).then(function () { return account; });
@@ -2819,7 +3010,10 @@
           '<p class="who"><b>Signed in as</b>' + esc(account.username) + '</p>' +
           '<p class="company-meta"><span id="acct-sync-state">' + esc(syncStateText()) + '</span>' +
           '<button type="button" class="linkbtn" id="acct-sync">Sync now</button><button type="button" class="linkbtn" id="acct-out">Sign out</button></p>' +
-          '<p class="hint">Your watchlists, with their descriptions, and your chapter notes are kept with the account and follow you to any device you sign in on. Company numbers and your EODHD key stay on this device.</p>';
+          '<p class="hint">Your watchlists, with their descriptions, and your chapter notes are kept with the account and follow you to any device you sign in on. Company numbers and your EODHD key stay on this device.</p>' +
+          '<p class="secret"><b>Secret key</b><code id="acct-key">' + esc(account.secretKey || '') + '</code>' +
+          '<button type="button" class="linkbtn" id="acct-key-copy">Copy</button><button type="button" class="linkbtn" id="acct-key-new">Make a new key</button></p>' +
+          '<p class="hint">The key says a request is yours, in an email for instance. Keep it to yourself; if it leaks, make a new one and the old one stops working at once.' + (account.secretKeyAt ? ' This one was made on ' + esc(fmtDay(account.secretKeyAt.slice(0, 10))) + '.' : '') + '</p>';
       } else {
         html += '<h2 class="headline">Sign in, or make an account</h2>' +
           '<p class="hint">An account keeps your watchlists and chapter notes with you on any device. What is on this device now joins the account when you sign in.</p>' +
@@ -2853,6 +3047,26 @@
       if (syncNow) syncNow.addEventListener('click', function () {
         say('Syncing…');
         syncAll().then(function () { showSyncState(); say('Synced.'); }, function (e) { showSyncState(); say('Not synced: ' + e.message); });
+      });
+      var keyCopy = document.getElementById('acct-key-copy');
+      if (keyCopy) keyCopy.addEventListener('click', function () {
+        var key = account ? account.secretKey : '';
+        var done = function () { say('Copied the secret key.'); }, fail = function () {
+          var range = document.createRange(); range.selectNodeContents(document.getElementById('acct-key'));
+          var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+          say('Select the key and copy it: this browser would not copy it for you.');
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(key).then(done, fail); else fail();
+      });
+      var keyNew = document.getElementById('acct-key-new');
+      if (keyNew) keyNew.addEventListener('click', function () {
+        if (!window.confirm('Make a new secret key? The old one stops working at once.')) return;
+        keyNew.disabled = true; say('Making a new key…');
+        rotateSecretKey().then(function (key) {
+          document.getElementById('acct-key').textContent = key;
+          keyNew.disabled = false;
+          say('A new key was made at ' + timeNow() + '. The old one no longer works.');
+        }, function (e) { keyNew.disabled = false; say('The key could not be changed: ' + e.message); });
       });
     }
 

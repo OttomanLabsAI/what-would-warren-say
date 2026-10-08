@@ -123,6 +123,9 @@ CLAUDE.md          standing policy for working in this repo
 - The quote is one call and is kept for a quarter of an hour; each span of
   the chart is one call, except the day of five-minute bars, which EODHD
   counts as five. Prices are never stored and never exported.
+- The company box takes a name as well as a ticker and suggests companies
+  as you type, from everything on file: the arrows and Enter, or a click,
+  open one without a call. A typed ticker fetches as before.
 - Symbols take EODHD's form, `CODE.EXCHANGE` (`KO.US`, `VOD.LSE`); a bare US
   code gets `.US`. One fetch is eleven EODHD API calls, ten for the
   fundamentals and one for the split history, so companies are kept on
@@ -310,6 +313,12 @@ watchlists, each with a voluntary description, and their chapter notes;
 the generic My watchlist is always there, and a company can be added to
 any list from its own page or by ticker under a list. Company numbers and
 the EODHD key never leave the device.
+
+Every account carries a secret key, shown on the Account page with a Copy
+button: it says a request is the reader's own, in an email for instance.
+If it leaks, "Make a new key" replaces it at once and the old one stops
+working. The key is kept in the reader's profile, readable by them alone,
+and never travels in an export.
 
 The accounts live at Firebase: Authentication (email and password under
 the hood, the username becoming an address at a reserved domain that is

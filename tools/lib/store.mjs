@@ -128,6 +128,8 @@ export function planUpload(out, sent, all) {
     const file = path.join(out, 'screen', venue + '.json');
     if (fs.existsSync(file)) jobs.push({ key: 'screen/' + venue + '.json', file, pulledAt: screenIndex.venues[venue].pulledUpTo || '' });
   }
+  const namesPath = path.join(out, 'screen', 'names.json');
+  if (fs.existsSync(namesPath)) jobs.push({ key: 'screen/names.json', file: namesPath, pulledAt: screenIndex.builtAt || '' });
   jobs.push({ key: 'screen/index.json', file: path.join(out, 'screen', 'index.json'), pulledAt: screenIndex.builtAt || '' });
   const index = { builtAt: new Date().toISOString(), pulledUpTo, venues, companies };
   return { jobs, index, skipped, inStore: Object.keys(companies).length };
