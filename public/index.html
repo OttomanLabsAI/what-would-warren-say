@@ -154,24 +154,21 @@
     .ntable th.sorted button.sort { color: var(--claret); }
     .ntable button.sort .dir { font-size: .7em; margin-left: .25rem; }
     .screen-more { margin: 1rem 0 0; }
-    .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .8rem; margin: 0 0 1rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
+    .price-block { margin: 0 0 1.1rem; }
+    .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .8rem; margin: 0 0 .6rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
     .price b { margin-right: .3rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
-    .price .now { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .price .now { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; line-height: 1.1; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
     .price .chg { font-weight: 600; font-variant-numeric: tabular-nums; }
     .price .chg.neg { color: var(--claret); }
     .price .when { color: var(--ink-60); font-size: .85rem; }
     .spans { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 0 .9rem; }
     .spans button { padding: .35rem .7rem; font-size: .78rem; background: transparent; color: var(--ink); border-color: var(--rule); }
     .spans button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-    .price-dialog .chart .pt { display: none; }
-    .price-dialog .chart .series { stroke-width: 1.5; }
-    .price-dialog .now { margin-left: auto; text-align: right; font-family: var(--sans); color: var(--ink); white-space: nowrap; }
-    .price-dialog .now:empty { display: none; }
-    .price-dialog .now .big { display: block; font-size: clamp(1.9rem, 4.2vw, 2.8rem); font-weight: 700; line-height: 1; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
-    .price-dialog .now .ccy { font-size: .45em; font-weight: 600; letter-spacing: .06em; color: var(--ink-60); }
-    .price-dialog .now .chg { display: block; margin-top: .35rem; font-size: .92rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-    .price-dialog .now .chg.neg { color: var(--claret); }
-    .price-dialog .now .when { display: block; margin-top: .15rem; font-size: .78rem; color: var(--ink-60); white-space: normal; }
+    .price-graph { margin: 0; }
+    .price-graph[hidden] { display: none; }
+    .price-graph .rule { margin: -.4rem 0 .5rem; font-size: .9rem; }
+    .price-graph .chart .pt { display: none; }
+    .price-graph .chart .series { stroke-width: 1.5; }
     .next-report b { margin-right: .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .ntable button.graph { display: inline-block; vertical-align: middle; margin-left: .35rem; padding: .1rem .2rem; border: 0; background: none; color: var(--ink-40); line-height: 0; cursor: pointer; }
     .ntable button.graph:hover, .ntable button.graph:focus-visible { background: none; color: var(--claret); outline: none; }
@@ -218,7 +215,7 @@
     dl.figures div { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; padding: .3rem 0; border-bottom: 1px dotted var(--rule-light); }
     dl.figures dt { color: var(--ink-60); }
     dl.figures dd { margin: 0; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    @media (max-width: 40rem) { .graph-inner { padding: .9rem .9rem 1rem; } .graph-head { flex-direction: column; } .price-dialog .now { margin-left: 0; text-align: left; } }
+    @media (max-width: 40rem) { .graph-inner { padding: .9rem .9rem 1rem; } .graph-head { flex-direction: column; } }
 
     /* watchlists */
     .watchlist { padding: 1.6rem 1rem 2rem; }
@@ -1747,9 +1744,9 @@
       var newest = dates.slice().reverse(), newestLabels = labels.slice().reverse();
       return '<p class="kicker">Company numbers \u00b7 ' + esc(c.symbol) + '</p>' +
         '<h2 class="headline">' + esc(m.name) + '</h2>' +
+        priceHtml(c) +
         aboutHtml(c) +
         nextReportHtml(c) +
-        priceHtml(c) +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
         (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.store ? '<span>In the store, pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.rowOnly ? '<span>Latest year only, from the screen rows pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
         '<button type="button" class="linkbtn" id="refresh">' + (c.sample || c.store || c.rowOnly ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
@@ -2961,15 +2958,25 @@
         '. Oldest at the left, newest at the right.';
     }
 
-    // ---- the price: the latest quote above the table, and a chart over a span ----
+    // ---- the price: the latest quote under the headline, with its chart ----
     // One call for the quote, one for a span of end-of-day bars, five for a day of
     // five-minute bars; each kept for the session, the quote for fifteen minutes.
+    // The chart sits under the price, open unless the reader hid it: that choice
+    // is kept under PRICE_GRAPH_KEY, and the price stays on show either way.
     var quotes = {};
     var priceSeries = {};
     var QUOTE_LIFE = 15 * 60 * 1000;
     var SPANS = [['1d', '1D'], ['1w', '1W'], ['1m', '1M'], ['6m', '6M'], ['1y', '1Y'], ['5y', '5Y'], ['10y', '10Y'], ['all', 'All time']];
     var priceGraph = null;
-    var priceDialog = null;
+    var PRICE_GRAPH_KEY = 'wwws.priceGraph.v1';
+
+    function priceGraphOpen() {
+      try { return window.localStorage.getItem(PRICE_GRAPH_KEY) !== 'closed'; } catch (e) { return true; }
+    }
+
+    function setPriceGraphOpen(open) {
+      try { window.localStorage.setItem(PRICE_GRAPH_KEY, open ? 'open' : 'closed'); } catch (e) {}
+    }
 
     function relayFetch(path, params) {
       var direct = window.location.protocol === 'file:';
@@ -3001,13 +3008,21 @@
     }
 
     function priceHtml(c) {
-      var e = quotes[c.symbol], inner;
+      var e = quotes[c.symbol], inner, graph = '';
       if (e && e.q) {
-        var q = e.q, chg = num(q.change), pct = num(q.change_p);
+        var q = e.q, chg = num(q.change), pct = num(q.change_p), open = priceGraphOpen();
         inner = '<span class="now">' + esc(fmtPrice(num(q.close))) + (c.meta.currency ? ' ' + esc(c.meta.currency) : '') + '</span>' +
           (chg !== null && pct !== null ? '<span class="chg' + (chg < 0 ? ' neg' : '') + '">' + esc(signed(chg, fmtPrice) + ' (' + signed(pct, function (x) { return x.toFixed(2) + '%'; }) + ') today') + '</span>' : '') +
           '<span class="when">' + esc(quoteWhen(q)) + '</span>' +
-          '<button type="button" class="linkbtn" id="price-graph">Graph</button>';
+          '<button type="button" class="linkbtn" id="price-toggle" aria-controls="price-graph" aria-expanded="' + (open ? 'true' : 'false') + '">' + (open ? 'Hide graph' : 'Show graph') + '</button>';
+        graph = '<div class="price-graph" id="price-graph"' + (open ? '' : ' hidden') + '>' +
+          '<div class="spans" id="price-spans" role="group" aria-label="Time span">' + SPANS.map(function (sp) {
+            return '<button type="button" data-span="' + sp[0] + '" aria-pressed="false">' + sp[1] + '</button>';
+          }).join('') + '</div>' +
+          '<p class="rule" id="price-sub"></p>' +
+          '<div class="graph-body" id="price-body"></div>' +
+          '<div class="graph-figures" id="price-figures"></div>' +
+          '<p class="units" id="price-units"></p></div>';
       } else if (e && e.error) {
         inner = '<span class="when">' + esc(e.error) + '</span><button type="button" class="linkbtn" id="price-get">Try again</button>';
       } else if ((e && e.loading) || getToken()) {
@@ -3015,12 +3030,12 @@
       } else {
         inner = '<span class="when">Not available without an EODHD key.</span>';
       }
-      return '<p class="price" id="price"><b>Price</b>' + inner + '</p>';
+      return '<div class="price-block" id="price"><p class="price"><b>Price</b>' + inner + '</p>' + graph + '</div>';
     }
 
     function wirePrice(c, tokenInput, rememberBox) {
-      var line = document.getElementById('price');
-      if (!line) return;
+      var block = document.getElementById('price');
+      if (!block) return;
       var get = document.getElementById('price-get');
       if (get) get.addEventListener('click', function () {
         var typed = tokenInput.value.trim();
@@ -3029,8 +3044,24 @@
         delete quotes[c.symbol];
         refreshPrice(c, tokenInput, rememberBox);
       });
-      var graph = document.getElementById('price-graph');
-      if (graph) graph.addEventListener('click', function () { openPriceGraph(c); });
+      var toggle = document.getElementById('price-toggle');
+      if (toggle) toggle.addEventListener('click', function () {
+        var g = document.getElementById('price-graph');
+        if (!g) return;
+        var open = !!g.hidden;
+        g.hidden = !open;
+        setPriceGraphOpen(open);
+        toggle.textContent = open ? 'Hide graph' : 'Show graph';
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) drawPrice();
+      });
+      var spans = document.getElementById('price-spans');
+      if (spans) spans.addEventListener('click', function (ev) {
+        var b = ev.target.closest ? ev.target.closest('button[data-span]') : null;
+        if (!b || !priceGraph) return;
+        priceGraph.span = b.getAttribute('data-span');
+        drawPrice();
+      });
       if (!tokenInput.priceWired) {
         tokenInput.priceWired = true;
         tokenInput.addEventListener('change', function () {
@@ -3044,6 +3075,10 @@
         });
       }
       var e = quotes[c.symbol];
+      if (e && e.q) {
+        priceGraph = { c: c, span: priceGraph && priceGraph.span ? priceGraph.span : '5y' };
+        drawPrice();
+      }
       if ((!e || (!e.loading && !e.q && !e.error) || (e.q && Date.now() - e.at > QUOTE_LIFE)) && getToken()) fetchQuote(c, tokenInput, rememberBox);
     }
 
@@ -3067,56 +3102,11 @@
       }).then(function () { refreshPrice(c, tokenInput, rememberBox); });
     }
 
-    // ---- the price chart ----
-    function ensurePriceDialog() {
-      if (priceDialog) return priceDialog;
-      var d = document.createElement('dialog');
-      d.className = 'graph-dialog price-dialog';
-      d.setAttribute('aria-labelledby', 'price-title');
-      d.innerHTML = '<div class="graph-inner">' +
-        '<div class="graph-head"><div><p class="kicker" id="price-kicker"></p><h3 id="price-title"></h3><p class="rule" id="price-sub"></p></div>' +
-        '<div class="now" id="price-now"></div>' +
-        '<button type="button" class="secondary" id="price-close">Close</button></div>' +
-        '<div class="spans" id="price-spans" role="group" aria-label="Time span">' + SPANS.map(function (sp) {
-          return '<button type="button" data-span="' + sp[0] + '" aria-pressed="false">' + sp[1] + '</button>';
-        }).join('') + '</div>' +
-        '<div class="graph-body" id="price-body"></div>' +
-        '<div class="graph-figures" id="price-figures"></div>' +
-        '<p class="units" id="price-units"></p></div>';
-      document.body.appendChild(d);
-      d.querySelector('#price-close').addEventListener('click', function () { d.close(); });
-      d.addEventListener('click', function (ev) { if (ev.target === d) d.close(); });
-      d.querySelector('#price-spans').addEventListener('click', function (ev) {
-        var b = ev.target.closest ? ev.target.closest('button[data-span]') : null;
-        if (!b || !priceGraph) return;
-        priceGraph.span = b.getAttribute('data-span');
-        drawPrice();
-      });
-      window.addEventListener('resize', function () { if (d.open) drawPrice(); });
-      priceDialog = d;
-      return d;
-    }
-
-    // The current price, big, at the top right of the dialog: the quote the page
-    // holds, with the day's change and its time; the chart itself carries no end label.
-    function priceNowHtml(c) {
-      var e = quotes[c.symbol], q = e && e.q, price = q ? num(q.close) : null;
-      if (price === null) return '';
-      var chg = num(q.change), pct = num(q.change_p);
-      return '<span class="big">' + esc(fmtPrice(price)) + (c.meta.currency ? ' <span class="ccy">' + esc(c.meta.currency) + '</span>' : '') + '</span>' +
-        (chg !== null && pct !== null ? '<span class="chg' + (chg < 0 ? ' neg' : '') + '">' + esc(signed(chg, fmtPrice) + ' (' + signed(pct, function (x) { return x.toFixed(2) + '%'; }) + ') today') + '</span>' : '') +
-        '<span class="when">' + esc(quoteWhen(q)) + '</span>';
-    }
-
-    function openPriceGraph(c) {
-      var d = ensurePriceDialog();
-      priceGraph = { c: c, span: '5y' };
-      d.querySelector('#price-kicker').textContent = c.symbol + (c.meta.currency ? ' · ' + c.meta.currency : '');
-      d.querySelector('#price-title').textContent = c.meta.name;
-      d.querySelector('#price-now').innerHTML = priceNowHtml(c);
-      if (!d.open) d.showModal();
-      drawPrice();
-    }
+    // ---- the price chart, drawn under the price ----
+    window.addEventListener('resize', function () {
+      var g = document.getElementById('price-graph');
+      if (g && !g.hidden && priceGraph) drawPrice();
+    });
 
     function spanRequest(symbol, span) {
       var now = new Date();
@@ -3198,21 +3188,22 @@
     }
 
     function drawPrice() {
-      if (!priceGraph || !priceDialog) return;
-      var c = priceGraph.c, span = priceGraph.span, d = priceDialog;
-      Array.prototype.forEach.call(d.querySelectorAll('#price-spans button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-span') === span ? 'true' : 'false'); });
-      var body = d.querySelector('#price-body'), figures = d.querySelector('#price-figures'), units = d.querySelector('#price-units');
+      var g = document.getElementById('price-graph');
+      if (!priceGraph || !g || g.hidden) return;
+      var c = priceGraph.c, span = priceGraph.span;
+      Array.prototype.forEach.call(g.querySelectorAll('#price-spans button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-span') === span ? 'true' : 'false'); });
+      var body = g.querySelector('#price-body'), figures = g.querySelector('#price-figures'), units = g.querySelector('#price-units');
       var name = SPANS.filter(function (sp) { return sp[0] === span; })[0][1];
-      d.querySelector('#price-sub').textContent = span === '1d' ? 'The last trading day, every five minutes' : span === 'all' ? 'All time, by month' : (span === '5y' || span === '10y') ? name + ', by week' : name + ', by day';
+      g.querySelector('#price-sub').textContent = span === '1d' ? 'The last trading day, every five minutes' : span === 'all' ? 'All time, by month' : (span === '5y' || span === '10y') ? name + ', by week' : name + ', by day';
       if (!getToken()) {
-        body.innerHTML = '<p class="hint">Paste your EODHD token on the page behind to draw the price.</p>';
+        body.innerHTML = '<p class="hint">Paste your EODHD token above to draw the price.</p>';
         figures.innerHTML = ''; units.textContent = '';
         return;
       }
       body.innerHTML = '<p class="hint">Fetching…</p>';
       var want = span;
       loadPriceSeries(c, span).then(function (series) {
-        if (!priceGraph || priceGraph.span !== want || priceGraph.c !== c) return;
+        if (!priceGraph || priceGraph.span !== want || priceGraph.c !== c || body !== document.getElementById('price-body')) return;
         var pts = series.points;
         var width = Math.max(300, Math.floor(body.clientWidth || 640));
         var values = pts.map(function (p) { return p.value; });
@@ -3222,7 +3213,7 @@
         units.textContent = (c.meta.currency ? 'Prices in ' + c.meta.currency + '. ' : '') + 'Closing price of each bar, oldest at the left, newest at the right. ' +
           (span === '1d' ? 'Five calls for the day of five-minute bars.' : 'One call for the span.');
       }).catch(function (e) {
-        if (!priceGraph || priceGraph.span !== want) return;
+        if (!priceGraph || priceGraph.span !== want || body !== document.getElementById('price-body')) return;
         body.innerHTML = '<p class="hint">' + esc(e && e.message ? e.message : 'The prices could not be fetched.') + '</p>';
         figures.innerHTML = ''; units.textContent = '';
       });

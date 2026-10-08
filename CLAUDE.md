@@ -129,8 +129,8 @@ carries quarters after the last year end. A company also keeps `next`, the
 earliest report still to come from EODHD's `Earnings.History` (`date`,
 `quarter`, `when`, `estimate`, or `null`; `nextReport` finds it), shown under
 the headline by `nextReportHtml`; a company kept before `next` existed shows
-a "fetch again" line. Under the headline, above the next-report and price
-lines, `aboutHtml` shows what the company does: `meta.description` (EODHD's
+a "fetch again" line. Under the price block, above the next-report
+line, `aboutHtml` shows what the company does: `meta.description` (EODHD's
 `General.Description`), clamped to three lines with a More button past
 `ABOUT_CLAMP` characters, and a facts line from `meta.web`, `meta.employees`,
 `meta.ipo` and `meta.country` (`General.WebURL`, `FullTimeEmployees`,
@@ -234,23 +234,27 @@ query parameters in `PASS` (`from`, `to`, `period`, `interval`, `order`) when
 they match their shapes, holds no secret, caches nothing, and passes EODHD's
 status and body straight back.
 
-Under the next-report line the company page carries a price line
-(`priceHtml`, `wirePrice`): once a token is in the box it fetches
-`real-time/<symbol>` (one call), shows the price, the day's change and the
-quote time, and keeps the quote in memory for `QUOTE_LIFE` (fifteen minutes);
-without a token it says so and offers a button. Its Graph link opens a second
-dialog (`ensurePriceDialog`, `openPriceGraph`, `drawPrice`) on the 5Y span,
-at the owner's request, with the current price as a big figure at the top
-right of its head (`priceNowHtml`: the quote the page holds, its currency,
-the day's change and its time, in `#price-now`; stacked under the title on
-a phone) and no end label on the chart (`chartSvg` draws none for unit
-`price`), and with the spans in `SPANS`: 1D is `intraday/<symbol>` at five-minute bars over the last five
+Under the headline, above the About block, the company page carries the
+price block (`priceHtml`, `wirePrice`, `#price`): once a token is in the
+box it fetches `real-time/<symbol>` (one call), shows the price big, the
+day's change and the quote time, keeps the quote in memory for
+`QUOTE_LIFE` (fifteen minutes), and draws the price chart under the line
+at once, at the owner's request; without a token it says so, with no
+chart. A "Hide graph" link on the price line collapses the chart and
+turns into "Show graph", the price staying on show; the choice is kept
+under `wwws.priceGraph.v1` (`open` or `closed`, `priceGraphOpen`), and a
+hidden chart fetches nothing until shown. The chart (`drawPrice`, into
+`#price-graph`: the spans row `#price-spans`, the caption `#price-sub`,
+`#price-body`, `#price-figures`, `#price-units`) opens on the 5Y span and
+keeps the span last chosen for the session, with the spans in `SPANS`: 1D
+is `intraday/<symbol>` at five-minute bars over the last five
 days, reduced to the last trading day (five calls); 1W, 1M, 6M and 1Y are
 `eod/<symbol>` by day, 5Y and 10Y by week, All time by month from 1900 (one
 call each). `spanRequest` builds the request, `pricePoints` the points, and
 each span is cached in `priceSeries` for the session. The chart is
-`chartSvg` with unit `price`: a line, no dots, and the axis fitted to the
-prices shown rather than starting at zero. Prices are never stored and
+`chartSvg` with unit `price`: a line, no dots, no end label, and the axis
+fitted to the prices shown rather than starting at zero; it redraws on
+resize. There is no price dialog any more. Prices are never stored and
 never exported.
 
 The Watchlists view (`#watchlists`, `#watchlists/<list id>`) holds named lists
@@ -446,3 +450,4 @@ design are their own release, requested deliberately.
 | v1.27 | Chapters 12 and 13 written up, costs and research | Selling, general and administrative expenses, chapter 12, and research and development, chapter 13, now read as written-up breakdowns from your notes, in the order you wrote them: what SG&A is and why it must stay low and steady, the test of its share of gross profit with the book's averages and the swings at General Motors and Ford, and what the share says; then the two ways a research-built advantage dies, Microsoft and Google, Merck and Intel against Coca-Cola and Moody's, and why Warren wants a sure thing. |
 | v1.28 | Chapter 14 written up, depreciation as a real cost | Depreciation, chapter 14, now reads as a written-up breakdown from your notes, in the order you wrote them: the wearing out of machines and buildings spread over their lives, the book's printing press as the worked example with the three statements it shows up on, Wall Street's EBITDA and why Warren will not look at it, the share of gross profit that depreciation takes at Coca-Cola, Wrigley and Procter & Gamble against General Motors, and the rule that less is always more. |
 | v1.29 | Chapter 15 written up, little or no interest | Interest expense, chapter 15, now reads as a written-up breakdown from your notes, in the order you wrote them: the two reasons a company pays a lot of interest, a fiercely competitive industry or a leveraged buyout, the companies Warren wants paying little or none, the book's figures from Procter & Gamble and Wrigley to Goodyear and the airlines, with Wells Fargo as the bank, the test of interest as a share of operating income with its 15% rule, and the lowest in any industry as the likeliest to have the advantage. |
+| v1.30 | The price chart under the name, always on show | The share-price chart no longer waits behind a Graph link: it sits under the company's name, above what the company does, drawn as soon as your key is in the box, with the price large above it and the day's change and the time of the quote beside. A Hide graph link folds the chart away and keeps the price on show, and the page remembers your choice. |

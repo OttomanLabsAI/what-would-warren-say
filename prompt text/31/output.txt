@@ -1,0 +1,7 @@
+v1.30 is on main. The share-price chart now sits under the company's name, open as soon as your key is in the box, with a Hide graph link that folds it away and keeps the price on show.
+
+The price line moved up from under the next report to directly under the headline, above what the company does: the price large, the day's change and the time of the quote beside it, and Hide graph at the end of the line. The chart draws beneath on the five-year span with the spans row, the caption, the figures and the units as before, and it redraws when the window changes width. Hide graph collapses it and becomes Show graph; the page remembers the choice on the device, and a hidden chart fetches nothing until it is shown again. The span you pick holds for the session. The popup is gone; the line graphs behind the table's rows still open in theirs.
+
+Verified: thirteen headless-browser suites pass against the fixtures. The price suite now checks the block's place under the headline, the chart drawn at once on 5Y with its one call, every span, the hover readout, Hide graph keeping the price and surviving a reload with nothing fetched while hidden, Show graph drawing again, the refusal case without a chart, and the chart filling a phone. The deploy dry run passes, and the rendered home and not-found pages look as before. I looked over the block on desktop and phone by eye.
+
+Your two messages about the account system are next, as their own release.
