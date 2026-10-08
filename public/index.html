@@ -317,6 +317,9 @@
     .statement tr.underlined td { border-bottom: 1px solid var(--ink); }
     .statement tr.underlined td.ar { border-bottom: 0; }
     .points { margin: 0 0 1.2rem; padding-left: 1.2rem; font-size: 1.08rem; line-height: 1.5; }
+    .breakdown strong.term { font-weight: 600; }
+    .breakdown .thesis strong.term { font-weight: 900; }
+    .breakdown .root strong.term, .breakdown h4 strong.term, .breakdown .compare .row b strong.term { font-weight: inherit; }
     .points li { margin: .35rem 0; }
     .raw-notes { margin: 1rem 0 .5rem; }
     .raw-notes summary { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-70); cursor: pointer; padding: .5rem 0; }
@@ -514,10 +517,10 @@
     var BREAKDOWNS = {
       '1': {
         type: 'background',
-        thesis: 'Two things, and only two: find a company with a durable competitive advantage, then work out what it is worth.',
-        diagrams: [{ kind: 'flow', title: 'The two revelations', steps: ['Identify a company with a durable competitive advantage', 'Value a company with a durable competitive advantage'] }],
+        thesis: 'Two things, and only two: find a company with a Durable Competitive Advantage, then work out what it is worth.',
+        diagrams: [{ kind: 'flow', title: 'The two revelations', steps: ['Identify a company with a Durable Competitive Advantage', 'Value a company with a Durable Competitive Advantage'] }],
         points: [
-          'The first revelation is how to tell a company with a durable competitive advantage from the rest.',
+          'The first revelation is how to tell a company with a Durable Competitive Advantage from the rest.',
           'The second is how to value such a company once you have found it.',
           'Everything that follows in the book serves one of these two.'
         ],
@@ -525,27 +528,27 @@
       },
       '2': {
         type: 'background',
-        thesis: 'The companies with a durable competitive advantage are the ones that make the most money over the longer term.',
-        diagrams: [{ kind: 'flow', title: 'The kind of business', steps: ['A durable competitive advantage', 'The most money', 'Over the longer term'] }],
+        thesis: 'The companies with a Durable Competitive Advantage are the ones that make the most money over the longer term.',
+        diagrams: [{ kind: 'flow', title: 'The kind of business', steps: ['A Durable Competitive Advantage', 'The most money', 'Over the longer term'] }],
         points: [
-          'The business Warren wants is the one whose advantage lasts, because that is where the most money is made over the long run.',
+          'The business Warren wants is the one with a Durable Competitive Advantage, because that is where the most money is made over the long run.',
           'The long term is the point: a good year is not the test, a good decade is.'
         ],
         raw: "DCA companies make the most money over the longer term"
       },
       '3': {
         type: 'background',
-        thesis: 'Two kinds of business have a durable advantage: the one that sells something unique, and the one that sells what everyone needs for less.',
-        diagrams: [{ kind: 'tree', root: 'Where a durable competitive advantage comes from', branches: [
+        thesis: 'Two kinds of business have a Durable Competitive Advantage: the one that sells something unique, and the one that sells what everyone needs for less.',
+        diagrams: [{ kind: 'tree', root: 'Where a Durable Competitive Advantage comes from', branches: [
           { title: 'A unique product', lines: ['A product the public keeps coming back for, that no one else quite makes.'], chips: ['Coca-Cola', 'Pepsi', 'Hershey’s', 'Budweiser', 'Coors', 'Kraft', 'The Washington Post', 'Procter & Gamble', 'Philip Morris'] },
-          { title: 'A unique service', lines: ['The advantage belongs to the institution, not to the people in it.'], chips: ['Moody’s', 'H&R Block', 'American Express', 'ServiceMaster', 'Wells Fargo'] },
+          { title: 'A unique service', lines: ['The Durable Competitive Advantage belongs to the institution, not to the people in it.'], chips: ['Moody’s', 'H&R Block', 'American Express', 'ServiceMaster', 'Wells Fargo'] },
           { title: 'The low-cost buyer and seller of what the public consistently needs', lines: ['Big margins are traded for volume, and the volume makes up for the thin margin.', 'The best price in town becomes part of the customer’s story of where to shop.'], chips: ['Wal-Mart', 'Costco', 'Nebraska Furniture Mart', 'Borsheim’s', 'Burlington Northern Santa Fe Railway'] }
         ] }],
         points: [
           'Warren starts his search with two questions: does the company sell a unique product or service, or is it the low-cost buyer and seller of something the public consistently needs?',
           'A unique product or service earns its margin because nothing else will do.',
           'The low-cost seller earns its money on volume instead, and its price becomes its reputation.',
-          'In a service business the advantage has to sit with the institution; one that walks out of the door with its people is not durable.'
+          'In a service business the Durable Competitive Advantage has to sit with the institution; one that walks out of the door with its people is not durable.'
         ],
         raw: "- A company that sells a unique product/service.\n(product eg. Coca-Cola, Pepsi, Hershey's, Budweiser, Coors, Kraft, Waahington post, Proctor & Gamble, Philip Morris)\n(service eg. Moody's, H & R Block Inc. AMEX, Service Master Co., Wells Fargo - Institution specific, not people specific)\n\n- Low cost buyer/seller of product/service the public consistently needs. Big margins are traded for volume as increase in volume makes up for low margins. The best price in town becomes part of the consumer's story of where to shop.\n(eg. Wal-Mart, Costco, Nebraska, Furniture Mart, Borsheim Jewelers, Burlington Northern, Santa Fe Railway"
       },
@@ -570,13 +573,13 @@
         type: 'overview',
         thesis: 'Three statements, three questions: what the company earns, what it owns and owes, and where its cash goes.',
         diagrams: [{ kind: 'cols', title: 'The three financial statements', cols: [
-          { title: 'Income statement', sub: 'How much was earned in a set period', lines: ['Sets the margins and the return on equity.', 'Shows the consistency and direction of earnings.', 'Together these decide durable-advantage status.'] },
-          { title: 'Balance sheet', sub: 'How much is in the bank, and how much is owed', lines: ['Subtract one from the other and you have the net worth.', 'The amount of cash and of long-term debt are the indicators of a durable advantage.'] },
+          { title: 'Income statement', sub: 'How much was earned in a set period', lines: ['Sets the margins and the return on equity.', 'Shows the consistency and direction of earnings.', 'Together these decide Durable Competitive Advantage status.'] },
+          { title: 'Balance sheet', sub: 'How much is in the bank, and how much is owed', lines: ['Subtract one from the other and you have the net worth.', 'The amount of cash and of long-term debt are the indicators of a Durable Competitive Advantage.'] },
           { title: 'Cash flow statement', sub: 'The cash that flows in and out', lines: ['Shows how much is spent on capital improvements.', 'Tracks bond and stock sales, and repurchases.'] }
         ] }],
         points: [
-          'The income statement answers how much the company earned over the period; its margins, its return on equity and the consistency and direction of its earnings are what decide whether the advantage is durable.',
-          'The balance sheet answers what the company has in the bank and what it owes; the difference is its net worth, and the cash and long-term debt lines are the tell.',
+          'The income statement answers how much the company earned over the period; its margins, its return on equity and the consistency and direction of its earnings are what decide whether it has a Durable Competitive Advantage.',
+          'The balance sheet answers what the company has in the bank and what it owes; the difference is its net worth, and the cash and long-term debt lines are the indicators of a Durable Competitive Advantage.',
           'The cash flow statement follows the cash itself: what goes on capital improvements, and what is raised or returned through bonds and shares.'
         ],
         raw: "Income Statement - How much is earned in a set period? Determines margins - Return equity, cosistency and direction of earnings, these thing determins DSA status.\n\nBalance Sheet - How much is in the bank? How much it owes? Subtract these and you get net worth. Amount of cash and long term debt are indicators of DCA.\n\nCash Flow Statement - Cash that flows in and out. Good to see how much is spent of capital improvements. Tracks bond/stock sales & repurchases."
@@ -602,12 +605,12 @@
         thesis: 'Warren starts with the income statement: revenue less expenses is the profit or loss, and the pattern over the years says what kind of company it is.',
         diagrams: [
           { kind: 'flow', title: 'What the income statement holds', steps: ['Revenue', 'less Expenses', 'Profit or loss'] },
-          { kind: 'compare', title: 'What the pattern tells Warren', rows: [['A durable competitive advantage', 'Profits that hold, year after year.'], ['A mediocre business', 'A struggle year to year in a competitive market.']] }
+          { kind: 'compare', title: 'What the pattern tells Warren', rows: [['A Durable Competitive Advantage', 'Profits that hold, year after year.'], ['A mediocre business', 'A struggle year to year in a competitive market.']] }
         ],
         points: [
           'The income statement is where Warren starts.',
           'It carries three things: the revenue, the expenses, and the profit or loss that is left.',
-          'Read over the years it tells a durable advantage from a mediocre business, where the latter shows a struggle year to year in a competitive market.'
+          'Read over the years it tells a Durable Competitive Advantage from a mediocre business, where the latter shows a struggle year to year in a competitive market.'
         ],
         raw: "Warren starts with the income statement.\n\nExpenses, Revenue, Profit/Loss\n\nIndicates DSA or Mediocre where the latter shows a struggle year to year in a competitive market."
       },
@@ -637,7 +640,7 @@
           'Also known as the cost of revenue.',
           'The lower the better.',
           'Find out what the company counts in it: that gives a good idea of how management thinks about the business.',
-          'As a lone number it says little about a durable advantage.',
+          'As a lone number it says little about a Durable Competitive Advantage.',
           'It determines gross profit, which is where the next chapter begins.'
         ],
         raw: "-AKA the cost of revenue\n\n-The lower the better\n\n-Find out what is included in the cost. It gives a good idea of how management is thinking about the business.\n\n-As a lone number it doesn't tell us much about DSA.\n\n-Determines gross profit"
@@ -672,48 +675,56 @@
     }
 
     function diagramHtml(d) {
-      var title = d.title ? '<p class="dtitle">' + esc(d.title) + '</p>' : '';
+      var title = d.title ? '<p class="dtitle">' + wr(d.title) + '</p>' : '';
       if (d.kind === 'flow') {
         return '<div class="diagram">' + title + '<div class="flow">' + d.steps.map(function (s, i) {
-          return (i ? '<span class="arrow" aria-hidden="true">→</span>' : '') + '<div class="step">' + esc(s) + '</div>';
+          return (i ? '<span class="arrow" aria-hidden="true">→</span>' : '') + '<div class="step">' + wr(s) + '</div>';
         }).join('') + '</div></div>';
       }
       if (d.kind === 'tree') {
-        return '<div class="diagram tree">' + title + '<div class="root">' + esc(d.root) + '</div><div class="branches">' + d.branches.map(function (b) {
-          return '<div class="branch"><h4>' + esc(b.title) + '</h4>' + (b.lines || []).map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') +
-            (b.chips && b.chips.length ? '<div class="chips">' + b.chips.map(function (c) { return '<span class="chip">' + esc(c) + '</span>'; }).join('') + '</div>' : '') + '</div>';
+        return '<div class="diagram tree">' + title + '<div class="root">' + wr(d.root) + '</div><div class="branches">' + d.branches.map(function (b) {
+          return '<div class="branch"><h4>' + wr(b.title) + '</h4>' + (b.lines || []).map(function (l) { return '<p>' + wr(l) + '</p>'; }).join('') +
+            (b.chips && b.chips.length ? '<div class="chips">' + b.chips.map(function (c) { return '<span class="chip">' + wr(c) + '</span>'; }).join('') + '</div>' : '') + '</div>';
         }).join('') + '</div></div>';
       }
       if (d.kind === 'cols') {
         return '<div class="diagram">' + title + '<div class="cols">' + d.cols.map(function (c) {
-          return '<div class="col"><h4>' + esc(c.title) + '</h4>' + (c.sub ? '<p class="sub">' + esc(c.sub) + '</p>' : '') + (c.lines || []).map(function (l) { return '<p>' + esc(l) + '</p>'; }).join('') + '</div>';
+          return '<div class="col"><h4>' + wr(c.title) + '</h4>' + (c.sub ? '<p class="sub">' + wr(c.sub) + '</p>' : '') + (c.lines || []).map(function (l) { return '<p>' + wr(l) + '</p>'; }).join('') + '</div>';
         }).join('') + '</div></div>';
       }
       if (d.kind === 'checks') {
-        return '<div class="diagram">' + title + '<div class="checks">' + d.items.map(function (s) { return '<div class="check"><span class="tick" aria-hidden="true">✓</span>' + esc(s) + '</div>'; }).join('') + '</div>' +
-          (d.note ? '<p class="dnote">' + esc(d.note) + '</p>' : '') + '</div>';
+        return '<div class="diagram">' + title + '<div class="checks">' + d.items.map(function (s) { return '<div class="check"><span class="tick" aria-hidden="true">✓</span>' + wr(s) + '</div>'; }).join('') + '</div>' +
+          (d.note ? '<p class="dnote">' + wr(d.note) + '</p>' : '') + '</div>';
       }
       if (d.kind === 'sum') {
         return '<div class="diagram">' + title + '<div class="sum">' + d.items.map(function (it, i) {
-          return '<div class="row"><span>' + (i ? '<span class="plus" aria-hidden="true">+</span> ' : '') + esc(it[0]) + (it[1] ? ' <span class="ref">ch. ' + esc(it[1]) + '</span>' : '') + '</span></div>';
-        }).join('') + '<div class="row total"><span>' + esc(d.total) + '</span></div></div></div>';
+          return '<div class="row"><span>' + (i ? '<span class="plus" aria-hidden="true">+</span> ' : '') + wr(it[0]) + (it[1] ? ' <span class="ref">ch. ' + wr(it[1]) + '</span>' : '') + '</span></div>';
+        }).join('') + '<div class="row total"><span>' + wr(d.total) + '</span></div></div></div>';
       }
       if (d.kind === 'compare') {
-        return '<div class="diagram">' + title + '<div class="compare">' + d.rows.map(function (r) { return '<div class="row"><b>' + esc(r[0]) + '</b><span>' + esc(r[1]) + '</span></div>'; }).join('') + '</div></div>';
+        return '<div class="diagram">' + title + '<div class="compare">' + d.rows.map(function (r) { return '<div class="row"><b>' + wr(r[0]) + '</b><span>' + wr(r[1]) + '</span></div>'; }).join('') + '</div></div>';
       }
       if (d.kind === 'statement') {
-        return '<div class="diagram">' + title + '<div class="statement"><h4>' + esc(d.title) + '</h4><p class="unit">' + esc(d.unit) + '</p><table>' + d.rows.map(function (r, i) {
-          return '<tr' + (i === d.rule ? ' class="underlined"' : '') + (i === d.arrow ? ' data-here="true"' : '') + '><td class="ar">' + (i === d.arrow ? '<span aria-label="This chapter’s line">→</span>' : '') + '</td><td>' + esc(r[0]) + '</td><td class="v">' + esc(r[1]) + '</td></tr>';
-        }).join('') + '</table></div>' + (d.caption ? '<p class="dnote">' + esc(d.caption) + '</p>' : '') + '</div>';
+        return '<div class="diagram">' + title + '<div class="statement"><h4>' + wr(d.title) + '</h4><p class="unit">' + wr(d.unit) + '</p><table>' + d.rows.map(function (r, i) {
+          return '<tr' + (i === d.rule ? ' class="underlined"' : '') + (i === d.arrow ? ' data-here="true"' : '') + '><td class="ar">' + (i === d.arrow ? '<span aria-label="This chapter’s line">→</span>' : '') + '</td><td>' + wr(r[0]) + '</td><td class="v">' + wr(r[1]) + '</td></tr>';
+        }).join('') + '</table></div>' + (d.caption ? '<p class="dnote">' + wr(d.caption) + '</p>' : '') + '</div>';
       }
       return '';
     }
 
+    // DCA in the owner's notes is the book's Durable Competitive Advantage: the
+    // write-ups carry it in full and in bold wherever it is mentioned. The
+    // notes as written are left alone.
+    var TERM = 'Durable Competitive Advantage';
+    function wr(s) {
+      return esc(s).split(TERM).join('<strong class="term">' + TERM + '</strong>');
+    }
+
     function breakdownHtml(ch, b) {
       return '<p class="type-line"><span class="mark type-tag">' + esc(TYPE_NAMES[b.type]) + '</span> <span>Written up from your notes.</span></p>' +
-        '<p class="thesis">' + esc(b.thesis) + '</p>' +
+        '<p class="thesis">' + wr(b.thesis) + '</p>' +
         b.diagrams.map(diagramHtml).join('') +
-        '<ul class="points">' + b.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
+        '<ul class="points">' + b.points.map(function (p) { return '<li>' + wr(p) + '</li>'; }).join('') + '</ul>' +
         '<details class="raw-notes"><summary>Your notes, as written</summary><pre>' + esc(b.raw) + '</pre></details>';
     }
 
@@ -2484,9 +2495,9 @@
 
     // the last 5 or 10 years of the periods on offer, as the shown range
     function applyGraphWindow() {
-      if (graph.window === 'shown') return;
       var periods = graphPeriods(graph.c, graph.period);
-      var slice = periods.slice(-(parseInt(graph.window, 10) * (graph.period === 'quarterly' ? 4 : 1)));
+      // "Shown period" is the table's whole run of years; a hand-set range narrows it from there
+      var slice = graph.window === 'shown' ? periods : periods.slice(-(parseInt(graph.window, 10) * (graph.period === 'quarterly' ? 4 : 1)));
       if (!slice.length) return;
       graph.from = slice[0].date;
       graph.to = slice[slice.length - 1].date;
@@ -2501,7 +2512,7 @@
 
     function openGraph(c, row) {
       var d = ensureGraphDialog();
-      graph = { c: c, row: row, kind: 'line', period: 'annual', from: '', to: '', window: 'shown', trend: 'none' };
+      graph = { c: c, row: row, kind: 'line', period: 'annual', from: '', to: '', window: '5', trend: 'none' };
       d.querySelector('#graph-kicker').textContent = c.meta.name + ' · ch. ' + row.ch;
       d.querySelector('#graph-title').textContent = row.label;
       d.querySelector('#graph-rule').textContent = row.rule || '';
@@ -2511,9 +2522,12 @@
       quarterly.parentNode.title = hasQ ? '' : 'No quarters are kept for this company: Fetch again pulls them.';
       d.querySelector('input[name="gperiod"][value="annual"]').checked = true;
       d.querySelector('input[name="gkind"][value="line"]').checked = true;
-      d.querySelector('input[name="gwindow"][value="shown"]').checked = true;
+      d.querySelector('input[name="gwindow"][value="5"]').checked = true;
       d.querySelector('input[name="gtrend"][value="none"]').checked = true;
       fillGraphRange();
+      applyGraphWindow();
+      d.querySelector('#graph-from').value = graph.from;
+      d.querySelector('#graph-to').value = graph.to;
       syncGraphOptions();
       if (!d.open) d.showModal();
       drawGraph();
@@ -2893,7 +2907,7 @@
 
     function openPriceGraph(c) {
       var d = ensurePriceDialog();
-      priceGraph = { c: c, span: '1d' };
+      priceGraph = { c: c, span: '5y' };
       d.querySelector('#price-kicker').textContent = c.symbol + (c.meta.currency ? ' · ' + c.meta.currency : '');
       d.querySelector('#price-title').textContent = c.meta.name;
       if (!d.open) d.showModal();

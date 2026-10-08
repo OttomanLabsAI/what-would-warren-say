@@ -66,7 +66,13 @@ breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
 source is the owner's export under `notes/`; a new export with more
-finished chapters means writing them up here and keeping the file.
+finished chapters means writing them up here and keeping the file. DCA in
+the owner's notes is the book's Durable Competitive Advantage: a write-up
+says it in full, as `TERM`, wherever it is mentioned (never the short form,
+never "durable advantage"), and `wr` (escape, then the term in `<strong
+class="term">`) renders every thesis, diagram text and point so it reads in
+bold: 600 in Newsreader and the sans, 900 in the Playfair thesis, inherited
+where the line is already bold. The notes as written are never marked up.
 
 The Companies view (the tab is labelled Companies; the code still calls it
 numbers: `renderNumbers`, `view-numbers`, `wwws.numbers.v1`) fetches EODHD
@@ -118,7 +124,8 @@ the inline SVG (grid, axis, line or bar marks, the optional trend line or
 mean band, the last value labelled, hit bands for the hover readout) and
 `figuresHtml` the list under it. The window presets set the from-to range to
 the last 5 or 10 years (times four for quarters) and a hand-set range turns
-the window back to "shown". No chart library: the page still loads nothing
+the window back to "shown"; a graph opens on the last 5 years (`openGraph`
+sets `window: '5'` and applies it), at the owner's request. No chart library: the page still loads nothing
 from elsewhere. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
 the book's lines to EODHD field names, several candidates per line, with the
@@ -207,8 +214,8 @@ Under the next-report line the company page carries a price line
 `real-time/<symbol>` (one call), shows the price, the day's change and the
 quote time, and keeps the quote in memory for `QUOTE_LIFE` (fifteen minutes);
 without a token it says so and offers a button. Its Graph link opens a second
-dialog (`ensurePriceDialog`, `openPriceGraph`, `drawPrice`) with the spans in
-`SPANS`: 1D is `intraday/<symbol>` at five-minute bars over the last five
+dialog (`ensurePriceDialog`, `openPriceGraph`, `drawPrice`) on the 5Y span,
+at the owner's request, with the spans in `SPANS`: 1D is `intraday/<symbol>` at five-minute bars over the last five
 days, reduced to the last trading day (five calls); 1W, 1M, 6M and 1Y are
 `eod/<symbol>` by day, 5Y and 10Y by week, All time by month from 1900 (one
 call each). `spanRequest` builds the request, `pricePoints` the points, and
@@ -403,3 +410,4 @@ design are their own release, requested deliberately.
 | v1.20 | Every company on NASDAQ, NYSE and London, no key needed | Every company you pulled now opens on the site without a key: eighty with their full history, the rest from the pull's screen rows with their latest year's figures, and whatever is not on file, the earlier years, the quarters and the share price, is left blank with a note saying so. A new Screen tab lists every company of an exchange by the book's ratios, sortable and searchable, with the book's rules of thumb as tick-box filters. The store that will hold the full pull is built and waits only for its bucket. |
 | v1.21 | What each company does, under its name | A company's page now opens with what the company does: EODHD's description of the business, three lines at a time with More for the rest, and beside it the website, the head count, the year it listed and its country, all above the next report date and the price. Companies pulled before this carry the line once their files are rebuilt from the saved replies, which the pull page now does with one button and no calls. |
 | v1.22 | Ten chapters written up, boxes become breakdowns | The chapters you have finished, the first nine and the eleventh, now read as written-up breakdowns instead of boxes to type in: a thesis, a diagram of how the chapter's ideas fit together, the points, and your notes as you wrote them, kept underneath. Chapters 8 and 9 carry the book's own income-statement box from your photographs, with the arrow on the line each chapter is about. Your export is kept in the repository as it came. |
+| v1.23 | Five years by default, and the advantage named in full | The share-price chart now opens on its five-year span, and the graph behind any line of the table opens on the last five years, with the other spans and windows one click away as before. The written-up chapters now say Durable Competitive Advantage in full and in bold wherever your notes say DCA, while the notes themselves stay as you wrote them. |

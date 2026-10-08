@@ -1,5 +1,0 @@
-ok, I have filled in some information, store this in its raw form and write up diagrammatic breakdowns of the ones I have completed. replace the input fields in those sections with your output.
-
-include the table from the phots for the respective chapters
-
-remember to include these additional files in the prompt ledger
