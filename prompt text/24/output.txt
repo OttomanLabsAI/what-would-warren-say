@@ -1,9 +1,0 @@
-v1.23 is on main. Every graph now opens on five years, and the written-up chapters say Durable Competitive Advantage in full and in bold wherever your notes say DCA.
-
-The share-price chart opens on its 5Y span instead of the last day. The graph behind any line of the table opens on the last five years, by year, with the other spans and windows one click away as before. "Shown period" now brings the whole run back.
-
-In the ten written-up chapters, every mention of the idea now reads as **Durable Competitive Advantage**: in the thesis, in the diagrams and in the points, bold against the line around it. Where a line was already bold, the term stays bold with it. Your notes under "Your notes, as written" are untouched, DCA and all. The book's own chapter titles and the rules of thumb in the Companies table keep the book's wording.
-
-Verified: thirteen headless-browser suites pass against the fixtures. They cover the chapter pages, the contents, export and import, the Companies table, the line graphs opening on five years and widening to the whole run, the price chart opening on 5Y, the Screen, the store with and without a bucket, and the phone widths. A new check confirms that every mention in the ten chapters is the full term, never lighter than its line, and that the raw notes carry no markup. The deploy dry run passes, and the rendered home and not-found pages look as before. I looked over the five-year price chart and chapters 1 and 5 by eye.
-
-Still waiting on you: the R2 bucket wwws-data, after which the binding goes live, and the rebuilt screen and sample zips that carry the descriptions.

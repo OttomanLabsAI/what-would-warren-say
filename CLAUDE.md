@@ -215,7 +215,11 @@ Under the next-report line the company page carries a price line
 quote time, and keeps the quote in memory for `QUOTE_LIFE` (fifteen minutes);
 without a token it says so and offers a button. Its Graph link opens a second
 dialog (`ensurePriceDialog`, `openPriceGraph`, `drawPrice`) on the 5Y span,
-at the owner's request, with the spans in `SPANS`: 1D is `intraday/<symbol>` at five-minute bars over the last five
+at the owner's request, with the current price as a big figure at the top
+right of its head (`priceNowHtml`: the quote the page holds, its currency,
+the day's change and its time, in `#price-now`; stacked under the title on
+a phone) and no end label on the chart (`chartSvg` draws none for unit
+`price`), and with the spans in `SPANS`: 1D is `intraday/<symbol>` at five-minute bars over the last five
 days, reduced to the last trading day (five calls); 1W, 1M, 6M and 1Y are
 `eod/<symbol>` by day, 5Y and 10Y by week, All time by month from 1900 (one
 call each). `spanRequest` builds the request, `pricePoints` the points, and
@@ -410,4 +414,5 @@ design are their own release, requested deliberately.
 | v1.20 | Every company on NASDAQ, NYSE and London, no key needed | Every company you pulled now opens on the site without a key: eighty with their full history, the rest from the pull's screen rows with their latest year's figures, and whatever is not on file, the earlier years, the quarters and the share price, is left blank with a note saying so. A new Screen tab lists every company of an exchange by the book's ratios, sortable and searchable, with the book's rules of thumb as tick-box filters. The store that will hold the full pull is built and waits only for its bucket. |
 | v1.21 | What each company does, under its name | A company's page now opens with what the company does: EODHD's description of the business, three lines at a time with More for the rest, and beside it the website, the head count, the year it listed and its country, all above the next report date and the price. Companies pulled before this carry the line once their files are rebuilt from the saved replies, which the pull page now does with one button and no calls. |
 | v1.22 | Ten chapters written up, boxes become breakdowns | The chapters you have finished, the first nine and the eleventh, now read as written-up breakdowns instead of boxes to type in: a thesis, a diagram of how the chapter's ideas fit together, the points, and your notes as you wrote them, kept underneath. Chapters 8 and 9 carry the book's own income-statement box from your photographs, with the arrow on the line each chapter is about. Your export is kept in the repository as it came. |
-| v1.23 | Five years by default, and the advantage named in full | The share-price chart now opens on its five-year span, and the graph behind any line of the table opens on the last five years, with the other spans and windows one click away as before. The written-up chapters now say Durable Competitive Advantage in full and in bold wherever your notes say DCA, while the notes themselves stay as you wrote them. |
+| v1.23 | Five years by default, the advantage named in full | The share-price chart now opens on its five-year span, and the graph behind any line of the table opens on the last five years, with the other spans and windows one click away as before. The written-up chapters now say Durable Competitive Advantage in full and in bold wherever your notes say DCA, while the notes themselves stay as you wrote them. |
+| v1.24 | The current price, big, above its chart | The share-price chart no longer prints the latest price beside the end of the line. The current price now sits as a big figure at the top right of the chart's window, with the day's change and the time of the quote beneath it, where the eye goes first. |

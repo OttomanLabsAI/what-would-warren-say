@@ -1,3 +1,0 @@
-make the graphs open at 5y by default
-
-btw, in my notes, DCA means Durable Competitve Advantage. In the overview, always note it in its full text form in BOLD everywhere it is mentioned

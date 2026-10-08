@@ -165,6 +165,13 @@
     .spans button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
     .price-dialog .chart .pt { display: none; }
     .price-dialog .chart .series { stroke-width: 1.5; }
+    .price-dialog .now { margin-left: auto; text-align: right; font-family: var(--sans); color: var(--ink); white-space: nowrap; }
+    .price-dialog .now:empty { display: none; }
+    .price-dialog .now .big { display: block; font-size: clamp(1.9rem, 4.2vw, 2.8rem); font-weight: 700; line-height: 1; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+    .price-dialog .now .ccy { font-size: .45em; font-weight: 600; letter-spacing: .06em; color: var(--ink-60); }
+    .price-dialog .now .chg { display: block; margin-top: .35rem; font-size: .92rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .price-dialog .now .chg.neg { color: var(--claret); }
+    .price-dialog .now .when { display: block; margin-top: .15rem; font-size: .78rem; color: var(--ink-60); white-space: normal; }
     .next-report b { margin-right: .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .ntable button.graph { display: inline-block; vertical-align: middle; margin-left: .35rem; padding: .1rem .2rem; border: 0; background: none; color: var(--ink-40); line-height: 0; cursor: pointer; }
     .ntable button.graph:hover, .ntable button.graph:focus-visible { background: none; color: var(--claret); outline: none; }
@@ -211,7 +218,7 @@
     dl.figures div { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; padding: .3rem 0; border-bottom: 1px dotted var(--rule-light); }
     dl.figures dt { color: var(--ink-60); }
     dl.figures dd { margin: 0; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    @media (max-width: 40rem) { .graph-inner { padding: .9rem .9rem 1rem; } .graph-head { flex-direction: column; } }
+    @media (max-width: 40rem) { .graph-inner { padding: .9rem .9rem 1rem; } .graph-head { flex-direction: column; } .price-dialog .now { margin-left: 0; text-align: left; } }
 
     /* watchlists */
     .watchlist { padding: 1.6rem 1rem 2rem; }
@@ -2698,7 +2705,7 @@
       }
       var last = -1;
       values.forEach(function (v, i) { if (v !== null) last = i; });
-      if (last >= 0) {
+      if (last >= 0 && unit !== 'price') {
         var ly = values[last] < 0 ? Y(values[last]) + 16 : Y(values[last]) - 10;
         svg += '<text class="end" x="' + X(last).toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + (last === n - 1 && n > 1 ? 'end' : 'middle') + '">' + esc(fmtValue(values[last], unit)) + '</text>';
       }
@@ -2884,6 +2891,7 @@
       d.setAttribute('aria-labelledby', 'price-title');
       d.innerHTML = '<div class="graph-inner">' +
         '<div class="graph-head"><div><p class="kicker" id="price-kicker"></p><h3 id="price-title"></h3><p class="rule" id="price-sub"></p></div>' +
+        '<div class="now" id="price-now"></div>' +
         '<button type="button" class="secondary" id="price-close">Close</button></div>' +
         '<div class="spans" id="price-spans" role="group" aria-label="Time span">' + SPANS.map(function (sp) {
           return '<button type="button" data-span="' + sp[0] + '" aria-pressed="false">' + sp[1] + '</button>';
@@ -2905,11 +2913,23 @@
       return d;
     }
 
+    // The current price, big, at the top right of the dialog: the quote the page
+    // holds, with the day's change and its time; the chart itself carries no end label.
+    function priceNowHtml(c) {
+      var e = quotes[c.symbol], q = e && e.q, price = q ? num(q.close) : null;
+      if (price === null) return '';
+      var chg = num(q.change), pct = num(q.change_p);
+      return '<span class="big">' + esc(fmtPrice(price)) + (c.meta.currency ? ' <span class="ccy">' + esc(c.meta.currency) + '</span>' : '') + '</span>' +
+        (chg !== null && pct !== null ? '<span class="chg' + (chg < 0 ? ' neg' : '') + '">' + esc(signed(chg, fmtPrice) + ' (' + signed(pct, function (x) { return x.toFixed(2) + '%'; }) + ') today') + '</span>' : '') +
+        '<span class="when">' + esc(quoteWhen(q)) + '</span>';
+    }
+
     function openPriceGraph(c) {
       var d = ensurePriceDialog();
       priceGraph = { c: c, span: '5y' };
       d.querySelector('#price-kicker').textContent = c.symbol + (c.meta.currency ? ' · ' + c.meta.currency : '');
       d.querySelector('#price-title').textContent = c.meta.name;
+      d.querySelector('#price-now').innerHTML = priceNowHtml(c);
       if (!d.open) d.showModal();
       drawPrice();
     }
