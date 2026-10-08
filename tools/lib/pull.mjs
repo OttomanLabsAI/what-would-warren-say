@@ -1,8 +1,9 @@
 // The pull engine shared by tools/pull-fundamentals.mjs (the command line) and
 // tools/pull-app.mjs (the local page). It lists the common stocks of a set of
-// EODHD exchanges, fetches each company's fundamentals, keeps the raw reply,
-// the company in the shape the Numbers page keeps, one row of the book's ratios,
-// and screen files per venue. Nothing here touches the site.
+// EODHD exchanges, fetches each company's fundamentals and its split history,
+// keeps the raw replies, the company in the shape the Numbers page keeps, one
+// row of the book's ratios, and screen files per venue. Nothing here touches
+// the site.
 //
 // The company shape, the next-report rule and the ratio formulas mirror
 // extractCompany, nextReport and NUMBER_ROWS in public/index.html: change them together.
@@ -12,7 +13,9 @@ import path from 'node:path';
 import zlib from 'node:zlib';
 import { setTimeout as sleep } from 'node:timers/promises';
 
-export const CALLS_PER_COMPANY = 10;
+export const CALLS_FUNDAMENTALS = 10;
+export const CALLS_SPLITS = 1;
+export const CALLS_PER_COMPANY = CALLS_FUNDAMENTALS + CALLS_SPLITS;
 export const DEFAULT_EXCHANGES = ['US', 'LSE', 'SHG', 'SHE', 'KO', 'KQ', 'XETRA'];
 export const DEFAULT_US = ['NASDAQ', 'NYSE'];
 
@@ -99,7 +102,7 @@ export async function pull(ctx, universe) {
     if (ctx.refreshDays !== null && m.pulledAt && (now - Date.parse(m.pulledAt)) / 86400000 > ctx.refreshDays) return true;
     return false;
   }).slice(0, ctx.limit);
-  const summary = { universe: universe.length, due: due.length, done: 0, ok: 0, missing: 0, refused: 0, error: 0, calls: 0, stop: '', remaining: 0 };
+  const summary = { universe: universe.length, due: due.length, done: 0, ok: 0, missing: 0, refused: 0, error: 0, splitsMissing: 0, calls: 0, stop: '', remaining: 0 };
   ctx.log(universe.length + ' companies in the universe, ' + due.length + ' to pull' + (Number.isFinite(ctx.limit) ? ' this run' : '') + '.');
   if (!due.length) return summary;
 
@@ -117,7 +120,7 @@ export async function pull(ctx, universe) {
       } catch (e) {
         failure = e && e.message ? e.message : String(e);
       }
-      summary.calls += CALLS_PER_COMPANY;
+      summary.calls += CALLS_FUNDAMENTALS;
       if (failure) {
         manifest[s.symbol] = entry(s, 'error', failure);
         summary.error++;
@@ -129,12 +132,17 @@ export async function pull(ctx, universe) {
           summary.error++;
         } else {
           fs.writeFileSync(path.join(ctx.out, 'raw', s.symbol + '.json.gz'), zlib.gzipSync(r.text));
-          const c = extractCompany(s.symbol, data);
+          // the split history, one more call; a failure here keeps the company and is noted for a splits run
+          const sp = await fetchSplits(ctx, s.symbol, summary);
+          const c = extractCompany(s.symbol, data, undefined, sp.rows || null);
           writeJson(path.join(ctx.out, 'companies', s.symbol + '.json'), c);
           manifest[s.symbol] = entry(s, 'ok', '', r.text.length, c);
+          if (sp.rows) manifest[s.symbol].splits = true;
+          else { manifest[s.symbol].splitsNote = sp.stop || sp.error; summary.splitsMissing++; }
           writeJson(path.join(ctx.out, 'rows', s.symbol + '.json'), screenRow(manifest[s.symbol], c));
           summary.ok++;
           refusedInARow = 0;
+          if (sp.stop) summary.stop = sp.stop;
         }
       } else if (r.status === 404) {
         manifest[s.symbol] = entry(s, 'missing', 'EODHD has no fundamentals under this symbol');
@@ -162,7 +170,80 @@ export async function pull(ctx, universe) {
 
   summary.remaining = due.length - summary.done;
   if (!summary.stop && ctx.shouldStop() && summary.remaining) summary.stop = 'stopped by you';
-  ctx.log('Pulled ' + summary.ok + ', missing ' + summary.missing + ', refused ' + summary.refused + ', errors ' + summary.error + '; about ' + summary.calls + ' EODHD calls spent this run.');
+  ctx.log('Pulled ' + summary.ok + ', missing ' + summary.missing + ', refused ' + summary.refused + ', errors ' + summary.error + '; about ' + summary.calls + ' EODHD calls spent this run.' +
+    (summary.splitsMissing ? ' The splits of ' + summary.splitsMissing + ' could not be fetched: a splits run asks for them again.' : ''));
+  if (summary.stop) ctx.log('Stopped early: ' + summary.stop + (summary.remaining ? ' ' + summary.remaining + ' companies are left for the next run.' : ''));
+  else if (summary.remaining) ctx.log(summary.remaining + ' companies are left for the next run.');
+  return summary;
+}
+
+// one company's split history: EODHD's splits/<symbol>, one call, the reply kept
+// gzipped beside the fundamentals. Answers { rows }, { error } or { stop } when
+// the token is refused or the day's calls are spent.
+async function fetchSplits(ctx, symbol, summary) {
+  let r;
+  try {
+    r = await eodhd(ctx, 'splits/' + encodeURIComponent(symbol));
+  } catch (e) {
+    return { error: e && e.message ? e.message : String(e) };
+  }
+  summary.calls += CALLS_SPLITS;
+  if (r.status === 200) {
+    let rows;
+    try { rows = JSON.parse(r.text); } catch (e) { rows = null; }
+    if (!Array.isArray(rows)) return { error: 'EODHD sent back something that is not a list of splits' };
+    fs.writeFileSync(path.join(ctx.out, 'raw', symbol + '.splits.json.gz'), zlib.gzipSync(r.text));
+    return { rows };
+  }
+  if (r.status === 401 || r.status === 402) return { stop: describe(r.status, symbol + ' (splits)') };
+  return { error: 'EODHD answered ' + r.status + ' for the splits' };
+}
+
+// the companies on disk whose split history is not: pulled before the splits
+// were fetched, or whose splits call failed
+export function splitsDue(ctx) {
+  return Object.keys(ctx.manifest).filter(s => ctx.manifest[s] && ctx.manifest[s].status === 'ok' && !ctx.manifest[s].splits);
+}
+
+// a splits run: the split history of every company on disk without one, one call
+// each, the company's file given its splits; stops on 402 like a pull and resumes
+export async function pullSplits(ctx) {
+  const due = splitsDue(ctx).slice(0, ctx.limit);
+  const summary = { due: due.length, done: 0, ok: 0, error: 0, calls: 0, stop: '', remaining: 0 };
+  ctx.log(due.length + ' companies on disk without their splits.');
+  if (!due.length) return summary;
+  let next = 0;
+  const save = () => saveManifest(ctx);
+  const onExit = () => { save(); process.exit(130); };
+  process.on('SIGINT', onExit);
+  async function worker() {
+    while (!summary.stop && next < due.length && !ctx.shouldStop()) {
+      const symbol = due[next++];
+      const sp = await fetchSplits(ctx, symbol, summary);
+      if (sp.stop) { summary.stop = sp.stop; continue; } // not counted: it waits for the next run
+      const m = ctx.manifest[symbol];
+      if (sp.rows) {
+        const file = path.join(ctx.out, 'companies', symbol + '.json');
+        const c = readJson(file);
+        if (c) { c.splits = readSplits(sp.rows); writeJson(file, c); }
+        m.splits = true;
+        delete m.splitsNote;
+        summary.ok++;
+      } else {
+        m.splitsNote = sp.error;
+        summary.error++;
+      }
+      summary.done++;
+      if (summary.done % 25 === 0) save();
+      ctx.onProgress(Object.assign({ current: symbol, total: due.length }, summary));
+    }
+  }
+  await Promise.all(Array.from({ length: ctx.parallel }, worker));
+  process.off('SIGINT', onExit);
+  save();
+  summary.remaining = due.length - summary.done;
+  if (!summary.stop && ctx.shouldStop() && summary.remaining) summary.stop = 'stopped by you';
+  ctx.log('Splits fetched for ' + summary.ok + ', errors ' + summary.error + '; ' + summary.calls + ' EODHD calls spent this run.');
   if (summary.stop) ctx.log('Stopped early: ' + summary.stop + (summary.remaining ? ' ' + summary.remaining + ' companies are left for the next run.' : ''));
   else if (summary.remaining) ctx.log(summary.remaining + ' companies are left for the next run.');
   return summary;
@@ -272,6 +353,25 @@ function readEps(src, into) {
 }
 
 // the earliest report still to come: a History entry with a report date and no actual figure yet
+// EODHD's split history as the page keeps it: each entry a date and a ratio, new
+// shares over old ("4.000000/1.000000" is four new for one old), as it came with
+// the ratio as a number, oldest first. Mirrors readSplits in public/index.html.
+export function readSplits(src) {
+  const out = [];
+  if (!Array.isArray(src)) return out;
+  for (const r of src) {
+    if (!r || typeof r !== 'object') continue;
+    const date = String(r.date || ''), split = String(r.split || '');
+    const m = /^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/.exec(split);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !m) continue;
+    const ratio = parseFloat(m[1]) / parseFloat(m[2]);
+    if (!Number.isFinite(ratio) || ratio <= 0) continue;
+    out.push({ date, split, ratio });
+  }
+  out.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  return out;
+}
+
 export function nextReport(src) {
   if (!src || typeof src !== 'object') return null;
   let best = null;
@@ -294,7 +394,7 @@ export function shortAbout(text) {
   return (end > 120 ? cut.slice(0, end + 1) : cut.replace(/\s+\S*$/, '') + '\u2026').trim();
 }
 
-export function extractCompany(symbol, data, fetchedAt) {
+export function extractCompany(symbol, data, fetchedAt, splits) {
   const fin = data.Financials || {};
   const g = data.General && typeof data.General === 'object' ? data.General : {};
   const c = {
@@ -333,6 +433,7 @@ export function extractCompany(symbol, data, fetchedAt) {
   readEps(data.Earnings && data.Earnings.Annual, c.eps);
   readEps(data.Earnings && data.Earnings.History, c.epsQ);
   c.next = nextReport(data.Earnings && data.Earnings.History);
+  if (Array.isArray(splits)) c.splits = readSplits(splits);
   return c;
 }
 
@@ -423,7 +524,7 @@ export function screenRow(m, c) {
 // Rebuild every company's file and row from the raw reply kept on disk: no
 // calls, the same shapes, with whatever fields the extraction has gained since.
 export function reextract(ctx) {
-  let rebuilt = 0, missing = 0;
+  let rebuilt = 0, missing = 0, noSplits = 0;
   for (const symbol of Object.keys(ctx.manifest)) {
     const m = ctx.manifest[symbol];
     if (!m || m.status !== 'ok') continue;
@@ -431,13 +532,19 @@ export function reextract(ctx) {
     let data = null;
     try { data = JSON.parse(zlib.gunzipSync(fs.readFileSync(file)).toString('utf8')); } catch (e) { data = null; }
     if (!data || typeof data !== 'object') { missing++; continue; }
-    const c = extractCompany(symbol, data, m.pulledAt);
+    // the saved split list too, when the pull fetched one
+    let splits = null;
+    try { splits = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(ctx.out, 'raw', symbol + '.splits.json.gz'))).toString('utf8')); } catch (e) { splits = null; }
+    if (!Array.isArray(splits)) { splits = null; noSplits++; }
+    const c = extractCompany(symbol, data, m.pulledAt, splits);
     writeJson(path.join(ctx.out, 'companies', symbol + '.json'), c);
     writeJson(path.join(ctx.out, 'rows', symbol + '.json'), screenRow(m, c));
+    if (splits) { m.splits = true; delete m.splitsNote; }
     rebuilt++;
   }
-  ctx.log('Rebuilt ' + rebuilt + ' companies from the saved replies' + (missing ? '; ' + missing + ' had no saved reply' : '') + '.');
-  return { rebuilt, missing };
+  saveManifest(ctx);
+  ctx.log('Rebuilt ' + rebuilt + ' companies from the saved replies' + (missing ? '; ' + missing + ' had no saved reply' : '') + (noSplits ? '; ' + noSplits + ' have no saved split list, which a splits run fetches' : '') + '.');
+  return { rebuilt, missing, noSplits };
 }
 
 export function recomputeRows(ctx) {

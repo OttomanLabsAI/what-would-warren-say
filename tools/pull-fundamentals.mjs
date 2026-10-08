@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// Pull every company's fundamentals for a set of exchanges from EODHD, on your
-// own machine and apart from the site, into a local data folder the site can
-// later be fed from. Needs Node 18 or later and nothing else. The engine lives
-// in tools/lib/pull.mjs and is shared with the local page, tools/pull-app.mjs.
+// Pull every company's fundamentals and split history for a set of exchanges
+// from EODHD, on your own machine and apart from the site, into a local data
+// folder the site can later be fed from. Needs Node 18 or later and nothing
+// else. The engine lives in tools/lib/pull.mjs and is shared with the local
+// page, tools/pull-app.mjs.
 //
 //   EODHD_TOKEN=your-token node tools/pull-fundamentals.mjs [options]
 //
@@ -21,24 +22,28 @@
 //   --screen-only           rebuild the screen files from what is on disk, no fetching
 //   --recompute             rebuild every company's screen row from its file first
 //   --reextract             rebuild every company's file and row from the saved replies, no fetching
+//   --splits                fetch the split history of every company on disk without one, one
+//                           call each, and nothing else: for a pull made before the splits came
 //   --base <url>            EODHD's base; default https://eodhd.com/api/
 //
-// Each company costs ten EODHD calls and each symbol list one. A run stops on
-// its own when the day's calls are spent (EODHD answers 402) and carries on
-// from where it was when run again, so an exchange that will not fit in one
-// day's allowance is pulled over two.
+// Each company costs eleven EODHD calls, ten for its fundamentals and one for
+// its split history, and each symbol list one. A run stops on its own when the
+// day's calls are spent (EODHD answers 402) and carries on from where it was
+// when run again, so an exchange that will not fit in one day's allowance is
+// pulled over two.
 //
 // What lands under --out
 //   symbols.json            the universe: every company kept, with name and venue
 //   pulled.json             per symbol: when it was pulled and how it went
 //   raw/<SYMBOL>.json.gz    EODHD's reply, byte for byte, gzipped
-//   companies/<SYMBOL>.json the company in the shape the Numbers page keeps
+//   raw/<SYMBOL>.splits.json.gz   EODHD's split history for the company, the same way
+//   companies/<SYMBOL>.json the company in the shape the Numbers page keeps, its splits included
 //   rows/<SYMBOL>.json      the book's ratios for the latest year, one row
 //   screen/<VENUE>.json     the rows of one venue, for screening in the browser
 //   screen/<VENUE>.csv      the same rows for a spreadsheet
 //   screen/index.json       the screen files, their counts and dates
 
-import { createContext, loadUniverse, pull, writeScreens, recomputeRows, reextract, parseArgs, DEFAULT_EXCHANGES, DEFAULT_US } from './lib/pull.mjs';
+import { createContext, loadUniverse, pull, pullSplits, writeScreens, recomputeRows, reextract, parseArgs, DEFAULT_EXCHANGES, DEFAULT_US } from './lib/pull.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const TOKEN = process.env.EODHD_TOKEN || '';
@@ -61,7 +66,10 @@ async function main() {
   });
   if (args.reextract) reextract(ctx);
   else if (args.recompute) recomputeRows(ctx);
-  if (!args['screen-only'] && !args.reextract) {
+  if (args.splits) {
+    if (!TOKEN) throw new Error('set EODHD_TOKEN to your EODHD API token');
+    await pullSplits(ctx);
+  } else if (!args['screen-only'] && !args.reextract) {
     if (!TOKEN) throw new Error('set EODHD_TOKEN to your EODHD API token');
     const universe = await loadUniverse(ctx);
     await pull(ctx, universe);

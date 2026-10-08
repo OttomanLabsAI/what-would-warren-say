@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-// A page on your own machine for pulling EODHD fundamentals: pick a market or
-// one of the sample watchlists, paste your token, press Start, and watch the
-// calls being spent. Needs Node 18 or later and nothing else.
+// A page on your own machine for pulling EODHD fundamentals and split
+// histories: pick a market or one of the sample watchlists, paste your token,
+// press Start, and watch the calls being spent; Fetch splits asks for the split
+// history of every company on disk without one. Needs Node 18 or later and
+// nothing else.
 //
 //   npm run pull-app                 then open the address it prints (a Mac opens it for you)
 //   node tools/pull-app.mjs [--port 8787] [--out data] [--base <url>] [--no-open]
@@ -19,7 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { exec } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { createContext, loadUniverse, pull, writeScreens, reextract, usage, MARKETS, loadSampleWatchlists, parseArgs, CALLS_PER_COMPANY } from './lib/pull.mjs';
+import { createContext, loadUniverse, pull, pullSplits, writeScreens, reextract, usage, MARKETS, loadSampleWatchlists, parseArgs, CALLS_PER_COMPANY } from './lib/pull.mjs';
 import { uploadStore, DEFAULT_BUCKET } from './lib/store.mjs';
 
 const args = parseArgs(process.argv.slice(2));
@@ -30,7 +32,7 @@ const PORT = args.port === undefined ? 8787 : parseInt(args.port, 10);
 const TOKEN_FILE = path.join(OUT, 'eodhd-token.txt');
 const R2_FILE = path.join(OUT, 'r2.json');
 
-const state = { running: false, stopRequested: false, what: '', startedAt: '', finishedAt: '', progress: null, summary: null, rebuild: null, lists: 0, error: '', usageBefore: null, usageAfter: null, files: [], log: [],
+const state = { running: false, stopRequested: false, what: '', startedAt: '', finishedAt: '', progress: null, summary: null, rebuild: null, splits: null, lists: 0, error: '', usageBefore: null, usageAfter: null, files: [], log: [],
   send: { running: false, stopRequested: false, startedAt: '', finishedAt: '', progress: null, summary: null, error: '' } };
 let watchlists = [], watchlistError = '';
 try { watchlists = loadSampleWatchlists(ROOT); } catch (e) { watchlistError = e.message; }
@@ -54,7 +56,7 @@ function log(line) {
 }
 
 async function run(job) {
-  Object.assign(state, { running: true, stopRequested: false, startedAt: new Date().toISOString(), finishedAt: '', progress: null, summary: null, rebuild: null, lists: 0, error: '', usageBefore: null, usageAfter: null, files: [] });
+  Object.assign(state, { running: true, stopRequested: false, startedAt: new Date().toISOString(), finishedAt: '', progress: null, summary: null, rebuild: null, splits: null, lists: 0, error: '', usageBefore: null, usageAfter: null, files: [] });
   try {
     const opts = { out: OUT, base: BASE, token, parallel: 4, limit: job.limit || Infinity, refreshDays: job.refresh ? 0 : null, log, onProgress: p => { state.progress = p; }, shouldStop: () => state.stopRequested };
     if (job.reextract) {
@@ -65,27 +67,36 @@ async function run(job) {
       state.rebuild = reextract(ctx);
       const index = writeScreens(ctx);
       state.files = ['pulled.json'].concat(Object.keys(index.venues).map(v => 'screen/' + v + '.json'), Object.keys(index.venues).map(v => 'screen/' + v + '.csv'), ['screen/index.json', 'companies/ (one file per company)', 'rows/ (one row per company)']);
-    } else if (job.watchlist) {
-      const list = watchlists.find(w => w.name === job.watchlist);
-      if (!list) throw new Error('no sample watchlist called ' + job.watchlist);
-      opts.only = list.items.map(it => it.symbol);
-      state.what = 'the watchlist ' + list.name;
+    } else if (job.splits) {
+      // the split history of every company on disk without one: one call each
+      state.what = 'the splits of the companies on disk';
+      log('Fetching the split history of every company on disk without one.');
+      const ctx = createContext(opts);
+      try { state.usageBefore = await usage(ctx); } catch (e) { log('Could not read your usage from EODHD: ' + e.message); }
+      state.splits = await pullSplits(ctx);
+      state.files = ['pulled.json', 'companies/ (one file per company)', 'raw/ (one gzipped split list per company)'];
+      try { state.usageAfter = await usage(ctx); } catch (e) { log('Could not read your usage from EODHD: ' + e.message); }
     } else {
-      const market = MARKETS.find(m => m.id === job.market);
-      if (!market) throw new Error('no market called ' + job.market);
-      opts.exchanges = market.exchanges;
-      opts.usKeep = market.us;
-      state.what = market.name;
-      state.lists = market.exchanges.length;
-    }
-    if (!job.reextract) {
+      if (job.watchlist) {
+        const list = watchlists.find(w => w.name === job.watchlist);
+        if (!list) throw new Error('no sample watchlist called ' + job.watchlist);
+        opts.only = list.items.map(it => it.symbol);
+        state.what = 'the watchlist ' + list.name;
+      } else {
+        const market = MARKETS.find(m => m.id === job.market);
+        if (!market) throw new Error('no market called ' + job.market);
+        opts.exchanges = market.exchanges;
+        opts.usKeep = market.us;
+        state.what = market.name;
+        state.lists = market.exchanges.length;
+      }
       log('Starting on ' + state.what + '.');
       const ctx = createContext(opts);
       try { state.usageBefore = await usage(ctx); } catch (e) { log('Could not read your usage from EODHD: ' + e.message); }
       const universe = await loadUniverse(ctx);
       state.summary = await pull(ctx, universe);
       const index = writeScreens(ctx);
-      state.files = (opts.only ? [] : ['symbols.json']).concat(['pulled.json'], Object.keys(index.venues).map(v => 'screen/' + v + '.json'), Object.keys(index.venues).map(v => 'screen/' + v + '.csv'), ['screen/index.json', 'companies/ (one file per company)', 'raw/ (one gzipped reply per company)']);
+      state.files = (opts.only ? [] : ['symbols.json']).concat(['pulled.json'], Object.keys(index.venues).map(v => 'screen/' + v + '.json'), Object.keys(index.venues).map(v => 'screen/' + v + '.csv'), ['screen/index.json', 'companies/ (one file per company)', 'raw/ (one gzipped reply and one gzipped split list per company)']);
       try { state.usageAfter = await usage(ctx); } catch (e) { log('Could not read your usage from EODHD: ' + e.message); }
     }
   } catch (e) {
@@ -153,6 +164,7 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       log('Could not update the remembered token: ' + e.message);
     }
+    if (body.splits) { run({ splits: true }); return sendJson(res, 200, { ok: true }); }
     const job = { market: String(body.market || 'NASDAQ'), watchlist: String(body.watchlist || ''), refresh: !!body.refresh, limit: body.limit ? Math.max(1, parseInt(body.limit, 10) || 0) : 0 };
     run(job);
     return sendJson(res, 200, { ok: true });
@@ -249,7 +261,7 @@ const PAGE = `<!doctype html>
     <div class="f"><label class="t" for="watchlist">Or a sample watchlist</label><select id="watchlist"></select><p class="hint" id="watchlist-hint"></p></div>
     <div class="f"><label class="check"><input type="checkbox" id="refresh"> Pull again companies already on disk</label></div>
     <div class="f"><label class="t" for="limit">At most this many companies this run</label><input type="number" id="limit" min="1" placeholder="all of them"></div>
-    <div class="buttons"><button type="submit" id="start">Start</button><button type="button" class="secondary" id="stop" disabled>Stop</button><button type="button" class="secondary" id="rebuild" title="Every company again from the replies saved on this machine: no calls, no token">Rebuild from saved replies</button><span class="hint" id="cost"></span></div>
+    <div class="buttons"><button type="submit" id="start">Start</button><button type="button" class="secondary" id="stop" disabled>Stop</button><button type="button" class="secondary" id="rebuild" title="Every company again from the replies saved on this machine: no calls, no token">Rebuild from saved replies</button><button type="button" class="secondary" id="splits" title="The split history of every company on disk without one: one call a company, with the token">Fetch splits</button><span class="hint" id="cost"></span></div>
   </form>
   <div class="status" id="status"></div>
   <div class="status" id="usage"></div>
@@ -277,7 +289,7 @@ const PAGE = `<!doctype html>
     $('market').innerHTML = s.markets.map(function (m) { return '<option value="' + esc(m.id) + '">' + esc(m.name) + '</option>'; }).join('');
     $('watchlist').innerHTML = '<option value="">No watchlist: the whole market</option>' + s.watchlists.map(function (w) { return '<option value="' + esc(w.name) + '">' + esc(w.name) + ' (' + w.count + ')</option>'; }).join('');
     $('watchlist-hint').textContent = s.watchlistError ? 'The sample watchlists could not be read: ' + s.watchlistError : 'The lists from the Watchlists page, as they came in the sample screenshots.';
-    $('cost').textContent = 'Ten EODHD calls a company, one a market list.';
+    $('cost').textContent = 'Eleven EODHD calls a company, ten for its fundamentals and one for its splits; one a market list.';
     $('endpoint').value = s.r2.endpoint || ''; $('bucket').value = s.r2.bucket || '';
     filled = true;
   }
@@ -285,17 +297,26 @@ const PAGE = `<!doctype html>
     if (!filled) fill(s);
     $('token-hint').textContent = s.remembered ? 'A token is remembered on this machine: leave the box empty to use it, or paste another.' : (s.hasToken ? 'Using the token pasted earlier this session.' : 'The token is used from this machine only and never leaves it except to reach EODHD.');
     $('market').disabled = !!$('watchlist').value;
-    $('start').disabled = s.running; $('stop').disabled = !s.running; $('rebuild').disabled = s.running || s.send.running;
+    $('start').disabled = s.running; $('stop').disabled = !s.running; $('rebuild').disabled = s.running || s.send.running; $('splits').disabled = s.running || s.send.running;
     var html = '<b class="k">' + (s.running ? 'Running' : (s.finishedAt ? 'Finished' : 'Ready')) + '</b>';
     if (s.running || s.finishedAt) html += '<div>' + esc(s.what) + (s.startedAt ? ', started ' + new Date(s.startedAt).toLocaleTimeString() : '') + (s.finishedAt ? ', finished ' + new Date(s.finishedAt).toLocaleTimeString() : '') + '</div>';
     var p = s.progress;
     if (p) {
       html += '<div class="bar"><div style="width:' + (p.total ? Math.round(100 * p.done / p.total) : 0) + '%"></div></div>';
-      if (s.running || !s.summary) html += '<dl><dt>Pulled</dt><dd>' + fmt(p.done) + ' of ' + fmt(p.total) + (p.current ? ', last ' + esc(p.current) : '') + '</dd>' +
+      if (/splits/.test(s.what)) html += '<dl><dt>Fetched</dt><dd>' + fmt(p.done) + ' of ' + fmt(p.total) + (p.current ? ', last ' + esc(p.current) : '') + '</dd>' +
+        '<dt>Of which</dt><dd>' + fmt(p.ok) + ' with their splits on file now, ' + fmt(p.error) + ' errors</dd>' +
+        '<dt>Calls spent this run</dt><dd>about ' + fmt(p.calls) + '</dd></dl>';
+      else if (s.running || !s.summary) html += '<dl><dt>Pulled</dt><dd>' + fmt(p.done) + ' of ' + fmt(p.total) + (p.current ? ', last ' + esc(p.current) : '') + '</dd>' +
         '<dt>Of which</dt><dd>' + fmt(p.ok) + ' with figures, ' + fmt(p.missing) + ' with none at EODHD, ' + fmt(p.refused) + ' refused by the plan, ' + fmt(p.error) + ' errors</dd>' +
         '<dt>Calls spent this run</dt><dd>about ' + fmt(p.calls + s.lists) + '</dd></dl>';
-    } else if (s.running) html += '<div>' + (/rebuild/.test(s.what) ? 'Rebuilding every company from the saved replies…' : 'Listing the companies…') + '</div>';
-    if (s.rebuild && !s.running) html += '<dl><dt>Rebuilt</dt><dd>' + fmt(s.rebuild.rebuilt) + ' companies from the saved replies' + (s.rebuild.missing ? '; ' + fmt(s.rebuild.missing) + ' had no saved reply' : '') + '</dd></dl>';
+    } else if (s.running) html += '<div>' + (/rebuild/.test(s.what) ? 'Rebuilding every company from the saved replies…' : /splits/.test(s.what) ? 'Counting the companies without their splits…' : 'Listing the companies…') + '</div>';
+    if (s.rebuild && !s.running) html += '<dl><dt>Rebuilt</dt><dd>' + fmt(s.rebuild.rebuilt) + ' companies from the saved replies' + (s.rebuild.missing ? '; ' + fmt(s.rebuild.missing) + ' had no saved reply' : '') + (s.rebuild.noSplits ? '; ' + fmt(s.rebuild.noSplits) + ' without a saved split list, which Fetch splits brings' : '') + '</dd></dl>';
+    if (s.splits && !s.running) {
+      var sp = s.splits;
+      html += '<dl><dt>Splits</dt><dd>' + fmt(sp.due) + ' companies were without their splits; fetched for ' + fmt(sp.ok) + ', ' + fmt(sp.error) + ' errors</dd>' +
+        '<dt>Calls spent this run</dt><dd>about ' + fmt(sp.calls) + '</dd>' +
+        (sp.stop ? '<dt>Stopped early</dt><dd class="err">' + esc(sp.stop) + (sp.remaining ? ' ' + fmt(sp.remaining) + ' companies are left for the next run.' : '') + '</dd>' : (sp.remaining ? '<dt>Left</dt><dd>' + fmt(sp.remaining) + ' companies for the next run</dd>' : '')) + '</dl>';
+    }
     if (s.summary && !s.running) {
       var m = s.summary;
       html += '<dl><dt>Companies</dt><dd>' + fmt(m.universe) + ' in the universe, ' + fmt(m.due) + ' to pull</dd>' +
@@ -352,6 +373,11 @@ const PAGE = `<!doctype html>
     lastError = '';
     fetch('/api/start', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ reextract: true }) })
       .then(function (r) { return r.json(); }).then(function (j) { if (j.error) lastError = j.error; poll(); });
+  });
+  $('splits').addEventListener('click', function () {
+    lastError = '';
+    fetch('/api/start', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ splits: true, token: $('token').value, remember: $('remember').checked }) })
+      .then(function (r) { return r.json(); }).then(function (j) { if (j.error) lastError = j.error; else $('token').value = ''; poll(); });
   });
   $('send-form').addEventListener('submit', function (ev) {
     ev.preventDefault();

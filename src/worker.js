@@ -1,7 +1,8 @@
 // The site is static assets, served by Cloudflare. This Worker does two small
 // things on the same origin. It relays the page's EODHD requests, so the
 // browser never makes a cross-site call: a company's fundamentals, its latest
-// quote, and its end-of-day or intraday bars for the price chart. The reader's
+// quote, its end-of-day or intraday bars for the price chart, and its stock
+// splits, which the chart restates earlier prices for. The reader's
 // own API token travels in a header on each request and is forwarded as
 // EODHD's api_token query parameter; nothing is stored here and no token lives
 // on the server. And it serves the store: the owner's pull of whole exchanges,
@@ -12,8 +13,8 @@ const RELAY_PREFIX = '/api/eodhd/';
 const STORE_PREFIX = '/api/data/';
 // what the store holds: the index, a company's file, a venue's screen rows
 const STORE_KEY = /^(?:index\.json|companies\/[A-Za-z0-9][A-Za-z0-9._^-]{0,40}\.json|screen\/[A-Za-z0-9_-]{1,20}\.json)$/;
-// fundamentals, the latest quote, end-of-day bars and intraday bars, one symbol each
-const ALLOWED = /^(?:fundamentals|real-time|eod|intraday)\/[A-Za-z0-9][A-Za-z0-9._^-]{0,40}$/;
+// fundamentals, the latest quote, end-of-day bars, intraday bars and the split history, one symbol each
+const ALLOWED = /^(?:fundamentals|real-time|eod|intraday|splits)\/[A-Za-z0-9][A-Za-z0-9._^-]{0,40}$/;
 // the only query parameters passed on, each checked: a date or unix time, a bar size, an order
 const PASS = {
   from: /^(?:\d{4}-\d{2}-\d{2}|\d{1,12})$/,

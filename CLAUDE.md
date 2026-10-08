@@ -20,7 +20,7 @@ public/            everything served as assets
   _headers         security + caching headers
   robots.txt
   assets/fonts/    Playfair Display + Newsreader woff2 (OFL), the only assets
-src/worker.js      /api/eodhd/{fundamentals,real-time,eod,intraday}/<symbol> -> eodhd.com; /api/data/<key> -> the R2 bucket (binding DATA); everything else -> env.ASSETS
+src/worker.js      /api/eodhd/{fundamentals,real-time,eod,intraday,splits}/<symbol> -> eodhd.com; /api/data/<key> -> the R2 bucket (binding DATA); everything else -> env.ASSETS
 wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var; r2_buckets DATA -> wwws-data commented out until the bucket exists
 package.json       wrangler devDependency + dev/deploy/check/pull/pull-app/bundle-samples/upload-store scripts
 tools/lib/pull.mjs  the pull engine: lists, fetches, extracts, screens; mirrors the page's extraction
@@ -112,8 +112,12 @@ numbers: `renderNumbers`, `view-numbers`, `wwws.numbers.v1`) fetches EODHD
 fundamentals through the relay with the reader's own token in an `X-Api-Token` header,
 keeps the extracted company under `wwws.numbers.v1` (eight most recent; yearly
 statements plus the last `MAX_QUARTERS` = 40 quarters as `incomeQ`, `balanceQ`,
-`cashflowQ`, `sharesQ`, `epsQ`) and the token under `wwws.eodhd.token` only
-when "remember" is ticked. The table runs the full length of the page inside
+`cashflowQ`, `sharesQ`, `epsQ`, and `splits`, EODHD's split history as
+`{ date, split, ratio }` oldest first, `[]` when there is none, absent on a
+copy kept before it existed) and the token under `wwws.eodhd.token` only
+when "remember" is ticked. A fetch asks `fundamentals/<symbol>` (ten calls)
+and then `splits/<symbol>` (one), and keeps the company without the list if
+that second call fails. The table runs the full length of the page inside
 a `.table-frame`: the `.table-wrap` scrolls sideways with its own scrollbar
 hidden, the `.table-bar` under it mirrors that scroll and sticks to the foot
 of the window while the table is in view (`bindFrames` wires the two and
@@ -237,7 +241,7 @@ blanks sort last, and `drawScreenTable` redraws only the table and the count
 line, keeping the sideways scroll.
 
 The relay forwards only `fundamentals/<symbol>`, `real-time/<symbol>`,
-`eod/<symbol>` and `intraday/<symbol>` on GET (`ALLOWED`), passes on only the
+`eod/<symbol>`, `intraday/<symbol>` and `splits/<symbol>` on GET (`ALLOWED`), passes on only the
 query parameters in `PASS` (`from`, `to`, `period`, `interval`, `order`) when
 they match their shapes, holds no secret, caches nothing, and passes EODHD's
 status and body straight back.
@@ -264,6 +268,25 @@ each span is cached in `priceSeries` for the session. The chart is
 fitted to the prices shown rather than starting at zero; it redraws on
 resize. There is no price dialog any more. Prices are never stored and
 never exported.
+
+Stock splits. EODHD restates its per-share figures for later splits
+already: `outstandingShares`, `Earnings.History` and the balance sheet's
+`commonStockSharesOutstanding` alike, checked on the owner's own pull of
+Apple, Nvidia, Tesla, Amazon, Alphabet and Broadcom, so the table's
+per-share lines need no adjustment and get none. The daily closes are as
+traded, so the price chart divides every bar before a split by the splits
+since its date (`splitFactor`, applied in `pricePoints`, which takes the
+rows kept in `priceSeries` and the company's splits at draw time), and its
+units line says which splits it is restated for (`restatedText`). The list
+is EODHD's `splits/<symbol>` reply, kept by `readSplits` as it came,
+`{ date, split, ratio }` with the ratio new shares over old, oldest first,
+mirrored in `tools/lib/pull.mjs`. A company with none on file asks for it
+once a session when its chart is drawn (`ensureSplits`; a failure is asked
+again after `SPLITS_RETRY`, the chart drawn as traded with a note
+meanwhile), and a kept copy saves it. `splitsHtml` draws the Splits line
+under the next-report line, newest first, `splitText` reading the ratio
+as EODHD wrote it ("4 for 1 on 31 August 2020"); a company with no splits,
+or none on file, has no line.
 
 The Watchlists view (`#watchlists`, `#watchlists/<list id>`) holds named lists
 of companies, each company a name and an EODHD symbol. The lists are kept under
@@ -352,8 +375,17 @@ with the token from `EODHD_TOKEN`; `tools/pull-app.mjs` is a local page on
 dropdowns, Start and Stop, progress, the calls spent and EODHD's own count,
 the token kept in memory or in `data/eodhd-token.txt` when "remember" is
 ticked. Neither puts the token in the repository or the site. A pull stops
-on EODHD's 402 and resumes next run. `reextract` rebuilds every company's
-file and row from the raw replies on disk with no calls, keeping each
+on EODHD's 402 and resumes next run. Each company costs `CALLS_PER_COMPANY`
+= 11 calls: `CALLS_FUNDAMENTALS` = 10 for the fundamentals and
+`CALLS_SPLITS` = 1 for `splits/<symbol>`, fetched right after and kept as
+`raw/<SYMBOL>.splits.json.gz` and as the company's `splits`; the manifest
+entry gets `splits: true`, or `splitsNote` with the reason when that call
+failed, and `pullSplits` (`splitsDue` lists them; `--splits` on the command
+line, the "Fetch splits" button on the pull page) fetches the list for
+every company on disk without one, one call each, stopping on 402 like a
+pull. `reextract` rebuilds every company's
+file and row from the raw replies on disk with no calls, the saved split
+list included, keeping each
 company's `pulledAt` as its `fetchedAt`, so a field added to the extraction
 reaches the whole pull without refetching: `--reextract` on the command
 line, the "Rebuild from saved replies" button on the pull page. `shortAbout`
@@ -409,8 +441,8 @@ npm run dev          # wrangler dev
    check the text comes back. `playwright-core` with that Chromium does it.
    For the Companies view, answer `**/api/eodhd/fundamentals/**` from a fixture
    shaped like an EODHD reply and check the table's cells, and answer the
-   `real-time`, `eod` and `intraday` paths from stand-ins shaped like EODHD's
-   replies to check the price line and its chart. For the store and the
+   `real-time`, `eod`, `intraday` and `splits` paths from stand-ins shaped
+   like EODHD's replies to check the price line, its chart and the splits. For the store and the
    Screen, answer `**/api/data/**` from the screen files of a real pull and
    from stand-in company files, and once with 404s for the no-store case.
 4. For a change to `src/worker.js`, run the real Worker:
@@ -519,3 +551,4 @@ design are their own release, requested deliberately.
 | v1.30 | The price chart under the name, always on show | The share-price chart no longer waits behind a Graph link: it sits under the company's name, above what the company does, drawn as soon as your key is in the box, with the price large above it and the day's change and the time of the quote beside. A Hide graph link folds the chart away and keeps the price on show, and the page remembers your choice. |
 | v1.31 | Accounts at Firebase, watchlists that follow you | An Account tab now lets you make an account with your name, surname, a username and a password, and sign in on any device. Your watchlists and chapter notes are kept with the account and meet what is on the device when you sign in, the newer side winning. Every account has the generic My watchlist, you can make custom lists with a description if you like, and adding a company is back: from its own page into any list, or by ticker under a list. Company numbers and your EODHD key stay on the device. The account store waits only for the Firebase project and its key. |
 | v1.32 | The book's boxes for six chapters, and chapter 16 | Chapters 11 to 16 now open with the book's own income-statement box from your photographs, the arrow on each chapter's line, down to the interest expense and the gain on the sale of assets. Chapter 16, the gain or loss on the sale of assets and the catch-all other, is written up from your notes: the equation, the book's property as a worked example, and why Warren takes these one-off items out before judging a business. |
+| v1.33 | Stock splits on file, the price chart restated | Every company now carries its stock splits from EODHD, fetched with its fundamentals, and the share-price chart divides the prices before each split by its ratio, so a four-for-one no longer reads as a crash. The company page lists the splits under the next report date. The per-share figures in the table needed nothing: EODHD restates them already, as your own pull shows. |

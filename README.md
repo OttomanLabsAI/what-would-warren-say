@@ -116,16 +116,25 @@ CLAUDE.md          standing policy for working in this repo
   and the Worker holds no secret of its own. The price line and its chart use
   three more EODHD paths the same way: `real-time/<SYMBOL>` for the quote,
   `eod/<SYMBOL>` for daily, weekly and monthly closes, and
-  `intraday/<SYMBOL>` for the day of five-minute bars. The Worker forwards
-  only those four paths, on GET, and of the query only `from`, `to`,
+  `intraday/<SYMBOL>` for the day of five-minute bars; a fetch also asks
+  `splits/<SYMBOL>` for the company's split history. The Worker forwards
+  only those five paths, on GET, and of the query only `from`, `to`,
   `period`, `interval` and `order` in their expected shapes.
 - The quote is one call and is kept for a quarter of an hour; each span of
   the chart is one call, except the day of five-minute bars, which EODHD
   counts as five. Prices are never stored and never exported.
 - Symbols take EODHD's form, `CODE.EXCHANGE` (`KO.US`, `VOD.LSE`); a bare US
-  code gets `.US`. One fetch is ten EODHD API calls, so companies are kept on
+  code gets `.US`. One fetch is eleven EODHD API calls, ten for the
+  fundamentals and one for the split history, so companies are kept on
   the device under `wwws.numbers.v1` (the eight most recent) and shown again
-  without a call. The token is kept under `wwws.eodhd.token` only when
+  without a call.
+- Stock splits: each company keeps its split history from EODHD, listed
+  under the next report date, and the price chart divides every bar before
+  a split by the splits since, so a four-for-one no longer reads as a
+  crash. A company without the list on file asks for it once when its chart
+  is drawn. EODHD's per-share figures, the shares outstanding and the
+  earnings per share, come restated for later splits already, so the table
+  is left as it comes. The token is kept under `wwws.eodhd.token` only when
   "Remember" is ticked.
 - The table runs newest first, the latest year at the left, and runs the
   full length of the page: the year headings stay pinned at the top of the
@@ -208,6 +217,12 @@ them: the pull page's **Rebuild from saved replies** button, or
 from those replies, spending nothing, and rewrites the screen files. Run it
 after updating the tools, then bundle and release as usual.
 
+**Splits for a pull made before them.** Every pull now fetches each
+company's split history with its fundamentals. For companies pulled before
+that, the page's **Fetch splits** button, or `npm run pull -- --splits`,
+asks EODHD for the split history of every company on disk without one, one
+call each, and stops on the day's limit like a pull.
+
 **The command line.** `tools/pull-fundamentals.mjs` does the same without a
 page:
 
@@ -216,11 +231,13 @@ EODHD_TOKEN=your-token npm run pull                      # NASDAQ and NYSE, Lond
 EODHD_TOKEN=your-token npm run pull -- --exchanges US,LSE --refresh 30
 ```
 
-Each company costs ten EODHD calls and each symbol list one, so the seven
+Each company costs eleven EODHD calls, ten for its fundamentals and one for
+its split history, and each symbol list one, so the seven
 lists, around seventeen thousand companies, take two days of a 100,000-call
 allowance: the run stops on its own when the day's calls are spent and carries
-on where it was when run again. It keeps EODHD's raw reply for each company,
-gzipped, writes the company in the shape the Numbers page keeps, one row of
+on where it was when run again. It keeps EODHD's raw replies for each company,
+gzipped, writes the company in the shape the Numbers page keeps, its splits
+included, one row of
 the book's ratios for the latest year, and a screen file per venue, as JSON
 for the site and as CSV for a spreadsheet. The options are listed at the top
 of the script. The token comes from the

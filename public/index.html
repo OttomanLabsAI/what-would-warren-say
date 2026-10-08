@@ -170,7 +170,8 @@
     .price-graph .rule { margin: -.4rem 0 .5rem; font-size: .9rem; }
     .price-graph .chart .pt { display: none; }
     .price-graph .chart .series { stroke-width: 1.5; }
-    .next-report b { margin-right: .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .next-report b, .splits b { margin-right: .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .splits { margin: 0 0 .6rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
     .ntable button.graph { display: inline-block; vertical-align: middle; margin-left: .35rem; padding: .1rem .2rem; border: 0; background: none; color: var(--ink-40); line-height: 0; cursor: pointer; }
     .ntable button.graph:hover, .ntable button.graph:focus-visible { background: none; color: var(--claret); outline: none; }
     .ntable button.graph svg { display: block; }
@@ -1306,6 +1307,51 @@
       });
     }
 
+    // EODHD's split history: each entry a date and a ratio, new shares over old
+    // ("4.000000/1.000000" is four new for one old), kept as it came with the ratio
+    // as a number, oldest first. EODHD restates its per-share figures for later
+    // splits already (shares outstanding, earnings per share, the balance-sheet
+    // share count), so the list serves the price chart, whose closes are as
+    // traded, and the Splits line on the company page.
+    function readSplits(src) {
+      var out = [];
+      if (!Array.isArray(src)) return out;
+      src.forEach(function (r) {
+        if (!r || typeof r !== 'object') return;
+        var date = String(r.date || ''), split = String(r.split || '');
+        var m = /^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/.exec(split);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !m) return;
+        var ratio = parseFloat(m[1]) / parseFloat(m[2]);
+        if (!isFinite(ratio) || ratio <= 0) return;
+        out.push({ date: date, split: split, ratio: ratio });
+      });
+      out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+      return out;
+    }
+
+    // what a figure of the given date is divided by to read as the shares are
+    // today: every split dated after it, multiplied together
+    function splitFactor(splits, date) {
+      var f = 1;
+      (splits || []).forEach(function (s) { if (s.date > date) f *= s.ratio; });
+      return f;
+    }
+
+    // "4 for 1 on 31 August 2020", from the ratio as EODHD wrote it
+    function splitText(s) {
+      var m = /^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/.exec(String(s.split || ''));
+      function n(x) { x = parseFloat(x); return Math.abs(x - Math.round(x)) < 1e-6 ? String(Math.round(x)) : String(Math.round(x * 100) / 100); }
+      var a = m ? n(m[1]) : n(s.ratio >= 1 ? s.ratio : 1), b = m ? n(m[2]) : n(s.ratio >= 1 ? 1 : 1 / s.ratio);
+      return a + ' for ' + b + ' on ' + fmtDay(s.date);
+    }
+
+    function fetchSplits(symbol) {
+      return relayFetch('splits/' + encodeURIComponent(symbol), {}).then(function (rows) {
+        if (!Array.isArray(rows)) throw new Error('EODHD sent no split list for ' + symbol + '.');
+        return rows;
+      });
+    }
+
     // the earliest report still to come: a History entry with a report date and no actual figure yet
     function nextReport(src) {
       if (!src || typeof src !== 'object') return null;
@@ -1320,7 +1366,7 @@
       return best;
     }
 
-    function extractCompany(symbol, data) {
+    function extractCompany(symbol, data, splits) {
       var fin = data.Financials || {};
       var g = data.General && typeof data.General === 'object' ? data.General : {};
       var c = {
@@ -1358,6 +1404,7 @@
       readEps(data.Earnings && data.Earnings.Annual, c.eps);
       readEps(data.Earnings && data.Earnings.History, c.epsQ);
       c.next = nextReport(data.Earnings && data.Earnings.History);
+      if (Array.isArray(splits)) c.splits = readSplits(splits);
       return c;
     }
 
@@ -1794,7 +1841,7 @@
         '<label class="remember"><input type="checkbox" id="remember"' + (remembered ? ' checked' : '') + '> Remember the token on this device</label>' +
         '</form>' +
         '<p class="hint">Tickers take EODHD\u2019s form, code dot exchange: KO.US, VOD.LSE, BMW.XETRA. A bare US ticker gets .US added. ' +
-        'Each fetch spends ten of your EODHD calls; the token stays in this browser and is never exported.</p>';
+        'Each fetch spends eleven of your EODHD calls, ten for the fundamentals and one for the split history; the token stays in this browser and is never exported.</p>';
     }
 
     function companyHtml(c) {
@@ -1811,6 +1858,7 @@
         priceHtml(c) +
         aboutHtml(c) +
         nextReportHtml(c) +
+        splitsHtml(c) +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
         (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.store ? '<span>In the store, pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.rowOnly ? '<span>Latest year only, from the screen rows pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
         '<button type="button" class="linkbtn" id="refresh">' + (c.sample || c.store || c.rowOnly ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
@@ -1823,6 +1871,13 @@
           rawTableHtml('Income statement', c.income, newest, newestLabels) +
           rawTableHtml('Balance sheet', c.balance, newest, newestLabels) +
           rawTableHtml('Cash flow statement', c.cashflow, newest, newestLabels) + '</details>' : '');
+    }
+
+    // the company's splits, newest first, when it has any on file
+    function splitsHtml(c) {
+      if (!Array.isArray(c.splits) || !c.splits.length) return '';
+      var list = c.splits.slice().reverse().map(splitText);
+      return '<p class="splits"><b>Splits</b>' + esc(list.join(', ')) + '. The chart restates earlier prices for them; EODHD\u2019s per-share figures are restated already.</p>';
     }
 
     // Add to a watchlist: the generic list first, then the others, the ones that
@@ -2093,10 +2148,13 @@
         button.disabled = true;
         say('Fetching ' + sym + ' from EODHD\u2026');
         fetchFundamentals(sym, token).then(function (data) {
-          numbers.companies[sym] = extractCompany(sym, data);
+          return fetchSplits(sym).then(function (rows) { return { data: data, splits: rows }; }, function () { return { data: data, splits: null }; });
+        }).then(function (got) {
+          numbers.companies[sym] = extractCompany(sym, got.data, got.splits);
           numbers.last = sym;
           var kept = saveNumbers();
-          pendingNumbersStatus = 'Fetched ' + sym + ' at ' + timeNow() + (kept ? '.' : ', but it could not be kept on this device.');
+          pendingNumbersStatus = 'Fetched ' + sym + ' at ' + timeNow() + (kept ? '.' : ', but it could not be kept on this device.') +
+            (got.splits ? '' : ' EODHD\u2019s split list could not be fetched; the price chart will ask for it again.');
           if (window.location.hash === '#companies/' + sym) route(); else window.location.hash = 'companies/' + sym;
         }).catch(function (e) {
           button.disabled = false;
@@ -3671,7 +3729,9 @@
       return m ? parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1] : ymd;
     }
 
-    function pricePoints(span, rows) {
+    // the points of a span: each bar's close, divided by the splits since its date
+    // so the whole line reads in today's shares
+    function pricePoints(span, rows, splits) {
       if (!Array.isArray(rows)) return [];
       var pts = [];
       if (span === '1d') {
@@ -3679,7 +3739,7 @@
         rows.forEach(function (r) {
           var dt = String(r.datetime || ''), close = num(r.close);
           if (dt.length < 16 || close === null) return;
-          (byDay[dt.slice(0, 10)] = byDay[dt.slice(0, 10)] || []).push({ dt: dt, v: close, ts: num(r.timestamp) });
+          (byDay[dt.slice(0, 10)] = byDay[dt.slice(0, 10)] || []).push({ dt: dt, v: close / splitFactor(splits, dt.slice(0, 10)), ts: num(r.timestamp) });
         });
         var days = Object.keys(byDay).sort();
         if (!days.length) return [];
@@ -3696,7 +3756,7 @@
         if (date.length < 10 || close === null) return;
         var m = /^(\d{4})-(\d{2})/.exec(date);
         var short = span === 'all' ? m[1] : (span === '5y' || span === '10y') ? MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1].slice(2) : parseInt(date.slice(8, 10), 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1];
-        pts.push({ date: date, label: span === 'all' ? MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1] : dayLabel(date), short: short, value: close });
+        pts.push({ date: date, label: span === 'all' ? MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1] : dayLabel(date), short: short, value: close / splitFactor(splits, date) });
       });
       pts.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
       return pts;
@@ -3707,10 +3767,51 @@
       if (priceSeries[key]) return Promise.resolve(priceSeries[key]);
       var req = spanRequest(c.symbol, span);
       return relayFetch(req.path, req.params).then(function (rows) {
-        var pts = pricePoints(span, rows);
-        priceSeries[key] = { points: pts, at: Date.now() };
+        priceSeries[key] = { rows: Array.isArray(rows) ? rows : [], at: Date.now() };
         return priceSeries[key];
       });
+    }
+
+    // the split list of a company that has none on file: one call, once a session
+    // (a failure is asked again after SPLITS_RETRY), kept with the company
+    var splitsAsked = {};
+    var SPLITS_RETRY = 5 * 60 * 1000;
+    function ensureSplits(c) {
+      if (Array.isArray(c.splits)) return Promise.resolve(c.splits);
+      var asked = splitsAsked[c.symbol];
+      if (asked && (!asked.failedAt || Date.now() - asked.failedAt < SPLITS_RETRY)) return asked.promise;
+      var entry = { promise: null, failedAt: 0 };
+      entry.promise = fetchSplits(c.symbol).then(function (rows) {
+        c.splits = readSplits(rows);
+        if (numbers.companies[c.symbol] === c) saveNumbers();
+        refreshSplitsLine(c);
+        return c.splits;
+      }, function (e) {
+        entry.failedAt = Date.now();
+        throw e;
+      });
+      splitsAsked[c.symbol] = entry;
+      return entry.promise;
+    }
+
+    // the Splits line of the page on show, drawn again once the list has arrived
+    function refreshSplitsLine(c) {
+      if (!currentCompany || currentCompany.symbol !== c.symbol) return;
+      var old = app.querySelector('.splits'), holder = document.createElement('div');
+      holder.innerHTML = splitsHtml(c);
+      var fresh = holder.firstElementChild;
+      if (old) { if (fresh) old.parentNode.replaceChild(fresh, old); else old.parentNode.removeChild(old); return; }
+      var anchor = app.querySelector('.next-report');
+      if (fresh && anchor && anchor.parentNode) anchor.parentNode.insertBefore(fresh, anchor.nextSibling);
+    }
+
+    // "restated for the 4 for 1 split of 31 August 2020": the splits since the first bar shown
+    function restatedText(pts, splits) {
+      if (!pts.length || !Array.isArray(splits)) return '';
+      var since = splits.filter(function (s) { return s.date > pts[0].date.slice(0, 10); });
+      if (!since.length) return '';
+      if (since.length === 1) return ', restated for the ' + splitText(since[0]).replace(' on ', ' split of ');
+      return ', restated for the splits of ' + since.slice().reverse().map(function (s) { return fmtDay(s.date); }).join(' and ');
     }
 
     function priceFiguresHtml(pts, currency) {
@@ -3743,16 +3844,20 @@
       }
       body.innerHTML = '<p class="hint">Fetching…</p>';
       var want = span;
-      loadPriceSeries(c, span).then(function (series) {
+      Promise.all([
+        ensureSplits(c).then(function () { return ''; }, function () { return ' The split list could not be fetched, so these are the prices as traded.'; }),
+        loadPriceSeries(c, span)
+      ]).then(function (got) {
         if (!priceGraph || priceGraph.span !== want || priceGraph.c !== c || body !== document.getElementById('price-body')) return;
-        var pts = series.points;
+        var series = got[1], splitsNote = got[0];
+        var pts = pricePoints(span, series.rows, Array.isArray(c.splits) ? c.splits : []);
         var width = Math.max(300, Math.floor(body.clientWidth || 640));
         var values = pts.map(function (p) { return p.value; });
         body.innerHTML = pts.length ? chartSvg(pts, values, 'line', 'price', width, 'none', null) : '<p class="hint">EODHD sent no prices for this span.</p>';
         if (pts.length) wireGraphHover(body, pts, values, 'price', 'line');
         figures.innerHTML = priceFiguresHtml(pts, c.meta.currency);
-        units.textContent = (c.meta.currency ? 'Prices in ' + c.meta.currency + '. ' : '') + 'Closing price of each bar, oldest at the left, newest at the right. ' +
-          (span === '1d' ? 'Five calls for the day of five-minute bars.' : 'One call for the span.');
+        units.textContent = (c.meta.currency ? 'Prices in ' + c.meta.currency + '. ' : '') + 'Closing price of each bar, oldest at the left, newest at the right' + restatedText(pts, c.splits) + '. ' +
+          (span === '1d' ? 'Five calls for the day of five-minute bars.' : 'One call for the span.') + splitsNote;
       }).catch(function (e) {
         if (!priceGraph || priceGraph.span !== want || body !== document.getElementById('price-body')) return;
         body.innerHTML = '<p class="hint">' + esc(e && e.message ? e.message : 'The prices could not be fetched.') + '</p>';
