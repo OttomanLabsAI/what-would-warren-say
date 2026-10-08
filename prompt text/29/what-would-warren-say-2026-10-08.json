@@ -1,7 +1,7 @@
 {
   "app": "what-would-warren-say",
   "version": 1,
-  "exportedAt": "2026-10-08T13:28:53.770Z",
+  "exportedAt": "2026-10-08T14:08:05.003Z",
   "book": "Warren Buffett and the Interpretation of Financial Statements",
   "entries": {
     "1": {
@@ -83,10 +83,10 @@
       "updated": "2026-10-08T13:28:48.345Z"
     },
     "14": {
-      "summary": "",
+      "summary": "All machinery and buildings wear out. This wearing out is shown as depreciation on the balance sheet.\n\nThe estimated years from purchase to unusable is divided by the cost. That amount is then accounted for as a cost for each year up to the final year\n\neg. imagine a printing press is bought by XYZ Printing Corporation for $1,000,000. This printing press has a life span of 10 years. Because it has a lifespan of 10 years the IRS will not let the company expense the press in the year it was purchased. It must be expensed every year over the 10 years that it is in service; at $100,000 per year. This annual $100,000 example is called Depreciation and is a real cost for a business as that press will eventually need to be replaced. The initial $1,000,000 purchase will show up on the balance sheet in the Plant and Equipment asset count. Each year $100,000 will be subtracted from that asset count and be added to the Depreciation cost. The initial $1,000,000 purchase will show up on the cash folw statement as a Capital Expenditure. Remember that the $1,000,000 dollar purchase is NOT allocated as an expense in the year that it was bought. Rather, it is expensed over 10 years as a Depreciation expense every year.\n\nMany Wall Street types regard this as a cost that doesn't cost any real money that yeat, yet it reduces income reported or that year. Wall street types have created an acronym called EBITDA (Earnings Before Income Tax, Depreciation and Amortisation), where they add those numbers back into earnings so that they can use the number to sell the idea that the cash flow of the business can now support more debt for new ventures such as leveraged buyouts. Warren disagrees with this idea and does not look at EBITDA because he feels that, by doing this,  the Wall Street types are ignoring the fact that the printing press will eventually wear out and XYZ may not have the ability to finance another $1,000,000 purchase of a new printing press.\n\nWarren believes that depreciation is a very real expense and should always be included in any calculation of earnings. To do otherwise is delusional as it makes peopl believe that the company is earning more than it actually is.\n\nDCA companies have lower depreciation costs as a percentage of gross profit than companies that have intense competition\n\nCoca-Cola - 6%\nWrigely's & Co - 7%\nProctor & Gamble - 8%\n\nGM - 22% to 57%\n\nAccording to Warren, like with any expense, les is alway more, as more eats into a company's profit",
       "notes": "",
       "type": "metric",
-      "updated": "2026-10-07T13:13:47.219Z"
+      "updated": "2026-10-08T14:08:02.445Z"
     },
     "15": {
       "summary": "",

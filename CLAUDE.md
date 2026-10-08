@@ -79,13 +79,16 @@ then the points; chapter 10 the box, the two equations, points, the
 examples, a point, the margin table, points; chapter 12 points, the SG&A
 equation, examples, the share table, a point, examples; chapter 13 the
 table of how a research-built advantage dies, an example, a point,
-examples, points. `partHtml` draws a part; a chapter without a body draws
+examples, points; chapter 14 points, the depreciation equation with the
+book's press as its example, the press as a worked example, the three
+statements it shows up on, points, the share-of-gross-profit equation,
+examples, a point. `partHtml` draws a part; a chapter without a body draws
 its diagrams, then its points. `renderChapter` draws a
 breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
 source is the owner's export under `notes/` (the latest export replaces
-the file of the same name; chapters 1 to 13 so far); a new export with more
+the file of the same name; chapters 1 to 14 so far); a new export with more
 finished chapters means writing them up here and keeping the file. DCA in
 the owner's notes is the book's Durable Competitive Advantage: a write-up
 says it in full, as `TERM`, wherever it is mentioned (never the short form,
@@ -439,3 +442,4 @@ design are their own release, requested deliberately.
 | v1.25 | Chapter 10 written up, the arithmetic as equations | Gross profit and the gross profit margin, chapter 10, now read as a written-up breakdown from your notes: the book's box with the arrow on gross profit, the two equations with the book's example, what the margin says at 40% and 20%, the margins Warren points to, and your notes as written. The income statement and cost of goods sold chapters now show their arithmetic as equations rather than a chain of boxes, and the revenue chapter's chain reads as numbered instructions. |
 | v1.26 | The notes' examples in a section of their own | The companies and margins your notes give as examples now sit in a section of their own, headed Examples from your notes, placed where your notes have them: between the kinds of business and the points on chapter 3, and between the points on gross margin and the rule of thumb on chapter 10, whose parts now run in the order of your notes. A line under the heading says they are the book's examples, from its first edition of 2008 and the 2011 second edition you are reading, and that the figures are of that time. |
 | v1.27 | Chapters 12 and 13 written up, costs and research | Selling, general and administrative expenses, chapter 12, and research and development, chapter 13, now read as written-up breakdowns from your notes, in the order you wrote them: what SG&A is and why it must stay low and steady, the test of its share of gross profit with the book's averages and the swings at General Motors and Ford, and what the share says; then the two ways a research-built advantage dies, Microsoft and Google, Merck and Intel against Coca-Cola and Moody's, and why Warren wants a sure thing. |
+| v1.28 | Chapter 14 written up, depreciation as a real cost | Depreciation, chapter 14, now reads as a written-up breakdown from your notes, in the order you wrote them: the wearing out of machines and buildings spread over their lives, the book's printing press as the worked example with the three statements it shows up on, Wall Street's EBITDA and why Warren will not look at it, the share of gross profit that depreciation takes at Coca-Cola, Wrigley and Procter & Gamble against General Motors, and the rule that less is always more. |
