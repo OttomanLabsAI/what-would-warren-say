@@ -53,7 +53,7 @@ static asset by that Worker's assets binding.
 
 ```
 public/
-  index.html       all four views: companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages (one file, hash routes)
+  index.html       all five views: companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages, account (one file, hash routes)
   data/            sample data: index.json and companies/<SYMBOL>.json, written by tools/bundle-samples.mjs
   data/screen/     the pull's screen rows per venue and an index, written by tools/bundle-screen.mjs
   404.html         not-found page in the same style, links back home
@@ -66,6 +66,7 @@ wrangler.jsonc     Worker + assets config, and the store's bucket binding
 package.json       wrangler as a devDependency, dev/deploy/check/pull/upload scripts
 tools/             the puller, the local pull page and the store uploader (see below)
 notes/             the owner's exported notes, raw: the source of the written-up chapters
+firebase/          the account store: the Firestore security rules and the project files
 prompt text/       the prompt and reply behind the version in service
 CLAUDE.md          standing policy for working in this repo
 ```
@@ -284,8 +285,42 @@ files taken from Google Fonts, so the page makes no request to Google at all.
 A notice beside them carries the copyright lines and the licence link,
 and each file carries the same in its own metadata.
 
+## Accounts
+
+The Account tab makes an account with a name, a surname, a username and a
+password, and signs in on any device. An account keeps the reader's
+watchlists, each with a voluntary description, and their chapter notes;
+the generic My watchlist is always there, and a company can be added to
+any list from its own page or by ticker under a list. Company numbers and
+the EODHD key never leave the device.
+
+The accounts live at Firebase: Authentication (email and password under
+the hood, the username becoming an address at a reserved domain that is
+never mailed) and Firestore, both spoken to over their REST APIs straight
+from the page, with no SDK. `firebase/firestore.rules` keeps every reader
+to their own documents and checks their shapes; `firebase/firebase.json`
+points at the rules and sets the emulator ports.
+
+To switch accounts on, once:
+
+1. Make a Firebase project, enable Email/Password under Authentication,
+   and create a Firestore database.
+2. Deploy the rules: `npx firebase-tools deploy --only firestore:rules
+   --project <project id> --config firebase/firebase.json`.
+3. Put the project's web API key and project id in `FIREBASE` near the
+   top of the accounts section of `public/index.html`, and release.
+
+Until then the Account tab says accounts are not switched on, and
+everything stays on the device and travels in exports. To verify a change
+to the accounts or the rules, run the Firebase emulators (they need Java):
+`npx firebase-tools emulators:exec --only auth,firestore --project
+demo-wwws --config firebase/firebase.json "<a script that drives the
+page>"`, the page given the emulator hosts in `window.WWWS_FIREBASE`.
+
 ## External resources
 
 The page itself loads nothing from other domains. The Companies view calls
 EODHD through the site's own relay: the fundamentals when you press Fetch,
-and the price and its chart once a token is in the box.
+and the price and its chart once a token is in the box. With accounts
+switched on, the page also calls Firebase's Identity Toolkit, securetoken
+and Firestore APIs, only when signing in and syncing.

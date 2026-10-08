@@ -12,7 +12,7 @@ Builds, so **every push to `main` deploys to production**.
 
 ```
 public/            everything served as assets
-  index.html       all four views (companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages): one file
+  index.html       all five views (companies, screen, watchlists, contents, dropdown, chapter tabs, chapter pages, account): one file
   data/            sample data: index.json + companies/<SYMBOL>.json, from tools/bundle-samples.mjs (git-tracked, EODHD-derived)
   data/screen/     the pull's screen rows: <VENUE>.json + index.json (venues, symbol -> venue), from tools/bundle-screen.mjs
   404.html         same masthead and palette as index.html
@@ -32,6 +32,7 @@ tools/bundle-samples.mjs  copies a pull's companies into public/data/ as the sit
 tools/bundle-screen.mjs  copies a pull's screen rows into public/data/screen/ with an index, so companies open from their rows
 data/              the pull's output: git-ignored, EODHD-licensed, never committed
 notes/             the owner's exported notes, byte for byte: the source of BREAKDOWNS in index.html
+firebase/          the account store: firestore.rules, firebase.json (rules path, emulator ports), firestore.indexes.json, .firebaserc
 prompt text/       the records behind the version in service (see below)
 ```
 
@@ -267,13 +268,64 @@ screenshots), and the first change or opening writes them; from then on the
 key holds whatever the reader keeps, and "Restore the starting lists" puts a
 deleted starting list back in its place. The list tabs reuse the chapter tab
 row. A company's name links to `#numbers/<SYMBOL>`, and a company whose
-numbers are kept carries a "numbers kept" mark. There is no way to add a
-company to a list for now: the Add-to dropdown on the company page and the
-add form under a list were removed at the owner's request, to come back
-later in another form; Rename, New list, Delete, Remove and Restore stay. The export file carries `watchlists` (the array above,
-never numbers or the token); on import a list from the file replaces the one
+numbers are kept carries a "numbers kept" mark. Each list may carry a
+`description` (voluntary, at most 280 characters, asked for by the New
+list and Rename forms and shown in italics under the list's name) and the
+list with id `my-watchlist` is the generic one (`GENERIC_LIST_ID`,
+`generic: true` in `cleanLists`; `ensureGenericList` puts it back empty
+when it is missing). Adding came back in v1.31 in a new form: the company
+page carries an "Add to" line (`addToHtml`: a select of the lists, the
+generic one first, a list that already holds the company disabled and
+marked) and the list page an "Add a company by ticker" form with an
+optional name (`addToList`, `knownName` finding the name among the kept
+copies, the samples and the screen rows loaded). Rename, New list, Delete,
+Remove and Restore stay; while signed in the generic list has no Delete. The export file carries `watchlists` (the array above,
+with `description` and `generic`, never numbers or the token); on import a list from the file replaces the one
 here by `id` unless the one here was changed more recently, an identical list
 is left alone, and lists absent from the file are left alone.
+
+The Account view (`#account`, `renderAccount`, the fifth tab) is the
+reader's account at Firebase, spoken to over Firebase's REST APIs with no
+SDK, so the page still loads no script from elsewhere: Identity Toolkit
+for sign-up and sign-in (`authCall`), securetoken for refreshing the ID
+token (`freshToken`), and the Firestore documents API with its typed
+values (`storeCall`, `toFs`, `fromFs`, `getDoc`, `setDoc`, `deleteDoc`,
+`listDocs`). `FIREBASE` holds the project's web API key and id, blank
+until the owner sets them, with the three service bases; a test or a
+local run puts its own hosts in `window.WWWS_FIREBASE` before the script
+runs. Without a key the view says accounts are not switched on. A reader
+signs up with a name, a surname, a username and a password (all required;
+`USERNAME_RE`: 3 to 20 characters of letters, digits, dots, underscores
+or hyphens, starting with a letter or digit; six characters of password);
+at Firebase the username is the address `<username>@users.wwws.invalid`
+(`usernameEmail`), never mailed. Sign-up (`signUp`) creates the auth
+account, claims `usernames/<lowercase>` (create-only, `{ uid }`), writes
+the profile `users/{uid}` (`name`, `surname`, `username`, `usernameLower`,
+`createdAt`, `updatedAt`) and syncs; if a step fails the half-made auth
+account is deleted again. Sign-in (`signIn`) reads the profile and syncs;
+`signOut` clears the session. The session is kept under
+`wwws.account.v1` (`uid`, `refreshToken`, `name`, `surname`, `username`,
+`syncedAt`); the ID token stays in memory. The data: `users/{uid}/
+watchlists/{listId}` (`name`, `description`, `items`, `generic`,
+`updated`) and `users/{uid}/data/entries` (`entries`, `updated`: the
+chapter notes). Company numbers and the EODHD key never go up. Sync
+(`syncAll` at sign-in and on Sync now; `queueSync` from `saveWatchlists`
+and `saveEntries`, then `pushChanges` 600 ms later) follows the import
+rules: the newer side wins per list and per chapter, lists only the
+account has come down, a list only the device has goes up if it was ever
+changed here (an untouched starting list stays on the device), and a list
+this device had synced before but the account no longer has was deleted
+elsewhere, so it goes; `pushed` remembers what the store holds so only
+differences are written, deletions included. `firebase/firestore.rules`
+keeps every reader to their own documents and checks the shapes (a claim
+carries the claimant's uid and is never changed; a profile needs its
+claim; a list needs a name, at most 280 characters of description, at
+most 500 items, and the generic one cannot be deleted; only the `entries`
+data document). The owner sets the project up once: a Firebase project
+with Email/Password sign-in enabled and a Firestore database, the rules
+deployed from `firebase/` (`npx firebase-tools deploy --only
+firestore:rules --project <id> --config firebase/firebase.json`), and the
+web API key and project id put in `FIREBASE`.
 
 `tools/lib/pull.mjs` is the pull engine: `createContext`, `loadUniverse`,
 `pull`, `writeScreens`, `recomputeRows`, `usage` (EODHD's user endpoint, for
@@ -364,6 +416,13 @@ npm run dev          # wrangler dev
 5. For a change to `tools/lib/store.mjs`, drive the uploader against a mock of
    R2's S3 API that recomputes every signature, and `tools/pull-app.mjs` in a
    browser against that mock and a mock of EODHD.
+6. For a change to the accounts or `firebase/firestore.rules`, drive the page
+   against the Firebase emulators with the repository's rules
+   (`npx firebase-tools emulators:exec --only auth,firestore --project
+   demo-wwws --config firebase/firebase.json "node <the suite>"`, the page
+   given the emulator hosts in `window.WWWS_FIREBASE`; the emulators need
+   Java): sign up, sign in on a fresh device, every list and note change
+   reaching the store, and another account's token refused by the rules.
 
 Never leave pushed work unverified or half-finished. Work in small, complete
 batches: implement, verify, commit, push.
@@ -451,3 +510,4 @@ design are their own release, requested deliberately.
 | v1.28 | Chapter 14 written up, depreciation as a real cost | Depreciation, chapter 14, now reads as a written-up breakdown from your notes, in the order you wrote them: the wearing out of machines and buildings spread over their lives, the book's printing press as the worked example with the three statements it shows up on, Wall Street's EBITDA and why Warren will not look at it, the share of gross profit that depreciation takes at Coca-Cola, Wrigley and Procter & Gamble against General Motors, and the rule that less is always more. |
 | v1.29 | Chapter 15 written up, little or no interest | Interest expense, chapter 15, now reads as a written-up breakdown from your notes, in the order you wrote them: the two reasons a company pays a lot of interest, a fiercely competitive industry or a leveraged buyout, the companies Warren wants paying little or none, the book's figures from Procter & Gamble and Wrigley to Goodyear and the airlines, with Wells Fargo as the bank, the test of interest as a share of operating income with its 15% rule, and the lowest in any industry as the likeliest to have the advantage. |
 | v1.30 | The price chart under the name, always on show | The share-price chart no longer waits behind a Graph link: it sits under the company's name, above what the company does, drawn as soon as your key is in the box, with the price large above it and the day's change and the time of the quote beside. A Hide graph link folds the chart away and keeps the price on show, and the page remembers your choice. |
+| v1.31 | Accounts at Firebase, watchlists that follow you | An Account tab now lets you make an account with your name, surname, a username and a password, and sign in on any device. Your watchlists and chapter notes are kept with the account and meet what is on the device when you sign in, the newer side winning. Every account has the generic My watchlist, you can make custom lists with a description if you like, and adding a company is back: from its own page into any list, or by ticker under a list. Company numbers and your EODHD key stay on the device. The account store waits only for the Firebase project and its key. |

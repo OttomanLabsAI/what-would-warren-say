@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// What Would Warren Say? - the account store.
+// A reader signs in with a username and a password (Firebase Authentication,
+// email and password under the hood: the address is <username>@users.wwws.invalid,
+// never mailed). Everything a reader keeps lives under users/{uid}: the profile,
+// the watchlists (the generic "My watchlist" and the custom lists with their
+// voluntary description) and the chapter notes. Nobody reads another reader's
+// documents; usernames/{name} holds each claimed username so two readers cannot
+// share one. Kept company numbers and the EODHD key never go up.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function text(v, max) { return v is string && v.size() <= max; }
+    function usernameOk(name) { return name is string && name == name.lower() && name.matches('^[a-z0-9][a-z0-9._-]{2,19}$'); }
+
+    // The claim on a username: made once, by the account that takes it, never changed.
+    match /usernames/{name} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && usernameOk(name)
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['name', 'surname', 'username', 'usernameLower', 'createdAt', 'updatedAt'])
+        && text(request.resource.data.name, 80) && request.resource.data.name.size() > 0
+        && text(request.resource.data.surname, 80) && request.resource.data.surname.size() > 0
+        && text(request.resource.data.username, 20)
+        && usernameOk(request.resource.data.usernameLower)
+        && request.resource.data.usernameLower == request.resource.data.username.lower()
+        && text(request.resource.data.createdAt, 40) && text(request.resource.data.updatedAt, 40)
+        && get(/databases/$(database)/documents/usernames/$(request.resource.data.usernameLower)).data.uid == uid;
+      allow delete: if false;
+
+      // The reader's lists: the generic one carries generic: true and cannot be deleted.
+      match /watchlists/{listId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && listId.matches('^[a-z0-9][a-z0-9-]{0,59}$')
+          && request.resource.data.keys().hasOnly(['name', 'description', 'items', 'generic', 'updated'])
+          && text(request.resource.data.name, 60) && request.resource.data.name.size() > 0
+          && (!('description' in request.resource.data) || text(request.resource.data.description, 280))
+          && request.resource.data.items is list && request.resource.data.items.size() <= 500
+          && (!('generic' in request.resource.data) || request.resource.data.generic is bool)
+          && text(request.resource.data.updated, 40);
+        allow delete: if isOwner(uid) && resource.data.get('generic', false) != true;
+      }
+
+      // The reader's app data: the chapter notes, as one document.
+      match /data/{doc} {
+        allow read: if isOwner(uid);
+        allow write: if isOwner(uid) && doc == 'entries'
+          && request.resource.data.keys().hasOnly(['entries', 'updated'])
+          && request.resource.data.entries is map
+          && text(request.resource.data.updated, 40);
+      }
+    }
+  }
+}

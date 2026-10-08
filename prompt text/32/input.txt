@@ -1,0 +1,3 @@
+create the backend for an account system. each user needs to be able to add to the generic watchlist, and create custom watchlists with a voluntary description of the list. Name, Surname, username, Password required. then their app data
+
+it will be using firebase

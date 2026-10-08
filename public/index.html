@@ -58,12 +58,12 @@
 
     /* view nav: Companies | Watchlists | Chapters */
     .views { display: flex; flex-wrap: wrap; gap: .15rem; }
-    .view { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .7rem; border-bottom: 3px solid transparent; }
+    .view { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .5rem; border-bottom: 3px solid transparent; }
     .view:hover { color: var(--ink); }
     .view.active { color: var(--claret); border-bottom-color: var(--claret); }
     @media (max-width: 40rem) { .view { padding: .45rem .35rem; font-size: .68rem; letter-spacing: .05em; } }
-    .section-pick { display: flex; align-items: center; gap: .6rem; flex: 1 1 18rem; min-width: 0; max-width: 34rem; }
-    .section-pick select { flex: 1 1 0; min-width: 0; }
+    .section-pick { display: flex; align-items: center; gap: .6rem; flex: 1 1 13rem; min-width: 0; max-width: 34rem; }
+    .section-pick select { flex: 1 1 0; min-width: 0; max-width: 11rem; }
     .section-pick[hidden] { display: none; }
     @media (min-width: 50rem) { .section-pick[hidden] { display: flex; visibility: hidden; } }
 
@@ -229,7 +229,27 @@
     .add-form { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) auto; gap: .7rem 1rem; align-items: end; margin: 0 0 .6rem; }
     .add-form.one { grid-template-columns: minmax(0, 1fr) auto auto; margin: 0 0 1.2rem; }
     .add-form .ask { font-family: var(--sans); font-size: .95rem; color: var(--ink); align-self: center; }
-    @media (max-width: 40rem) { .add-form, .add-form.one { grid-template-columns: 1fr; } }
+    .add-form.two { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto auto; margin: 0 0 1.2rem; }
+    .wlist-desc { margin: -.4rem 0 1rem; font-family: var(--text); font-style: italic; font-size: 1.05rem; color: var(--ink-60); }
+    .add-to { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem; margin: 0 0 1rem; font-family: var(--sans); font-size: .9rem; color: var(--ink); }
+    .add-to label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .add-to select { font-size: .88rem; padding: .35rem 1.8rem .35rem .55rem; }
+    .add-to button { padding: .35rem .7rem; font-size: .74rem; }
+    .add-to .status { flex-basis: 100%; }
+    @media (max-width: 40rem) { .add-form, .add-form.one, .add-form.two { grid-template-columns: 1fr; } }
+    /* the account: sign in or sign up, then what the account holds */
+    .account { padding: 1.6rem 1rem 2rem; }
+    .account .forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1.4rem 2rem; margin: .4rem 0 1rem; }
+    .account form.acct { display: flex; flex-direction: column; gap: .7rem; padding: 1rem 1.1rem 1.2rem; border: 1px solid var(--rule); background: var(--white); }
+    .account form.acct h3 { margin: 0 0 .1rem; font-family: var(--display); font-weight: 700; font-size: 1.2rem; }
+    .account form.acct .f { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+    .account form.acct .f > label { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
+    .account form.acct input { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); min-width: 0; }
+    .account form.acct input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .account form.acct .row { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-top: .2rem; }
+    .account form.acct .err { font-family: var(--sans); font-size: .88rem; color: var(--claret); }
+    .account .who { margin: 0 0 .6rem; font-family: var(--sans); font-size: .95rem; }
+    .account .who b { margin-right: .4rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
 
     /* chapter tabs */
     .tabs-wrap { padding: .6rem 1rem; border-bottom: 1px solid var(--rule); }
@@ -372,6 +392,7 @@
       <a class="view" id="view-screen" href="#screen">Screen</a>
       <a class="view" id="view-watchlists" href="#watchlists">Watchlists</a>
       <a class="view" id="view-chapters" href="#chapters">Chapters</a>
+      <a class="view" id="view-account" href="#account">Account</a>
     </nav>
     <div class="section-pick" id="section-pick">
       <label for="section">Section</label>
@@ -520,6 +541,7 @@
       } catch (e) {
         storageOk = false;
       }
+      queueSync();
       return storageOk;
     }
 
@@ -1752,12 +1774,25 @@
         '<button type="button" class="linkbtn" id="refresh">' + (c.sample || c.store || c.rowOnly ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
         '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
         (c.sample || c.store || c.rowOnly ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + '</p>' +
+        addToHtml(c) +
         (c.rowOnly && dates.length ? '<p class="hint rowonly">Only the latest year is on file for this company, from the screen rows of the pull. Blank lines, earlier years and the quarters are not on file; a live fetch with an EODHD key brings them all.</p>' : '') +
         (dates.length ? tableHtml(c) : (c.rowOnly ? '<p class="hint rowonly">EODHD had no statements for this company when it was pulled.</p>' : '<p class="hint">EODHD returned no yearly statements for this company.</p>')) +
         (dates.length && !c.rowOnly ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
           rawTableHtml('Income statement', c.income, newest, newestLabels) +
           rawTableHtml('Balance sheet', c.balance, newest, newestLabels) +
           rawTableHtml('Cash flow statement', c.cashflow, newest, newestLabels) + '</details>' : '');
+    }
+
+    // Add to a watchlist: the generic list first, then the others, the ones that
+    // already hold the company marked.
+    function addToHtml(c) {
+      if (!watchlists.lists.length) return '';
+      var opts = watchlists.lists.map(function (l) {
+        var has = l.items.some(function (it) { return it.symbol === c.symbol; });
+        return '<option value="' + esc(l.id) + '"' + (has ? ' disabled' : '') + '>' + esc(l.name) + (has ? ' (already in it)' : '') + '</option>';
+      }).join('');
+      return '<form class="add-to" id="add-to"><label for="add-list">Add to</label><select id="add-list" aria-label="Watchlist to add this company to">' + opts + '</select>' +
+        '<button type="submit" class="secondary" id="add-to-go">Add to the list</button><span class="status" id="add-to-status" role="status" aria-live="polite"></span></form>';
     }
 
     // What the company does, from EODHD's General block: the description, shown
@@ -2040,6 +2075,19 @@
           more.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
         wirePrice(company, tokenInput, rememberBox);
+        var addTo = document.getElementById('add-to');
+        if (addTo) addTo.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          var pick = document.getElementById('add-list'), list = listById(pick.value), note = document.getElementById('add-to-status');
+          if (!list) return;
+          var problem = addToList(list, company.meta.name, company.symbol);
+          if (problem) { note.textContent = problem; return; }
+          var ok = saveWatchlists();
+          note.textContent = 'Added ' + company.meta.name + ' to ' + list.name + '.' + (ok ? '' : ' It could not be kept: this browser is blocking storage.');
+          Array.prototype.forEach.call(pick.options, function (o) { if (o.value === list.id) { o.disabled = true; o.textContent = list.name + ' (already in it)'; } });
+          var next = Array.prototype.filter.call(pick.options, function (o) { return !o.disabled; })[0];
+          if (next) pick.value = next.value;
+        });
         document.getElementById('refresh').addEventListener('click', function () { go(company.symbol); });
         document.getElementById('csv').addEventListener('click', function () {
           downloadText(companyCsv(company), 'what-would-warren-say-' + company.symbol + '-numbers.csv', 'text/csv');
@@ -2311,6 +2359,403 @@
     // Kept under wwws.watchlists.v1: { version, last, lists: [ { id, name, items: [ { name,
     // symbol } ], updated } ] }. The starting lists below stand in until the key exists on
     // a device; from then on it holds whatever the reader keeps. Lists travel in exports.
+    // ---- accounts: Firebase Authentication and Firestore, over their REST APIs ----
+    // No SDK, so the page still loads no script from elsewhere. A reader signs up
+    // with a name, a surname, a username and a password; at Firebase the username
+    // is the address <username>@users.wwws.invalid, never mailed. What the reader
+    // keeps lives under users/{uid}: the profile, the watchlists (the generic list
+    // and the custom lists with their voluntary description) and the chapter notes.
+    // The session is kept under ACCOUNT_KEY (uid, refresh token, profile); the ID
+    // token stays in memory and comes back through securetoken. The rules in
+    // firebase/firestore.rules keep every reader to their own documents. Company
+    // numbers and the EODHD key never go up. FIREBASE holds the project's web API
+    // key and id, blank until the owner sets them; a test or a local run may put
+    // its own hosts in window.WWWS_FIREBASE before the script runs.
+    var FIREBASE = window.WWWS_FIREBASE || {
+      apiKey: '',
+      projectId: '',
+      authBase: 'https://identitytoolkit.googleapis.com/v1',
+      tokenBase: 'https://securetoken.googleapis.com/v1',
+      storeBase: 'https://firestore.googleapis.com/v1'
+    };
+    var ACCOUNT_KEY = 'wwws.account.v1';
+    var USERNAME_DOMAIN = 'users.wwws.invalid';
+    var USERNAME_RE = /^[a-z0-9][a-z0-9._-]{2,19}$/;
+    var USERNAME_RULE = 'A username is 3 to 20 characters: letters, digits, dots, underscores or hyphens, starting with a letter or a digit.';
+    var account = loadAccount();
+    var idToken = null, idTokenAt = 0;
+    var syncState = { busy: false, last: '', error: '' };
+    var syncTimer = null;
+    var pushed = { lists: {}, entries: null };
+
+    function accountsOn() { return !!(FIREBASE.apiKey && FIREBASE.projectId); }
+
+    function loadAccount() {
+      try {
+        var raw = window.localStorage.getItem(ACCOUNT_KEY), a = raw ? JSON.parse(raw) : null;
+        return a && typeof a === 'object' && typeof a.uid === 'string' && typeof a.refreshToken === 'string' ? a : null;
+      } catch (e) { return null; }
+    }
+
+    function saveAccount() {
+      try {
+        if (account) window.localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account));
+        else window.localStorage.removeItem(ACCOUNT_KEY);
+      } catch (e) {}
+    }
+
+    function usernameEmail(username) { return username.toLowerCase() + '@' + USERNAME_DOMAIN; }
+
+    function unreachable() { return new Error('Could not reach the account service. Check your connection and try again.'); }
+
+    function authError(data) {
+      var code = data && data.error && data.error.message ? String(data.error.message) : '';
+      var msg = /EMAIL_EXISTS/.test(code) ? 'That username is taken.' :
+        /INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD|EMAIL_NOT_FOUND|INVALID_EMAIL|MISSING_PASSWORD/.test(code) ? 'No account matches that username and password.' :
+        /WEAK_PASSWORD/.test(code) ? 'The password needs at least six characters.' :
+        /TOO_MANY_ATTEMPTS/.test(code) ? 'Too many tries. Wait a little and try again.' :
+        /TOKEN_EXPIRED|INVALID_REFRESH_TOKEN|USER_DISABLED|USER_NOT_FOUND|INVALID_ID_TOKEN|CREDENTIAL_TOO_OLD/.test(code) ? 'You have been signed out. Sign in again.' :
+        'The account service refused: ' + (code || 'no reason given') + '.';
+      var e = new Error(msg);
+      e.code = code;
+      return e;
+    }
+
+    // Identity Toolkit: accounts:signUp, accounts:signInWithPassword, accounts:delete
+    function authCall(verb, body) {
+      return window.fetch(FIREBASE.authBase + '/accounts:' + verb + '?key=' + encodeURIComponent(FIREBASE.apiKey), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      }).then(function (res) {
+        return res.json().then(function (data) { if (!res.ok) throw authError(data); return data; }, function () { if (!res.ok) throw authError(null); return {}; });
+      }, function () { throw unreachable(); });
+    }
+
+    // An ID token good for the next while, refreshed from the refresh token
+    function freshToken() {
+      if (idToken && Date.now() - idTokenAt < 50 * 60 * 1000) return Promise.resolve(idToken);
+      if (!account) return Promise.reject(new Error('Not signed in.'));
+      return window.fetch(FIREBASE.tokenBase + '/token?key=' + encodeURIComponent(FIREBASE.apiKey), {
+        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(account.refreshToken)
+      }).then(function (res) {
+        return res.json().then(function (data) {
+          if (!res.ok) {
+            var err = authError(data);
+            if (/signed out/.test(err.message)) { account = null; idToken = null; saveAccount(); }
+            throw err;
+          }
+          idToken = data.id_token; idTokenAt = Date.now();
+          if (data.refresh_token && account && data.refresh_token !== account.refreshToken) { account.refreshToken = data.refresh_token; saveAccount(); }
+          return idToken;
+        });
+      }, function () { throw unreachable(); });
+    }
+
+    // Firestore's documents API, with its typed values
+    function docPath(parts) {
+      return FIREBASE.storeBase + '/projects/' + encodeURIComponent(FIREBASE.projectId) + '/databases/(default)/documents/' + parts.map(encodeURIComponent).join('/');
+    }
+
+    function storeError(status, data) {
+      var e = new Error(status === 404 ? 'Not found.' : status === 403 || status === 401 ? 'The account store refused: not allowed.' : status === 409 ? 'Already exists.' : 'The account store answered ' + status + '.');
+      e.status = status;
+      e.detail = data && data.error && data.error.message ? data.error.message : '';
+      return e;
+    }
+
+    function storeCall(method, url, body, query) {
+      return freshToken().then(function (tok) {
+        return window.fetch(url + (query ? (url.indexOf('?') >= 0 ? '&' : '?') + query : ''), {
+          method: method, headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined
+        }).then(function (res) {
+          return res.text().then(function (t) {
+            var data = null;
+            try { data = t ? JSON.parse(t) : null; } catch (e) {}
+            if (!res.ok) throw storeError(res.status, data);
+            return data;
+          });
+        }, function () { throw new Error('Could not reach the account store. Check your connection and try again.'); });
+      });
+    }
+
+    function toFs(v) {
+      if (v === null || v === undefined) return { nullValue: null };
+      if (typeof v === 'string') return { stringValue: v };
+      if (typeof v === 'boolean') return { booleanValue: v };
+      if (typeof v === 'number') return Math.floor(v) === v && Math.abs(v) < 9e15 ? { integerValue: String(v) } : { doubleValue: v };
+      if (Array.isArray(v)) return { arrayValue: { values: v.map(toFs) } };
+      var fields = {};
+      Object.keys(v).forEach(function (k) { fields[k] = toFs(v[k]); });
+      return { mapValue: { fields: fields } };
+    }
+
+    function fromFs(v) {
+      if (!v || typeof v !== 'object') return null;
+      if ('stringValue' in v) return v.stringValue;
+      if ('booleanValue' in v) return v.booleanValue;
+      if ('integerValue' in v) return parseInt(v.integerValue, 10);
+      if ('doubleValue' in v) return v.doubleValue;
+      if ('arrayValue' in v) return (v.arrayValue.values || []).map(fromFs);
+      if ('mapValue' in v) return fieldsOf(v.mapValue.fields);
+      if ('timestampValue' in v) return v.timestampValue;
+      return null;
+    }
+
+    function fieldsOf(fields) {
+      var o = {};
+      Object.keys(fields || {}).forEach(function (k) { o[k] = fromFs(fields[k]); });
+      return o;
+    }
+
+    function getDoc(parts) {
+      return storeCall('GET', docPath(parts)).then(function (d) { return d ? fieldsOf(d.fields) : null; }, function (e) { if (e.status === 404) return null; throw e; });
+    }
+
+    function setDoc(parts, data, createOnly) {
+      return storeCall('PATCH', docPath(parts), { fields: toFs(data).mapValue.fields }, createOnly ? 'currentDocument.exists=false' : '');
+    }
+
+    function deleteDoc(parts) {
+      return storeCall('DELETE', docPath(parts)).then(null, function (e) { if (e.status === 404) return null; throw e; });
+    }
+
+    function listDocs(parts) {
+      var out = [];
+      function page(token) {
+        return storeCall('GET', docPath(parts), null, 'pageSize=300' + (token ? '&pageToken=' + encodeURIComponent(token) : '')).then(function (d) {
+          (d && d.documents ? d.documents : []).forEach(function (doc) { out.push({ id: doc.name.split('/').pop(), data: fieldsOf(doc.fields) }); });
+          return d && d.nextPageToken ? page(d.nextPageToken) : out;
+        });
+      }
+      return page('');
+    }
+
+    // ---- signing up, in and out ----
+    function signUp(name, surname, username, password) {
+      var uname = username.trim(), lower = uname.toLowerCase();
+      if (!name.trim() || !surname.trim()) return Promise.reject(new Error('Name and surname are both needed.'));
+      if (!USERNAME_RE.test(lower)) return Promise.reject(new Error(USERNAME_RULE));
+      if (password.length < 6) return Promise.reject(new Error('The password needs at least six characters.'));
+      var made = null;
+      return authCall('signUp', { email: usernameEmail(uname), password: password, returnSecureToken: true }).then(function (d) {
+        made = d;
+        account = { uid: d.localId, refreshToken: d.refreshToken, name: name.trim(), surname: surname.trim(), username: uname, syncedAt: '' };
+        idToken = d.idToken; idTokenAt = Date.now();
+        return setDoc(['usernames', lower], { uid: d.localId }, true);
+      }).then(function () {
+        var now = new Date().toISOString();
+        return setDoc(['users', account.uid], { name: account.name, surname: account.surname, username: uname, usernameLower: lower, createdAt: now, updatedAt: now });
+      }).then(function () {
+        saveAccount();
+        return syncAll();
+      }).then(function () { return account; }, function (e) {
+        // a half-made account is taken down again: the username was claimed by someone else
+        // between the two steps, or the profile could not be written
+        if (made) {
+          var tok = made.idToken;
+          account = null; idToken = null; saveAccount();
+          return authCall('delete', { idToken: tok }).then(function () { throw e; }, function () { throw e; });
+        }
+        throw e;
+      });
+    }
+
+    function signIn(username, password) {
+      var uname = username.trim();
+      if (!uname || !password) return Promise.reject(new Error('Username and password are both needed.'));
+      return authCall('signInWithPassword', { email: usernameEmail(uname), password: password, returnSecureToken: true }).then(function (d) {
+        account = { uid: d.localId, refreshToken: d.refreshToken, name: '', surname: '', username: uname, syncedAt: '' };
+        idToken = d.idToken; idTokenAt = Date.now();
+        return getDoc(['users', d.localId]);
+      }).then(function (profile) {
+        if (profile) {
+          account.name = typeof profile.name === 'string' ? profile.name : '';
+          account.surname = typeof profile.surname === 'string' ? profile.surname : '';
+          account.username = typeof profile.username === 'string' && profile.username ? profile.username : uname;
+        }
+        saveAccount();
+        return syncAll();
+      }).then(function () { return account; });
+    }
+
+    function signOut() {
+      clearTimeout(syncTimer);
+      account = null; idToken = null; idTokenAt = 0;
+      pushed = { lists: {}, entries: null };
+      syncState = { busy: false, last: '', error: '' };
+      saveAccount();
+    }
+
+    // ---- keeping the account and the device the same ----
+    // At sign-in the account's lists and notes meet the device's by the import
+    // rules: the newer of the two wins, and what only one side has is kept. A
+    // list the account lacks goes up if it changed on this device (or is new
+    // here); an untouched starting list stays on the device only; one this
+    // device had synced before was deleted elsewhere, so it goes. Then every
+    // difference goes up, and later saves push only what changed.
+    function listDoc(l) {
+      return { name: l.name, description: l.description || '', items: l.items.map(function (it) { return { name: it.name, symbol: it.symbol }; }), generic: !!l.generic, updated: l.updated || '' };
+    }
+
+    function syncAll() {
+      if (!account || !accountsOn()) return Promise.resolve();
+      syncState.busy = true; syncState.error = '';
+      var since = account.syncedAt || '';
+      return Promise.all([listDocs(['users', account.uid, 'watchlists']), getDoc(['users', account.uid, 'data', 'entries'])]).then(function (res) {
+        var cloud = cleanLists(res[0].map(function (d) {
+          return { id: d.id, name: d.data.name, description: d.data.description, items: d.data.items, updated: d.data.updated, generic: !!d.data.generic };
+        }));
+        var cloudIds = {};
+        pushed = { lists: {}, entries: null };
+        cloud.forEach(function (l) { cloudIds[l.id] = true; pushed.lists[l.id] = JSON.stringify(listDoc(l)); });
+        var cloudEntries = res[1] && res[1].entries ? cleanEntries(res[1].entries) : {};
+        pushed.entries = res[1] ? JSON.stringify(cloudEntries) : null;
+        // lists
+        cloud.forEach(function (theirs) {
+          var mine = listById(theirs.id);
+          if (mine && mine.updated && (!theirs.updated || mine.updated > theirs.updated)) return;
+          if (mine) { mine.name = theirs.name; mine.description = theirs.description; mine.items = theirs.items; mine.updated = theirs.updated; mine.generic = theirs.generic; }
+          else watchlists.lists.push(theirs);
+        });
+        watchlists.lists = watchlists.lists.filter(function (l) {
+          if (cloudIds[l.id] || l.generic) return true;
+          if (!l.updated) return true;                      // an untouched starting list: stays here, does not go up
+          return !(since && l.updated <= since);            // synced before and gone from the account: deleted elsewhere
+        });
+        ensureGenericList();
+        // notes
+        Object.keys(cloudEntries).forEach(function (id) {
+          var mine = entries[id], theirs = cloudEntries[id];
+          if (mine && mine.updated && theirs.updated && mine.updated > theirs.updated) return;
+          entries[id] = theirs;
+        });
+        saveLocalOnly();
+        return pushChanges(true);
+      }).then(function () {
+        syncState.busy = false; syncState.last = new Date().toISOString();
+        account.syncedAt = syncState.last; saveAccount();
+      }, function (e) {
+        syncState.busy = false; syncState.error = e.message;
+        throw e;
+      });
+    }
+
+    function saveLocalOnly() {
+      try { window.localStorage.setItem(WATCHLISTS_KEY, JSON.stringify({ version: 1, last: watchlists.last, lists: watchlists.lists })); } catch (e) {}
+      try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, entries: entries })); } catch (e) {}
+    }
+
+    function queueSync() {
+      if (!account || !accountsOn()) return;
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(function () { pushChanges(false); }, 600);
+    }
+
+    function pushChanges(all) {
+      if (!account || !accountsOn()) return Promise.resolve();
+      var jobs = [], seen = {}, uid = account.uid;
+      watchlists.lists.forEach(function (l) {
+        if (!l.generic && !l.updated && !pushed.lists.hasOwnProperty(l.id)) return;   // an untouched starting list stays on the device
+        var doc = listDoc(l), key = JSON.stringify(doc);
+        seen[l.id] = true;
+        if (pushed.lists[l.id] !== key) jobs.push(setDoc(['users', uid, 'watchlists', l.id], doc).then(function () { pushed.lists[l.id] = key; }));
+      });
+      Object.keys(pushed.lists).forEach(function (id) {
+        if (seen[id] || listById(id)) return;
+        jobs.push(deleteDoc(['users', uid, 'watchlists', id]).then(function () { delete pushed.lists[id]; }));
+      });
+      var ekey = JSON.stringify(entries);
+      if (pushed.entries !== ekey) jobs.push(setDoc(['users', uid, 'data', 'entries'], { entries: entries, updated: new Date().toISOString() }).then(function () { pushed.entries = ekey; }));
+      if (!jobs.length) return Promise.resolve();
+      syncState.busy = true;
+      return Promise.all(jobs).then(function () {
+        syncState.busy = false; syncState.last = new Date().toISOString(); syncState.error = '';
+        if (account) { account.syncedAt = syncState.last; saveAccount(); }
+        showSyncState();
+      }, function (e) {
+        syncState.busy = false; syncState.error = e.message;
+        showSyncState();
+        if (all) throw e;
+      });
+    }
+
+    function syncStateText() {
+      if (syncState.error) return 'Not synced: ' + syncState.error;
+      if (syncState.busy) return 'Syncing…';
+      if (syncState.last) return 'Synced ' + fmtWhen(syncState.last);
+      return '';
+    }
+
+    function fmtWhen(iso) {
+      var d = new Date(iso);
+      return isNaN(d.getTime()) ? '' : 'at ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' on ' + d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function showSyncState() {
+      var el = document.getElementById('acct-sync-state');
+      if (el) el.textContent = syncStateText();
+    }
+
+    // ---- the Account view ----
+    function accountFormHtml(kind) {
+      var up = kind === 'up';
+      return '<form class="acct" id="acct-' + kind + '" autocomplete="on"><h3>' + (up ? 'Make an account' : 'Sign in') + '</h3>' +
+        (up ? '<div class="f"><label for="up-name">Name</label><input type="text" id="up-name" autocomplete="given-name" required maxlength="80"></div>' +
+              '<div class="f"><label for="up-surname">Surname</label><input type="text" id="up-surname" autocomplete="family-name" required maxlength="80"></div>' : '') +
+        '<div class="f"><label for="' + kind + '-username">Username</label><input type="text" id="' + kind + '-username" autocomplete="username" required maxlength="20" autocapitalize="none" spellcheck="false"></div>' +
+        '<div class="f"><label for="' + kind + '-password">Password</label><input type="password" id="' + kind + '-password" autocomplete="' + (up ? 'new-password' : 'current-password') + '" required minlength="6"></div>' +
+        '<div class="row"><button type="submit" id="' + kind + '-go">' + (up ? 'Create the account' : 'Sign in') + '</button><span class="err" id="' + kind + '-err" role="alert"></span></div>' +
+        (up ? '<p class="hint">' + esc(USERNAME_RULE) + ' The password needs at least six characters.</p>' : '') + '</form>';
+    }
+
+    function renderAccount() {
+      showView('account');
+      var html = '<section class="account"><p class="kicker">Account</p>';
+      if (!accountsOn()) {
+        html += '<h2 class="headline">Accounts are not switched on yet</h2>' +
+          '<p class="hint">An account keeps your watchlists and chapter notes with you on any device. It needs the Firebase project set up and its key put in the page; until then everything stays on this device and travels in exports.</p>';
+      } else if (account) {
+        html += '<h2 class="headline">' + esc((account.name + ' ' + account.surname).trim() || account.username) + '</h2>' +
+          '<p class="who"><b>Signed in as</b>' + esc(account.username) + '</p>' +
+          '<p class="company-meta"><span id="acct-sync-state">' + esc(syncStateText()) + '</span>' +
+          '<button type="button" class="linkbtn" id="acct-sync">Sync now</button><button type="button" class="linkbtn" id="acct-out">Sign out</button></p>' +
+          '<p class="hint">Your watchlists, with their descriptions, and your chapter notes are kept with the account and follow you to any device you sign in on. Company numbers and your EODHD key stay on this device.</p>';
+      } else {
+        html += '<h2 class="headline">Sign in, or make an account</h2>' +
+          '<p class="hint">An account keeps your watchlists and chapter notes with you on any device. What is on this device now joins the account when you sign in.</p>' +
+          '<div class="forms">' + accountFormHtml('in') + accountFormHtml('up') + '</div>';
+      }
+      html += '<p class="status" id="acct-status" role="status" aria-live="polite"></p></section>';
+      app.innerHTML = html;
+      var statusLine = document.getElementById('acct-status');
+      function say(msg) { statusLine.textContent = msg; }
+      function busy(form, on) { Array.prototype.forEach.call(form.querySelectorAll('button, input'), function (el) { el.disabled = on; }); }
+      var inForm = document.getElementById('acct-in'), upForm = document.getElementById('acct-up');
+      if (inForm) inForm.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var err = document.getElementById('in-err'); err.textContent = '';
+        busy(inForm, true); say('Signing in…');
+        signIn(document.getElementById('in-username').value, document.getElementById('in-password').value).then(function (a) {
+          renderAccount(); document.getElementById('acct-status').textContent = 'Signed in as ' + a.username + '. ' + syncStateText();
+        }, function (e) { busy(inForm, false); say(''); err.textContent = e.message; });
+      });
+      if (upForm) upForm.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var err = document.getElementById('up-err'); err.textContent = '';
+        busy(upForm, true); say('Making the account…');
+        signUp(document.getElementById('up-name').value, document.getElementById('up-surname').value, document.getElementById('up-username').value, document.getElementById('up-password').value).then(function (a) {
+          renderAccount(); document.getElementById('acct-status').textContent = 'Welcome, ' + a.name + '. Your account is made and this device’s lists and notes are in it.';
+        }, function (e) { busy(upForm, false); say(''); err.textContent = e.message; });
+      });
+      var out = document.getElementById('acct-out');
+      if (out) out.addEventListener('click', function () { signOut(); renderAccount(); document.getElementById('acct-status').textContent = 'Signed out. Your lists and notes stay on this device.'; });
+      var syncNow = document.getElementById('acct-sync');
+      if (syncNow) syncNow.addEventListener('click', function () {
+        say('Syncing…');
+        syncAll().then(function () { showSyncState(); say('Synced.'); }, function (e) { showSyncState(); say('Not synced: ' + e.message); });
+      });
+    }
+
     var WATCHLISTS_KEY = 'wwws.watchlists.v1';
     var STARTING_LISTS = [
       ['My watchlist', [
@@ -2384,9 +2829,20 @@
         var id = typeof l.id === 'string' && /^[a-z0-9-]+$/.test(l.id) ? l.id : slugOf(name);
         if (!name || !id || seen[id]) return;
         seen[id] = true;
-        out.push({ id: id, name: name, items: cleanItems(l.items), updated: typeof l.updated === 'string' ? l.updated : '' });
+        var desc = typeof l.description === 'string' ? l.description.trim().slice(0, 280) : '';
+        out.push({ id: id, name: name, description: desc, items: cleanItems(l.items), updated: typeof l.updated === 'string' ? l.updated : '', generic: id === GENERIC_LIST_ID });
       });
       return out;
+    }
+
+    // The generic list every reader has: it cannot be deleted while signed in, and
+    // a device or an account without it gets it back empty.
+    var GENERIC_LIST_ID = 'my-watchlist';
+
+    function ensureGenericList() {
+      if (listById(GENERIC_LIST_ID)) return false;
+      watchlists.lists.unshift({ id: GENERIC_LIST_ID, name: 'My watchlist', description: '', items: [], updated: '', generic: true });
+      return true;
     }
 
     function startingLists() {
@@ -2411,12 +2867,14 @@
     var renderedList = null;
 
     function saveWatchlists() {
+      var ok = true;
       try {
         window.localStorage.setItem(WATCHLISTS_KEY, JSON.stringify({ version: 1, last: watchlists.last, lists: watchlists.lists }));
-        return true;
       } catch (e) {
-        return false;
+        ok = false;
       }
+      queueSync();
+      return ok;
     }
 
     function listById(id) {
@@ -2470,16 +2928,18 @@
           '<button type="submit" id="name-go">Delete</button><button type="button" class="secondary" id="name-cancel">Cancel</button></form>';
       }
       var rename = kind === 'rename';
-      return '<form class="add-form one" id="name-form" autocomplete="off">' +
+      return '<form class="add-form two" id="name-form" autocomplete="off">' +
         '<div class="f"><label for="list-name">' + (rename ? 'New name for this list' : 'Name of the new list') + '</label>' +
-        '<input type="text" id="list-name" value="' + (rename ? esc(list.name) : '') + '" placeholder="Banks"></div>' +
+        '<input type="text" id="list-name" value="' + (rename ? esc(list.name) : '') + '" placeholder="Banks" maxlength="60"></div>' +
+        '<div class="f"><label for="list-desc">Description, if you like</label>' +
+        '<input type="text" id="list-desc" value="' + (rename ? esc(list.description || '') : '') + '" placeholder="What this list is for" maxlength="280"></div>' +
         '<button type="submit" id="name-go">' + (rename ? 'Save' : 'Create') + '</button><button type="button" class="secondary" id="name-cancel">Cancel</button></form>';
     }
 
     function listActionsHtml(list) {
       return (list ? '<button type="button" class="linkbtn" id="list-rename">Rename</button>' : '') +
         '<button type="button" class="linkbtn" id="list-new">New list</button>' +
-        (list ? '<button type="button" class="linkbtn" id="list-delete">Delete this list</button>' : '') +
+        (list && !(list.generic && account) ? '<button type="button" class="linkbtn" id="list-delete">Delete this list</button>' : '') +
         (missingStartingLists().length ? '<button type="button" class="linkbtn" id="list-restore">Restore the starting lists</button>' : '');
     }
 
@@ -2498,9 +2958,36 @@
       }).join('');
       return '<p class="kicker">Watchlist</p>' +
         '<h2 class="headline">' + esc(list.name) + '</h2>' +
+        (list.description ? '<p class="wlist-desc">' + esc(list.description) + '</p>' : '') +
         '<p class="company-meta"><span>' + countText(list.items.length) + (kept ? ', ' + kept + ' with numbers kept on this device' : '') + (storedCount ? ', ' + storedCount + ' in the store' : '') + (sampledCount ? ', ' + sampledCount + ' with sample data' : '') + '</span>' + listActionsHtml(list) + '</p>' +
         '<div id="name-slot"></div>' +
-        (rows ? '<ol class="wlist">' + rows + '</ol>' : '<p class="hint">Nothing in this list yet.</p>');
+        (rows ? '<ol class="wlist">' + rows + '</ol>' : '<p class="hint">Nothing in this list yet.</p>') +
+        '<form class="add-form" id="add-form" autocomplete="off"><div class="f"><label for="add-symbol">Add a company by ticker</label>' +
+        '<input type="text" id="add-symbol" placeholder="KO.US"></div>' +
+        '<div class="f"><label for="add-name">Name, if the ticker is not on file</label><input type="text" id="add-name" placeholder="The Coca-Cola Company"></div>' +
+        '<button type="submit" id="add-go">Add</button></form>';
+    }
+
+    // The name a ticker is known by here: the kept copy, then the sample data,
+    // then the screen rows already loaded; else the ticker itself.
+    function knownName(symbol) {
+      var k = numbers.companies[symbol];
+      if (k && k.meta && k.meta.name) return k.meta.name;
+      var sm = samples.byId[symbol];
+      if (sm && sm.name) return sm.name;
+      var venue = bundle.index && bundle.index.symbols ? bundle.index.symbols[symbol] : '';
+      var rows = venue && bundle.rows[venue] && bundle.rows[venue].all ? bundle.rows[venue].all[symbol] : null;
+      if (rows && rows.name) return rows.name;
+      return '';
+    }
+
+    function addToList(list, name, symbol) {
+      var sym = normaliseSymbol(symbol);
+      if (!sym) return 'That is not a ticker.';
+      for (var i = 0; i < list.items.length; i++) if (list.items[i].symbol === sym) return (list.items[i].name || sym) + ' is already in ' + list.name + '.';
+      list.items.push({ name: (name || '').trim() || knownName(sym) || sym, symbol: sym });
+      touchList(list);
+      return '';
     }
 
     function noListHtml() {
@@ -2518,7 +3005,7 @@
       if (list && watchlists.last !== list.id) { watchlists.last = list.id; saveWatchlists(); }
       app.innerHTML = '<section class="watchlist">' + (list ? listHtml(list) : noListHtml()) +
         '<p class="status" id="list-status" role="status" aria-live="polite"></p>' +
-        '<p class="hint">Click a company to open its numbers. Lists are kept on this device and travel in exports.</p></section>';
+        '<p class="hint">Click a company to open its numbers. ' + (account ? 'Lists are kept with your account and on this device, and travel in exports.' : 'Lists are kept on this device and travel in exports.') + '</p></section>';
 
       var statusLine = document.getElementById('list-status');
       var slot = document.getElementById('name-slot');
@@ -2548,13 +3035,15 @@
           }
           var name = input.value.trim();
           if (!name) { input.focus(); return; }
+          var desc = (document.getElementById('list-desc').value || '').trim().slice(0, 280);
           if (kind === 'rename') {
             list.name = name;
+            list.description = desc;
             touchList(list);
             goTo(list.id, 'Renamed the list to ' + name + '.' + keptNote(saveWatchlists()));
             return;
           }
-          var fresh = { id: uniqueListId(name), name: name, items: [], updated: new Date().toISOString() };
+          var fresh = { id: uniqueListId(name), name: name, description: desc, items: [], updated: new Date().toISOString(), generic: false };
           watchlists.lists.push(fresh);
           goTo(fresh.id, 'Made the list ' + name + '.' + keptNote(saveWatchlists()));
         });
@@ -2567,6 +3056,16 @@
       on('list-restore', function () {
         var back = restoreStartingLists();
         goTo(list ? list.id : back[0].id, 'Brought back ' + back.length + (back.length === 1 ? ' starting list.' : ' starting lists.') + keptNote(saveWatchlists()));
+      });
+
+      var addForm = document.getElementById('add-form');
+      if (addForm && list) addForm.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var symInput = document.getElementById('add-symbol'), nameInput = document.getElementById('add-name');
+        var problem = addToList(list, nameInput.value, symInput.value);
+        if (problem) { say(problem); symInput.focus(); return; }
+        var added = list.items[list.items.length - 1];
+        goTo(list.id, 'Added ' + added.name + ' to ' + list.name + '.' + keptNote(saveWatchlists()));
       });
 
       Array.prototype.forEach.call(app.querySelectorAll('button.remove'), function (btn) {
@@ -3230,16 +3729,20 @@
     var viewNumbers = document.getElementById('view-numbers');
     var viewWatchlists = document.getElementById('view-watchlists');
     var viewScreen = document.getElementById('view-screen');
+    var viewAccount = document.getElementById('view-account');
     var sectionPick = document.getElementById('section-pick');
+    var currentView = '';
 
     function showView(name) {
       var onChapters = name === 'chapters';
+      currentView = name;
       viewChapters.classList.toggle('active', onChapters);
       viewNumbers.classList.toggle('active', name === 'numbers');
       viewScreen.classList.toggle('active', name === 'screen');
       viewWatchlists.classList.toggle('active', name === 'watchlists');
+      viewAccount.classList.toggle('active', name === 'account');
       sectionPick.hidden = !onChapters;
-      if (name === 'numbers') hideTabs();
+      if (name === 'numbers' || name === 'account') hideTabs();
     }
 
     function route() {
@@ -3258,6 +3761,13 @@
       if (screenMatch) {
         renderScreen(screenMatch[1] || '');
         document.title = (screenState.venue ? (VENUE_NAMES[screenState.venue] || screenState.venue) + ' - ' : '') + 'Screen - What Would Warren Say?';
+        window.scrollTo(0, 0);
+        bindFrames();
+        return;
+      }
+      if (/^account$/i.test(id)) {
+        renderAccount();
+        document.title = 'Account - What Would Warren Say?';
         window.scrollTo(0, 0);
         bindFrames();
         return;
@@ -3341,8 +3851,8 @@
       lists.forEach(function (theirs) {
         var mine = listById(theirs.id);
         if (mine && mine.updated && (!theirs.updated || mine.updated > theirs.updated)) { listsKept++; return; }
-        if (mine && mine.name === theirs.name && JSON.stringify(mine.items) === JSON.stringify(theirs.items)) return;
-        if (mine) { mine.name = theirs.name; mine.items = theirs.items; mine.updated = theirs.updated; }
+        if (mine && mine.name === theirs.name && (mine.description || '') === (theirs.description || '') && JSON.stringify(mine.items) === JSON.stringify(theirs.items)) return;
+        if (mine) { mine.name = theirs.name; mine.description = theirs.description || ''; mine.items = theirs.items; mine.updated = theirs.updated; }
         else watchlists.lists.push(theirs);
         listsIn++;
       });
