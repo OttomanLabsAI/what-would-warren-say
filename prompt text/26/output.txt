@@ -1,9 +1,0 @@
-v1.25 is on main. Chapter 10 is written up from your new export, chapters 7 and 9 show their arithmetic as equations, and chapter 8's chain reads as numbered instructions.
-
-Chapter 10, gross profit and the gross profit margin, opens with the book's box and the arrow on Gross Profit, then two equations: revenue less the cost of the raw goods and the labour to make them is the gross profit, and gross profit over revenue is the margin, with the book's $7,000 over $10,000 for 70% beneath it. A short table says what the margin tells you at 40% and at 20%, three columns hold the margins Warren points to, and ten points follow, with Durable Competitive Advantage in full and in bold. Your notes sit underneath as written, and the new export replaces the old one in the repository.
-
-On chapter 7 the income statement now reads Revenue − Expenses = Profit or loss, and chapter 9 reads Revenue − Cost of goods sold = Gross profit, in boxes joined by claret signs with the result in bold. Chapter 8's "Where it leads" is now "How to read it": four numbered steps, from reading the revenue as what came in and nothing more to judging the company on what is left.
-
-The two screenshots you pasted with "make this an equations" and "same here" arrived without file names, so they are kept in the archive as 11.webp and 12.webp, following the numbering of the earlier ones.
-
-Verified: thirteen headless-browser suites pass against the fixtures. The chapters suite now checks chapter 10's box, both equations and the example, the margin table, the columns, the ten points and the notes as written, the equations on chapters 7 and 9, the four numbered steps on chapter 8, the contents count of eleven written-up chapters, and chapter 10 on a phone. The deploy dry run passes, and the rendered home and not-found pages look as before. I looked over chapters 8 and 10 on desktop and chapter 10 on a phone by eye.

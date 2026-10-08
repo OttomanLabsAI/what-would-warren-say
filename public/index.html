@@ -322,6 +322,18 @@
     .compare .row { display: grid; grid-template-columns: minmax(9rem, 15rem) 1fr; gap: .8rem; padding: .5rem 0; border-bottom: 1px dotted var(--rule-light); font-size: .92rem; line-height: 1.4; }
     .compare .row b { color: var(--claret); }
     @media (max-width: 40rem) { .compare .row { grid-template-columns: 1fr; gap: .15rem; } }
+    .examples { margin: 0 0 1.2rem; font-family: var(--sans); }
+    .examples .dtitle { margin: 0 0 .3rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .examples .dated { margin: 0 0 .4rem; font-family: var(--text); font-style: italic; font-size: .95rem; color: var(--ink-60); }
+    .examples .row { display: grid; grid-template-columns: minmax(9rem, 15rem) 1fr; gap: .8rem; padding: .5rem 0; border-top: 1px dotted var(--rule-light); font-size: .92rem; line-height: 1.4; }
+    .examples .row b { color: var(--claret); }
+    .examples .sub { margin: 0 0 .2rem; font-family: var(--text); font-style: italic; font-size: .95rem; color: var(--ink-60); }
+    .examples ul { margin: 0; padding-left: 1.1rem; }
+    .examples li { margin: .1rem 0; }
+    .examples ul.inline { padding-left: 0; list-style: none; }
+    .examples ul.inline li { display: inline; margin: 0; }
+    .examples ul.inline li + li::before { content: ' · '; color: var(--claret); }
+    @media (max-width: 40rem) { .examples .row { grid-template-columns: 1fr; gap: .15rem; } }
     .statement { display: inline-block; min-width: 18rem; max-width: 100%; box-sizing: border-box; padding: .9rem 1.1rem 1rem; border: 1px solid var(--ink); background: var(--white); font-family: var(--text); }
     .statement h4 { margin: 0; font-size: 1.05rem; font-weight: 700; }
     .statement .unit { margin: .15rem 0 .7rem; font-size: .95rem; }
@@ -554,17 +566,20 @@
       '3': {
         type: 'background',
         thesis: 'Two kinds of business have a Durable Competitive Advantage: the one that sells something unique, and the one that sells what everyone needs for less.',
-        diagrams: [{ kind: 'tree', root: 'Where a Durable Competitive Advantage comes from', branches: [
-          { title: 'A unique product', lines: ['A product the public keeps coming back for, that no one else quite makes.'], chips: ['Coca-Cola', 'Pepsi', 'Hershey’s', 'Budweiser', 'Coors', 'Kraft', 'The Washington Post', 'Procter & Gamble', 'Philip Morris'] },
-          { title: 'A unique service', lines: ['The Durable Competitive Advantage belongs to the institution, not to the people in it.'], chips: ['Moody’s', 'H&R Block', 'American Express', 'ServiceMaster', 'Wells Fargo'] },
-          { title: 'The low-cost buyer and seller of what the public consistently needs', lines: ['Big margins are traded for volume, and the volume makes up for the thin margin.', 'The best price in town becomes part of the customer’s story of where to shop.'], chips: ['Wal-Mart', 'Costco', 'Nebraska Furniture Mart', 'Borsheim’s', 'Burlington Northern Santa Fe Railway'] }
-        ] }],
-        points: [
+        body: [{ kind: 'tree', root: 'Where a Durable Competitive Advantage comes from', branches: [
+          { title: 'A unique product', lines: ['A product the public keeps coming back for, that no one else quite makes.'] },
+          { title: 'A unique service', lines: ['The Durable Competitive Advantage belongs to the institution, not to the people in it.'] },
+          { title: 'The low-cost buyer and seller of what the public consistently needs', lines: ['Big margins are traded for volume, and the volume makes up for the thin margin.', 'The best price in town becomes part of the customer’s story of where to shop.'] }
+        ] }, { examples: [
+          { title: 'A unique product', inline: true, items: ['Coca-Cola', 'Pepsi', 'Hershey’s', 'Budweiser', 'Coors', 'Kraft', 'The Washington Post', 'Procter & Gamble', 'Philip Morris'] },
+          { title: 'A unique service', inline: true, items: ['Moody’s', 'H&R Block', 'American Express', 'ServiceMaster', 'Wells Fargo'] },
+          { title: 'The low-cost buyer and seller', inline: true, items: ['Wal-Mart', 'Costco', 'Nebraska Furniture Mart', 'Borsheim’s', 'Burlington Northern Santa Fe Railway'] }
+        ] }, { points: [
           'Warren starts his search with two questions: does the company sell a unique product or service, or is it the low-cost buyer and seller of something the public consistently needs?',
           'A unique product or service earns its margin because nothing else will do.',
           'The low-cost seller earns its money on volume instead, and its price becomes its reputation.',
           'In a service business the Durable Competitive Advantage has to sit with the institution; one that walks out of the door with its people is not durable.'
-        ],
+        ] }],
         raw: "- A company that sells a unique product/service.\n(product eg. Coca-Cola, Pepsi, Hershey's, Budweiser, Coors, Kraft, Waahington post, Proctor & Gamble, Philip Morris)\n(service eg. Moody's, H & R Block Inc. AMEX, Service Master Co., Wells Fargo - Institution specific, not people specific)\n\n- Low cost buyer/seller of product/service the public consistently needs. Big margins are traded for volume as increase in volume makes up for low margins. The best price in town becomes part of the consumer's story of where to shop.\n(eg. Wal-Mart, Costco, Nebraska, Furniture Mart, Borsheim Jewelers, Burlington Northern, Santa Fe Railway"
       },
       '4': {
@@ -663,28 +678,29 @@
       '10': {
         type: 'metric',
         thesis: 'Gross profit on its own says little. The gross profit margin, gross profit divided by revenue, says a great deal about the economic nature of a business.',
-        diagrams: [
+        body: [
           { kind: 'statement', title: STATEMENT_BOX.title, unit: STATEMENT_BOX.unit, rows: STATEMENT_BOX.rows, rule: STATEMENT_BOX.rule, arrow: 2, caption: 'The same box as chapters 8 and 9. The arrow marks the line this chapter is about.' },
-          { kind: 'equation', title: 'Gross profit', terms: ['Revenue', 'Cost of the raw goods and the labour to make them', 'Gross profit'], ops: ['−', '='], note: 'Selling and administrative costs, depreciation and the interest cost of running the business are not taken out here.' },
           { kind: 'equation', title: 'Gross profit margin', terms: ['Gross profit', 'Revenue', 'Gross profit margin'], ops: ['÷', '='], example: ['$7,000', '$10,000', '70%'] },
+          { kind: 'equation', title: 'Gross profit', terms: ['Revenue', 'Cost of the raw goods and the labour to make them', 'Gross profit'], ops: ['−', '='], note: 'Selling and administrative costs, depreciation and the interest cost of running the business are not taken out here.' },
+          { points: [
+            'Gross profit does not tell us much. The gross profit margin can tell us a lot about the economic nature of a business.',
+            'Companies with consistently higher gross profit margins have excellent long-term economics working in their favour, and those without do not.'
+          ] },
+          { examples: [
+            { title: 'High and consistent margins', sub: 'Excellent long-term economics working in their favour', items: ['Coca-Cola, 60% and more, year after year', 'Moody’s, 73%', 'Burlington Northern Santa Fe Railway, 61%', 'Wrigley, 51%'] },
+            { title: 'Low and struggling', sub: 'Competition eating the margin', items: ['United Airlines, 14%, and always in and out of bankruptcy', 'General Motors, 21%', 'US Steel, 17%', 'Goodyear, 20%, in a bad economy'] },
+            { title: 'Technology', sub: 'Which Warren stays away from, because he says he does not understand it', items: ['Microsoft, 79%', 'Apple, 33%', 'Does that mean Microsoft has the better economics?'] }
+          ] },
+          { points: [
+            'A Durable Competitive Advantage creates the higher margin: it gives the freedom to price the product or service well in excess of the cost of goods sold.'
+          ] },
           { kind: 'compare', title: 'What the margin says', rows: [['40% and up', 'Tends to have a Durable Competitive Advantage, with exceptions.'], ['Under 40%', 'A highly competitive industry, where competition hurts margins, with exceptions.'], ['Under 20%', 'A fiercely competitive industry.']] },
-          { kind: 'cols', title: 'The margins Warren points to', cols: [
-            { title: 'High and consistent', sub: 'Excellent long-term economics working in their favour', lines: ['Coca-Cola, 60% and more, year after year', 'Moody’s, 73%', 'Burlington Northern Santa Fe Railway, 61%', 'Wrigley, 51%'] },
-            { title: 'Low and struggling', sub: 'Competition eating the margin', lines: ['United Airlines, 14%, and always in and out of bankruptcy', 'General Motors, 21%', 'US Steel, 17%', 'Goodyear, 20%, in a bad economy'] },
-            { title: 'Technology', sub: 'Which Warren stays away from, because he says he does not understand it', lines: ['Microsoft, 79%', 'Apple, 33%', 'Does that mean Microsoft has the better economics?'] }
+          { points: [
+            'Companies without a Durable Competitive Advantage are never going to make us rich.',
+            'The gross profit margin test is not failsafe, but it is an early indicator that a company has a Durable Competitive Advantage.',
+            'Track the last ten years to be sure of consistency, because consistency is the name of the game.',
+            'High research costs, high selling and administrative costs and high interest on debt can strip the potential from a high-margin company. They are a thorn in the side of any company, and they are called operating expenses.'
           ] }
-        ],
-        points: [
-          'Gross profit is revenue less the cost of the raw goods and the labour that made them. It does not include the selling and administrative costs, depreciation or the interest cost of running the business.',
-          'Gross profit does not tell us much. The gross profit margin can tell us a lot about the economic nature of a business.',
-          'Companies with consistently higher gross profit margins have excellent long-term economics working in their favour, and those without do not.',
-          'A Durable Competitive Advantage creates the higher margin: it gives the freedom to price the product or service well in excess of the cost of goods sold.',
-          '40% and up tends to mean a Durable Competitive Advantage, with exceptions. Under 40% points to a highly competitive industry where competition hurts margins, again with exceptions. Under 20% is a fiercely competitive industry.',
-          'Companies without a Durable Competitive Advantage are never going to make us rich.',
-          'The gross profit margin test is not failsafe, but it is an early indicator that a company has a Durable Competitive Advantage.',
-          'Track the last ten years to be sure of consistency, because consistency is the name of the game.',
-          'Warren stays away from technology because, he says, he does not understand it. Microsoft at 79% against Apple at 33% raises the question whether Microsoft has the better economics.',
-          'High research costs, high selling and administrative costs and high interest on debt can strip the potential from a high-margin company. They are a thorn in the side of any company, and they are called operating expenses.'
         ],
         raw: "GP Margin = GP / Revenue\neg. 7000 / 10000 = 70%\n\nGP = Revenue - cost of raw good  and labor to make the goods\n\nDoesn't include sales & admin costs, depreciation, interest costs of running the business\n\nGP doesn't tell us much but GP margin can tell us a lot about the economic nature of a business\n\nConsistently higher GP Margins show excellent long term economics working in their favour than those that don't\n(eg. Coca-Cola shows 60% + consistently, Moody's 73%, Burlington Northern Santa Fe Railway 61%, Wrigely & Co. 51%)\n(Contrast eg. United Airlines 14% and always in & out of bankruptcy, GM 21%, US Steel 17% Goodyear 20% in a bad economy)\n\nWarren stays away from technology because he says he doesn't understand it.\nMicrosoft 79%\nApple 33%\nIndicates that Microsoft has better economics?\n\nDCA creates higher margins hence allows the freedom to price the products/services well in excess of cost of goods sold.\n\n40%+ tend to have DCA but there are exceptions\n\nLower than 40% indicates a highly competitive industry where competition hurts margins but there are exceptions\n\nBelow 20% indicates fiercely competitive industry\n\nCompanies without a competitve advantage are never going to make use rich\n\nThe GP Margin test is not failsafe but it is an early indicator that they have DCA\n\nTrack the last 10 years to ensure consistency as consistency is the name of the game\n\nhigh research costs, high sellin & admin costs and high interest on debt can strip the competitive advantage potential from a high GP margin company. They can be a thorn in the side of any company. These are called operating expenses"
       },
@@ -771,11 +787,32 @@
       return esc(s).split(TERM).join('<strong class="term">' + TERM + '</strong>');
     }
 
+    // The examples the owner's notes give sit in a section of their own under
+    // the points, dated: the book's examples are of 2008, its first edition,
+    // and of the 2011 second edition the owner reads.
+    var EXAMPLES_NOTE = 'The book’s examples, as written for its first edition in 2008 and its second edition of 2011, the one these notes are read from. The figures are of that time.';
+    function examplesHtml(groups) {
+      if (!groups || !groups.length) return '';
+      return '<div class="examples"><p class="dtitle">Examples from your notes</p><p class="dated">' + esc(EXAMPLES_NOTE) + '</p>' + groups.map(function (g) {
+        return '<div class="row"><b>' + wr(g.title) + '</b><div>' + (g.sub ? '<p class="sub">' + wr(g.sub) + '</p>' : '') +
+          '<ul' + (g.inline ? ' class="inline"' : '') + '>' + g.items.map(function (it) { return '<li>' + wr(it) + '</li>'; }).join('') + '</ul></div></div>';
+      }).join('') + '</div>';
+    }
+
+    // A breakdown's body runs in the order of the owner's notes: diagrams,
+    // runs of points and the examples section wherever the notes have them.
+    // A chapter without a body draws its diagrams, then its points.
+    function partHtml(part) {
+      if (part.points) return '<ul class="points">' + part.points.map(function (p) { return '<li>' + wr(p) + '</li>'; }).join('') + '</ul>';
+      if (part.examples) return examplesHtml(part.examples);
+      return diagramHtml(part);
+    }
+
     function breakdownHtml(ch, b) {
+      var body = b.body || (b.diagrams || []).concat(b.points ? [{ points: b.points }] : []);
       return '<p class="type-line"><span class="mark type-tag">' + esc(TYPE_NAMES[b.type]) + '</span> <span>Written up from your notes.</span></p>' +
         '<p class="thesis">' + wr(b.thesis) + '</p>' +
-        b.diagrams.map(diagramHtml).join('') +
-        '<ul class="points">' + b.points.map(function (p) { return '<li>' + wr(p) + '</li>'; }).join('') + '</ul>' +
+        body.map(partHtml).join('') +
         '<details class="raw-notes"><summary>Your notes, as written</summary><pre>' + esc(b.raw) + '</pre></details>';
     }
 

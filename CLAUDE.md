@@ -65,8 +65,19 @@ a root with branches and chips, `cols` columns, `checks` a tick list with a
 note, `sum` lines adding to a total, `compare` labelled rows, `statement` the
 book's income-statement box with `rows`, a `rule` under one row and an
 `arrow` on the chapter's line, as in the owner's photographs for chapters 8
-and 9 and reused with the arrow on Gross Profit for chapter 10), `points` and `raw` (the owner's summary from the export, byte for
-byte, shown closed under "Your notes, as written"). `renderChapter` draws a
+and 9 and reused with the arrow on Gross Profit for chapter 10), `points`, and `raw` (the owner's summary from the export, byte for
+byte, shown closed under "Your notes, as written"). A chapter whose notes
+give examples has a `body` instead of `diagrams` and `points`: the parts in
+the order of the notes, each a diagram, `{ points: [...] }` or `{ examples:
+[...] }`, the examples `{ title, sub, items, inline }` groups drawn by
+`examplesHtml` as a section of their own wherever the notes have them,
+headed "Examples from your notes" and dated with `EXAMPLES_NOTE` (the
+book's first edition of 2008 and the 2011 second edition the owner reads;
+the figures of that time), `inline` running plain names in one line.
+Chapter 3 has the tree, the examples, then the points; chapter 10 the box,
+the two equations, points, the examples, a point, the margin table, points.
+`partHtml` draws a part; a chapter without a body draws its diagrams, then
+its points. `renderChapter` draws a
 breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
@@ -423,3 +434,4 @@ design are their own release, requested deliberately.
 | v1.23 | Five years by default, the advantage named in full | The share-price chart now opens on its five-year span, and the graph behind any line of the table opens on the last five years, with the other spans and windows one click away as before. The written-up chapters now say Durable Competitive Advantage in full and in bold wherever your notes say DCA, while the notes themselves stay as you wrote them. |
 | v1.24 | The current price, big, above its chart | The share-price chart no longer prints the latest price beside the end of the line. The current price now sits as a big figure at the top right of the chart's window, with the day's change and the time of the quote beneath it, where the eye goes first. |
 | v1.25 | Chapter 10 written up, the arithmetic as equations | Gross profit and the gross profit margin, chapter 10, now read as a written-up breakdown from your notes: the book's box with the arrow on gross profit, the two equations with the book's example, what the margin says at 40% and 20%, the margins Warren points to, and your notes as written. The income statement and cost of goods sold chapters now show their arithmetic as equations rather than a chain of boxes, and the revenue chapter's chain reads as numbered instructions. |
+| v1.26 | The notes' examples in a section of their own | The companies and margins your notes give as examples now sit in a section of their own, headed Examples from your notes, placed where your notes have them: between the kinds of business and the points on chapter 3, and between the points on gross margin and the rule of thumb on chapter 10, whose parts now run in the order of your notes. A line under the heading says they are the book's examples, from its first edition of 2008 and the 2011 second edition you are reading, and that the figures are of that time. |
