@@ -1,5 +1,0 @@
-how can i set the data to incorpoart stock splits? don't edit the code yet on this question, just advise a fast way
-
-does the api have stock split dates?
-
-option 1

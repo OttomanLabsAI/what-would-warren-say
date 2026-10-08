@@ -3729,11 +3729,28 @@
       return m ? parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1] : ymd;
     }
 
-    // the points of a span: each bar's close, divided by the splits since its date
-    // so the whole line reads in today's shares
+    // the day a bar's close was struck, which is what a split is before or after:
+    // a daily bar's own date; for a weekly bar, which EODHD dates by its Monday,
+    // the end of that week (a bar dated Friday or later is its own end); for a
+    // monthly bar, dated by the first of the month, the last day of the month
+    function barCloseDate(date, period) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(date);
+      if (!m || period === 'd') return date;
+      var y = +m[1], mo = +m[2], d = +m[3], t;
+      if (period === 'm') t = new Date(Date.UTC(y, mo, 0));
+      else {
+        var day = new Date(Date.UTC(y, mo - 1, d)).getUTCDay();
+        if (day < 1 || day > 4) return date;
+        t = new Date(Date.UTC(y, mo - 1, d + 7 - day));
+      }
+      return t.getUTCFullYear() + '-' + pad(t.getUTCMonth() + 1) + '-' + pad(t.getUTCDate());
+    }
+
+    // the points of a span: each bar's close, divided by the splits since the day
+    // the close was struck, so the whole line reads in today's shares
     function pricePoints(span, rows, splits) {
       if (!Array.isArray(rows)) return [];
-      var pts = [];
+      var pts = [], period = span === 'all' ? 'm' : (span === '5y' || span === '10y') ? 'w' : 'd';
       if (span === '1d') {
         var byDay = {};
         rows.forEach(function (r) {
@@ -3756,7 +3773,7 @@
         if (date.length < 10 || close === null) return;
         var m = /^(\d{4})-(\d{2})/.exec(date);
         var short = span === 'all' ? m[1] : (span === '5y' || span === '10y') ? MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1].slice(2) : parseInt(date.slice(8, 10), 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1];
-        pts.push({ date: date, label: span === 'all' ? MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1] : dayLabel(date), short: short, value: close / splitFactor(splits, date) });
+        pts.push({ date: date, label: span === 'all' ? MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1] : dayLabel(date), short: short, value: close / splitFactor(splits, barCloseDate(date, period)) });
       });
       pts.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
       return pts;

@@ -274,10 +274,16 @@ already: `outstandingShares`, `Earnings.History` and the balance sheet's
 `commonStockSharesOutstanding` alike, checked on the owner's own pull of
 Apple, Nvidia, Tesla, Amazon, Alphabet and Broadcom, so the table's
 per-share lines need no adjustment and get none. The daily closes are as
-traded, so the price chart divides every bar before a split by the splits
-since its date (`splitFactor`, applied in `pricePoints`, which takes the
+traded, so the price chart divides every bar struck before a split by the
+splits since (`splitFactor`, applied in `pricePoints`, which takes the
 rows kept in `priceSeries` and the company's splits at draw time), and its
-units line says which splits it is restated for (`restatedText`). The list
+units line says which splits it is restated for (`restatedText`). A bar is
+judged by the day its close was struck, not its label (`barCloseDate`):
+EODHD dates a weekly bar by its Monday and a monthly bar by the first of
+the month, so the bar is placed at the end of that week (a bar dated
+Friday or later is its own end) or the last day of that month; judged by
+the label, the month of Nvidia's ten-for-one read as a crash to a tenth,
+its close struck after the split but its date before it. The list
 is EODHD's `splits/<symbol>` reply, kept by `readSplits` as it came,
 `{ date, split, ratio }` with the ratio new shares over old, oldest first,
 mirrored in `tools/lib/pull.mjs`. A company with none on file asks for it
@@ -552,3 +558,4 @@ design are their own release, requested deliberately.
 | v1.31 | Accounts at Firebase, watchlists that follow you | An Account tab now lets you make an account with your name, surname, a username and a password, and sign in on any device. Your watchlists and chapter notes are kept with the account and meet what is on the device when you sign in, the newer side winning. Every account has the generic My watchlist, you can make custom lists with a description if you like, and adding a company is back: from its own page into any list, or by ticker under a list. Company numbers and your EODHD key stay on the device. The account store waits only for the Firebase project and its key. |
 | v1.32 | The book's boxes for six chapters, and chapter 16 | Chapters 11 to 16 now open with the book's own income-statement box from your photographs, the arrow on each chapter's line, down to the interest expense and the gain on the sale of assets. Chapter 16, the gain or loss on the sale of assets and the catch-all other, is written up from your notes: the equation, the book's property as a worked example, and why Warren takes these one-off items out before judging a business. |
 | v1.33 | Stock splits on file, the price chart restated | Every company now carries its stock splits from EODHD, fetched with its fundamentals, and the share-price chart divides the prices before each split by its ratio, so a four-for-one no longer reads as a crash. The company page lists the splits under the next report date. The per-share figures in the table needed nothing: EODHD restates them already, as your own pull shows. |
+| v1.34 | The month of a split no longer reads as a crash | On the all-time chart the month in which a company split was divided once too often, so Nvidia's June 2024 fell from 109 to 12 and back. Each weekly and monthly bar is now judged by the day its closing price was struck, the end of its week or month, rather than the date the bar is labelled with, and the month of a split reads as it traded. |

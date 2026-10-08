@@ -1,0 +1,3 @@
+theres a weird flash crash on nvda in all time that doesnt exist on the other graphs
+
+it says it crashes from 109.63 to 12.35 in jun 2024
