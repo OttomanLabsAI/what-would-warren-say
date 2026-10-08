@@ -45,7 +45,8 @@
     .tagline { margin: .4rem 0 0; font-style: italic; color: var(--ink-70); font-size: 1.05rem; }
 
     /* controls */
-    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; padding: .7rem 1rem; border-bottom: 1px solid var(--rule); font-family: var(--sans); }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem .75rem; padding: .7rem 1rem; border-bottom: 1px solid var(--rule); font-family: var(--sans); }
+    .controls > button { padding: .5rem .7rem; }
     .controls label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
     select { font-family: var(--sans); font-size: .95rem; color: var(--ink); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2333302E' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right .65rem center; border: 1px solid var(--ink); border-radius: 0; padding: .45rem 2rem .45rem .65rem; appearance: none; -webkit-appearance: none; max-width: 100%; }
     select:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
@@ -58,12 +59,12 @@
 
     /* view nav: Companies | Watchlists | Chapters */
     .views { display: flex; flex-wrap: wrap; gap: .15rem; }
-    .view { font-family: var(--sans); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .5rem; border-bottom: 3px solid transparent; }
+    .view { font-family: var(--sans); font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-60); text-decoration: none; padding: .45rem .5rem; border-bottom: 3px solid transparent; }
     .view:hover { color: var(--ink); }
     .view.active { color: var(--claret); border-bottom-color: var(--claret); }
     @media (max-width: 40rem) { .view { padding: .45rem .35rem; font-size: .68rem; letter-spacing: .05em; } }
-    .section-pick { display: flex; align-items: center; gap: .6rem; flex: 1 1 13rem; min-width: 0; max-width: 34rem; }
-    .section-pick select { flex: 1 1 0; min-width: 0; max-width: 11rem; }
+    .section-pick { display: flex; align-items: center; gap: .6rem; flex: 4 1 13rem; min-width: 0; max-width: 34rem; }
+    .section-pick select { flex: 1 1 0; min-width: 0; max-width: 13.5rem; font-size: .9rem; padding-right: 1.6rem; }
     .section-pick[hidden] { display: none; }
     @media (min-width: 50rem) { .section-pick[hidden] { display: flex; visibility: hidden; } }
 
@@ -360,6 +361,7 @@
     .statement td.v { text-align: right; padding-left: 2.5rem; font-variant-numeric: tabular-nums; }
     .statement tr.underlined td { border-bottom: 1px solid var(--ink); }
     .statement tr.underlined td.ar { border-bottom: 0; }
+    .statement tr.gap td { padding: 0; height: .6rem; }
     .points { margin: 0 0 1.2rem; padding-left: 1.2rem; font-size: 1.08rem; line-height: 1.5; }
     .breakdown strong.term { font-weight: 600; }
     .breakdown .thesis strong.term { font-weight: 900; }
@@ -560,6 +562,17 @@
     // (chapters 8 and 9, from the owner's photographs), and the notes as written.
     // A chapter here counts as written and carries the owner's chapter type.
     var STATEMENT_BOX = { title: 'Income Statement', unit: '($ in millions)', rows: [['Revenue', '$10,000'], ['Cost of Goods Sold', '3,000'], ['Gross Profit', '$7,000']], rule: 1 };
+    // The fuller box of chapters 11 to 15 from the owner's photographs: a row of
+    // null is a gap, a value of null a heading. Chapter 12's third operating line
+    // reads "Interest" in the book, and is kept so.
+    var OPEX_ROWS = [['Revenue', '$10,000'], ['Cost of Goods Sold', '3,000'], ['Gross Profit', '7,000'], null, ['Operating Expenses', null], ['Selling, General & Admin.', '2,100'], ['Research & Development', '1,000'], ['Depreciation', '700'], ['Operating Profit', '$3,200']];
+    function opexBox(arrows, caption, rows) {
+      var r = rows || OPEX_ROWS;
+      return { kind: 'statement', title: 'Income Statement', unit: '($ in millions)', rows: r, rules: [1, 7], arrows: arrows, caption: caption };
+    }
+    var OPEX_ROWS_12 = OPEX_ROWS.map(function (r) { return r && r[0] === 'Depreciation' ? ['Interest', '700'] : r; });
+    var OPEX_ROWS_15 = OPEX_ROWS.map(function (r) { return r && r[0] === 'Operating Profit' ? ['Operating Profit', '3,200'] : r; }).concat([null, ['Interest Expense', '$200']]);
+    var OTHER_ROWS_16 = [['Operating Expenses', null], ['Selling, General & Admin.', '$2,100'], ['Research & Development', '1,000'], ['Depreciation', '700'], ['Operating Profit', '3,200'], null, ['Interest Expense', '200'], ['Gain (Loss) Sale Assets', '1,275'], ['Other', '225']];
     var BREAKDOWNS = {
       '1': {
         type: 'background',
@@ -726,7 +739,7 @@
       '11': {
         type: 'overview',
         thesis: 'Operating expenses are a group of costs that add up to one total, and each of them gets a chapter of its own.',
-        diagrams: [{ kind: 'sum', title: 'What adds up to total operating expenses', items: [
+        diagrams: [opexBox([4], 'The box from the book, chapter 11. The arrow marks the lines this chapter is about.'), { kind: 'sum', title: 'What adds up to total operating expenses', items: [
           ['Research and development of new products', '13'],
           ['Selling and administrative costs of getting the product to market', '12'],
           ['Depreciation and amortisation', '14'],
@@ -744,6 +757,7 @@
         type: 'metric',
         thesis: 'Selling, general and administrative expenses have to be low and, above all, consistent. The share of the gross profit they take is one of Warren’s tests of a Durable Competitive Advantage.',
         body: [
+          opexBox([5], 'The box from the book, chapter 12, as printed. The arrow marks the line this chapter is about.', OPEX_ROWS_12),
           { points: [
             'SG&A is selling, general and administrative expenses: management salaries, advertising, travel, legal fees, commissions, all payroll costs and the like.',
             'SG&A needs to be consistent.',
@@ -769,6 +783,7 @@
         type: 'metric',
         thesis: 'An advantage that has to be reinvented is not a sure thing: newer technology or an expiring patent can take it away, and Warren is not interested in anything that is not a sure thing.',
         body: [
+          opexBox([2, 6], 'The box from the book, chapter 13. The arrows mark the lines this chapter sets against each other.'),
           { kind: 'compare', title: 'How a research-built advantage dies', rows: [['Newer technology', 'When the Durable Competitive Advantage comes from a technical lead, there is always the threat that newer technology will replace it: today’s advantage may become tomorrow’s obsolescence.'], ['An expiring patent', 'A Durable Competitive Advantage protected by a patent, as in pharmaceuticals, disappears when the patent runs out.']] },
           { examples: [
             { title: 'Newer technology', items: ['Microsoft and Google, each afraid of the other’s advances'] }
@@ -791,6 +806,7 @@
         type: 'metric',
         thesis: 'Depreciation is a real cost: the wearing out of the machines and buildings, spread over their working lives. Warren counts it in every calculation of earnings, and the companies he wants spend the least of their gross profit on it.',
         body: [
+          opexBox([2, 7], 'The box from the book, chapter 14. The arrows mark the lines this chapter sets against each other.'),
           { points: [
             'All machinery and buildings wear out, and the wearing out is booked as depreciation.',
             'The cost is divided by the estimated years from purchase to unusable, and that amount is accounted for as a cost each year up to the final year.'
@@ -825,6 +841,7 @@
         type: 'metric',
         thesis: 'Interest is the cost of debt, and the companies Warren wants have little or none of it. Where it is high, either the industry is fiercely competitive or the debt came with a buyout.',
         body: [
+          opexBox([2, 10], 'The box from the book, chapter 15. The arrows mark the lines this chapter sets against each other.', OPEX_ROWS_15),
           { kind: 'compare', title: 'Why a company pays a lot of interest', rows: [['A fiercely competitive industry', 'Heavy capital spending is required just to stay competitive, and debt funds it.'], ['A leveraged buyout', 'Excellent business economics, but the debt was taken on when the company was bought.']] },
           { points: [
             'Companies with a Durable Competitive Advantage have little or no interest expense.'
@@ -841,6 +858,28 @@
           ] }
         ],
         raw: "Companies with high interest payouts either:\n-Are in a fiercely competitive industry where a large cap ex is requited to stay competitive\n-Have excellent business economics where the debt was bought in a leveraged buyout\n\nDCA companies have little or no interest expenses.\n\nProctor & gamble - 8% of Operating Income\nWrigley's & Co. 7%\n\nGoodyear - 49%\nSouthwest Airlines 9%\n\nUnited Airlines - 61%\n\nAmerican Airlines -92%\n\nWells Fargo - 30% - Wells Fargo is high, but it is the lowest of America's big 5 banks and has a AAA rating from Standard & Poor's\n\nA DCA tends to have less that 15% of operating income as Interest Expenses\n\nIn any industry, the company with the lowest interest expense to operating income ratio is the most likely to have to have a competitive advantage"
+      },
+      '16': {
+        type: 'metric',
+        thesis: 'A gain or a loss on the sale of an asset, and the catch-all “other”, are one-off events. They can swell a year’s bottom line, so Warren takes them out before judging the business.',
+        body: [
+          { kind: 'statement', title: 'Income Statement', unit: '($ in millions)', rows: OTHER_ROWS_16, rules: [3], arrows: [7, 8], caption: 'The box from the book, chapter 16. The arrows mark the lines this chapter is about.' },
+          { points: [
+            'The sale of an asset other than inventory is recorded as a gain or a loss on the sale of assets.'
+          ] },
+          { kind: 'equation', title: 'Gain or loss', terms: ['Sale amount', 'Amount shown on the books', 'Gain or loss'], ops: ['−', '='] },
+          { examples: [
+            { title: 'A property bought for $1,000,000 and depreciated to $500,000', items: ['Sold for $800,000: a gain of $300,000, because $800,000 less $500,000 is $300,000', 'Sold for $400,000: a loss of $100,000, because $400,000 less $500,000 falls $100,000 short'] }
+          ] },
+          { points: [
+            '“Other” is recorded the same way as a gain or loss on assets.',
+            '“Other” holds the non-operating, unusual income and expense events. They are totalled and entered into the income statement.',
+            'The sale of fixed assets, plant, property, machinery and equipment, and the licensing of equipment or the sale of patents, assuming these are outside the normal business.',
+            'Sometimes these “other” items add significantly to the bottom line.',
+            'As they are non-recurring events, Warren believes they should be removed when working out whether the company has a Durable Competitive Advantage.'
+          ] }
+        ],
+        raw: "-Sale of an asset other than inventory is recorded as a agin/loss on sale assets\n\nGain/Loss = Sale Amount - Amount shown on books\n\nIf a property is bought for $1,000,000 -> depreciated to $500,000 over the years -> sold for $800,000 \nThis is recorded as a GAIN of $300,000 because $800,000 - $500,000 = $300,000\n\nSimilar, if a property is bought for $1,000,000 -> depreciated to $500,000 over the years -> sold for $400,000 \nThis is recorded as a LOSS of $100,000 because $400,000 - $500,000 = $100,000\n\n-Other is recorded the say way as Gain/Loss of Assets\n\n-Other includes non-operating, unusual income and expense events. Thay are totalled and entered intot the income statement\n\n-Sale of fixed assets - plant, property, machinery, equipment\n-Licensing equipment, sale of patents, assuming these are outside normal business events.\n\n-Sometimes these \"Other\" costs significantly add to the bottom line\n\n-As these are non-recurring events, Warren believes that they should be removed when determining if the company has a DCA"
       }
     };
 
@@ -893,8 +932,11 @@
         return '<div class="diagram">' + title + '<div class="compare">' + d.rows.map(function (r) { return '<div class="row"><b>' + wr(r[0]) + '</b><span>' + wr(r[1]) + '</span></div>'; }).join('') + '</div></div>';
       }
       if (d.kind === 'statement') {
+        var rules = d.rules || (d.rule !== undefined ? [d.rule] : []), arrows = d.arrows || (d.arrow !== undefined ? [d.arrow] : []);
         return '<div class="diagram">' + title + '<div class="statement"><h4>' + wr(d.title) + '</h4><p class="unit">' + wr(d.unit) + '</p><table>' + d.rows.map(function (r, i) {
-          return '<tr' + (i === d.rule ? ' class="underlined"' : '') + (i === d.arrow ? ' data-here="true"' : '') + '><td class="ar">' + (i === d.arrow ? '<span aria-label="This chapter’s line">→</span>' : '') + '</td><td>' + wr(r[0]) + '</td><td class="v">' + wr(r[1]) + '</td></tr>';
+          if (!r) return '<tr class="gap"><td class="ar"></td><td></td><td class="v"></td></tr>';
+          var here = arrows.indexOf(i) >= 0, head = r[1] === null;
+          return '<tr' + (rules.indexOf(i) >= 0 ? ' class="underlined"' : '') + (here ? ' data-here="true"' : '') + '><td class="ar">' + (here ? '<span aria-label="This chapter’s line">→</span>' : '') + '</td><td' + (head ? ' class="head"' : '') + '>' + wr(r[0]) + '</td><td class="v">' + (head ? '' : wr(r[1])) + '</td></tr>';
         }).join('') + '</table></div>' + (d.caption ? '<p class="dnote">' + wr(d.caption) + '</p>' : '') + '</div>';
       }
       return '';

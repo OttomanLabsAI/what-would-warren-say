@@ -64,9 +64,14 @@ figures and a `note`, which is how the owner wants "revenue less expenses"
 shown (chapters 7, 9 and 10), `tree`
 a root with branches and chips, `cols` columns, `checks` a tick list with a
 note, `sum` lines adding to a total, `compare` labelled rows, `statement` the
-book's income-statement box with `rows`, a `rule` under one row and an
-`arrow` on the chapter's line, as in the owner's photographs for chapters 8
-and 9 and reused with the arrow on Gross Profit for chapter 10), `points`, and `raw` (the owner's summary from the export, byte for
+book's income-statement box with `rows` (a row of `null` is a gap, a value
+of `null` a heading), `rules` under rows and `arrows` on the chapter's
+lines (the older `rule` and `arrow` still read), as in the owner's
+photographs: `STATEMENT_BOX` for chapters 8 and 9, reused with the arrow
+on Gross Profit for chapter 10, and `opexBox` over `OPEX_ROWS` for
+chapters 11 to 15 (chapter 12's third operating line reads "Interest" in
+the book and is kept so; chapter 15 adds the Interest Expense line) with
+`OTHER_ROWS_16` for chapter 16), `points`, and `raw` (the owner's summary from the export, byte for
 byte, shown closed under "Your notes, as written"). A chapter whose notes
 give examples has a `body` instead of `diagrams` and `points`: the parts in
 the order of the notes, each a diagram, `{ points: [...] }` or `{ examples:
@@ -85,13 +90,15 @@ book's press as its example, the press as a worked example, the three
 statements it shows up on, points, the share-of-gross-profit equation,
 examples, a point; chapter 15 the table of why interest runs high, a
 point, examples, the share-of-operating-income equation with the 15% rule
-as its note, a point. `partHtml` draws a part; a chapter without a body
+as its note, a point; chapter 16 a point, the gain-or-loss equation, the
+book's property as a worked example, points. Chapters 11 to 16 open with
+the book's box. `partHtml` draws a part; a chapter without a body
 draws its diagrams, then its points. `renderChapter` draws a
 breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
 source is the owner's export under `notes/` (the latest export replaces
-the file of the same name; chapters 1 to 15 so far); a new export with more
+the file of the same name; chapters 1 to 16 so far); a new export with more
 finished chapters means writing them up here and keeping the file. DCA in
 the owner's notes is the book's Durable Competitive Advantage: a write-up
 says it in full, as `TERM`, wherever it is mentioned (never the short form,
@@ -511,3 +518,4 @@ design are their own release, requested deliberately.
 | v1.29 | Chapter 15 written up, little or no interest | Interest expense, chapter 15, now reads as a written-up breakdown from your notes, in the order you wrote them: the two reasons a company pays a lot of interest, a fiercely competitive industry or a leveraged buyout, the companies Warren wants paying little or none, the book's figures from Procter & Gamble and Wrigley to Goodyear and the airlines, with Wells Fargo as the bank, the test of interest as a share of operating income with its 15% rule, and the lowest in any industry as the likeliest to have the advantage. |
 | v1.30 | The price chart under the name, always on show | The share-price chart no longer waits behind a Graph link: it sits under the company's name, above what the company does, drawn as soon as your key is in the box, with the price large above it and the day's change and the time of the quote beside. A Hide graph link folds the chart away and keeps the price on show, and the page remembers your choice. |
 | v1.31 | Accounts at Firebase, watchlists that follow you | An Account tab now lets you make an account with your name, surname, a username and a password, and sign in on any device. Your watchlists and chapter notes are kept with the account and meet what is on the device when you sign in, the newer side winning. Every account has the generic My watchlist, you can make custom lists with a description if you like, and adding a company is back: from its own page into any list, or by ticker under a list. Company numbers and your EODHD key stay on the device. The account store waits only for the Firebase project and its key. |
+| v1.32 | The book's boxes for six chapters, and chapter 16 | Chapters 11 to 16 now open with the book's own income-statement box from your photographs, the arrow on each chapter's line, down to the interest expense and the gain on the sale of assets. Chapter 16, the gain or loss on the sale of assets and the catch-all other, is written up from your notes: the equation, the book's property as a worked example, and why Warren takes these one-off items out before judging a business. |
