@@ -65,7 +65,7 @@ public/
   favicon.svg
   robots.txt
   _headers         security and caching headers
-  assets/fonts/    Playfair Display, Newsreader, Cinzel and EB Garamond, latin subsets, self-hosted
+  assets/fonts/    Playfair Display, Newsreader and EB Garamond, latin subsets, self-hosted
 src/worker.js      the EODHD relay and the store; every other request goes to the assets
 wrangler.jsonc     Worker + assets config, and the store's bucket binding
 package.json       wrangler as a devDependency, dev/deploy/check/pull/upload scripts
@@ -314,9 +314,10 @@ exists in the account; a deploy with the binding and no bucket fails.
 The page has two looks, switched at the top of the page and remembered on
 the device. Newspaper, the default, sets headlines in Playfair Display (Claus
 Eggers Sørensen) and text in Newsreader (Production Type). Original, after
-the book's cover, sets the masthead in Cinzel (Natanael Gama) and the text
-and headlines in EB Garamond (Georg Duffner and Octavio Pardo). All four are
-published under the SIL Open Font License 1.1 and are served from
+the book's cover, sets the masthead, the text and the headlines in EB
+Garamond (Georg Duffner and Octavio Pardo), the masthead in its capitals as
+the cover's title is lettered. All three are published under the SIL Open
+Font License 1.1 and are served from
 `public/assets/fonts/` as latin-subset woff2 files taken from Google Fonts,
 so the page makes no request to Google at all.
 A notice beside them carries the copyright lines and the licence link,

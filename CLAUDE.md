@@ -19,7 +19,7 @@ public/            everything served as assets
   favicon.svg
   _headers         security + caching headers
   robots.txt
-  assets/fonts/    Playfair Display + Newsreader + Cinzel + EB Garamond woff2 (OFL), the only assets
+  assets/fonts/    Playfair Display + Newsreader + EB Garamond woff2 (OFL), the only assets
 src/worker.js      /api/eodhd/{fundamentals,real-time,eod,intraday,splits}/<symbol> -> eodhd.com; /api/data/<key> -> the R2 bucket (binding DATA); everything else -> env.ASSETS
 wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var; r2_buckets DATA -> wwws-data commented out until the bucket exists
 package.json       wrangler devDependency + dev/deploy/check/pull/pull-app/bundle-samples/upload-store scripts
@@ -554,10 +554,24 @@ financial newspaper: paper `#FFF1E5`, ink `#33302E`, claret `#990F3D` for
 accents, teal `#0D7680` for links, Playfair Display for the masthead and
 headlines, Newsreader for text, the system sans for controls. Original is the
 book's cover, at the owner's request: ivory paper `#F4EFE1`, black ink
-`#1F1C17`, the masthead in Cinzel's Roman capitals in the cover's dull gold
-`#857A52`, EB Garamond for the text (a step larger, 1.2rem, with lining
-figures) and the headlines (small caps), the claret kept as the owner asked,
-the links in the gold's darker tone `#6B6239`. It is the one
+`#1F1C17`, the masthead in the cover's own lettering, EB Garamond's
+capitals at the regular weight, widely spaced, in the cover's dull gold
+`#857A52` (v1.44 set it in Cinzel at 700; the owner found that heavier than
+the cover and asked for slim, so no Cinzel file remains), EB Garamond for
+the text (with lining figures) and the headlines (small caps), the claret
+kept as the owner asked, the links in the gold's darker tone `#6B6239`.
+Switching moves nothing on the page, at the owner's request: the title
+sizes are the variables `--mast`, `--head` and `--h3` on `:root`, each
+scheme's `.masthead h1`, `.headline` and `.graph-head h3` take their line
+height from them (`calc(var(--mast) * 1.05)` and so on), and the Original
+sets its capitals at a fixed share of the size (`.686` of `--mast` at .1em
+spacing, `.905` of the headline sizes), measured so a title runs as wide in
+either face and so breaks on the same word; EB Garamond's two faces carry
+`size-adjust` (111% upright, 105% italic), measured so a line of text,
+of the tagline or of a thesis is as wide as in Newsreader at the same
+font-size, which is why the Original's body keeps the Newspaper's 1.125rem
+and no `em`-based box changes. A new display size goes through a variable
+the same way. It is the one
 `:root[data-scheme="original"]` block, which overrides the variables and
 those few rules; nothing else in the stylesheet knows the scheme, so a new
 rule uses the variables. `404.html` carries the same variables, faces and
@@ -573,7 +587,7 @@ is a switch, a square whose knob slides to the right when on, drawn on the
 native checkbox so `checked` is still the state; text inputs and selects
 have the hairline border and an ink border with an inset ring on focus; the
 claret stays for the accents, not the controls. The fonts,
-four families under the OFL, are self-hosted under `public/assets/fonts/`;
+three families under the OFL, are self-hosted under `public/assets/fonts/`;
 they never change, which is what the immutable cache on `/assets/*` is for.
 Anything else moved under `/assets/` needs a fingerprinted name. Keep
 `index.html` single-file.
@@ -724,3 +738,4 @@ design are their own release, requested deliberately.
 | v1.42 | The bracketed notes are instructions, written into policy | Nothing on the page changed: every instruction in square brackets in your chapter notes, the example calculations for chapters 17 to 19 and the examples from the photographs for chapter 20, was already carried out. The rule itself is now written into the repository's standing policy, so any bracket in a future set of notes is treated as an instruction and a chapter with one unanswered counts as unfinished. |
 | v1.43 | The balance sheet opens, the table's rules short again | Chapter 21, the balance sheet in general, now reads as a written-up breakdown from your notes: what a balance sheet is and the two parts of it, with the kinds of asset and liability the book lists, the book's example balance sheet from your photographs drawn as two sides that agree at $43,059, and the net-worth sum worked three ways, the book's $100K business with $25K and then $175K of liabilities, and the sheet's own totals. The rules under the table's lines are short again: one plain line where the book gives a basic instruction, such as 40% and up is good and below 20% is not for the gross margin, and nothing under revenue and the other plain lines, with the chapter page holding the detail. |
 | v1.44 | A second look, the controls restyled, a price slider | A switch at the top of the page now offers two looks: Newspaper, the salmon paper the site has had, and Original, drawn from the book's cover, with ivory paper, black ink, the title in the cover's gold Roman capitals, the text in a Garamond like the book's pages, and the burgundy kept for the accents. The buttons and options across the site now follow your input tools, square and hairline with the chosen option filled and every on/off box a switch, and the share-price chart has the same two-thumb slider as the line graphs, narrowing any span to the bars between the thumbs. |
+| v1.45 | The cover's lettering, and a switch that moves nothing | The Original masthead is now set the way the cover's title is lettered, slim Garamond capitals widely spaced in the cover's gold, instead of the heavier Roman face of v1.44. Switching between the two looks no longer shifts the page: the title, the subtitle, the headlines and the text keep the same heights and run the same width in either look, so only the lettering changes. |
