@@ -372,6 +372,24 @@ export function readSplits(src) {
   return out;
 }
 
+// EODHD's report history: each quarter's report date (the earnings call), the
+// quarter, before or after the market, and the figure against the estimate;
+// oldest first, the reports still to come included. Mirrors readReports in
+// index.html: the price chart's earnings-call lines read it.
+export function readReports(src) {
+  const out = [];
+  if (!src || typeof src !== 'object') return out;
+  for (const k of Object.keys(src)) {
+    const r = src[k];
+    if (!r || typeof r !== 'object') continue;
+    const date = String(r.reportDate || '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    out.push({ date, quarter: String(r.date || ''), when: String(r.beforeAfterMarket || ''), eps: num(r.epsActual), estimate: num(r.epsEstimate) });
+  }
+  out.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.quarter < b.quarter ? -1 : a.quarter > b.quarter ? 1 : 0);
+  return out;
+}
+
 export function nextReport(src) {
   if (!src || typeof src !== 'object') return null;
   let best = null;
@@ -426,13 +444,15 @@ export function extractCompany(symbol, data, fetchedAt, splits) {
     sharesQ: {},
     eps: {},
     epsQ: {},
-    next: null
+    next: null,
+    reports: []
   };
   readShares(data.outstandingShares && data.outstandingShares.annual, c.shares);
   readShares(data.outstandingShares && data.outstandingShares.quarterly, c.sharesQ);
   readEps(data.Earnings && data.Earnings.Annual, c.eps);
   readEps(data.Earnings && data.Earnings.History, c.epsQ);
   c.next = nextReport(data.Earnings && data.Earnings.History);
+  c.reports = readReports(data.Earnings && data.Earnings.History);
   if (Array.isArray(splits)) c.splits = readSplits(splits);
   return c;
 }

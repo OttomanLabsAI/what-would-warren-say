@@ -30,7 +30,9 @@ the chapter notes for the chapters written up so far, from revenue to the
 one-off gains, with the book's thresholds and examples. With a token in the box
 the company's current share price sits above the table, with the day's change
 and a Graph link that draws the price over the last day, week, month, six
-months, year, five years, ten years or all time. Fetched companies are
+months, year, five years, ten years or all time; an Earnings calls box beside
+the spans, off until ticked, stands a dashed line on the chart at every date
+the company reported its results. Fetched companies are
 kept on the device, the table downloads as CSV, and an expandable section
 lists every field EODHD reported.
 
@@ -141,6 +143,14 @@ CLAUDE.md          standing policy for working in this repo
   earnings per share, come restated for later splits already, so the table
   is left as it comes. The token is kept under `wwws.eodhd.token` only when
   "Remember" is ticked.
+- Earnings calls: each company fetched from now on keeps its report
+  history from EODHD, the date of every results report with the quarter it
+  was for and whether it came before the open or after the close. The
+  Earnings calls box beside the spans stands a dashed line on the chart at
+  each one in the span, at the edge of the day on a daily chart and on the
+  week or month that holds it otherwise, and hovering the marked bar names
+  the call. A copy pulled before the history existed says so under the
+  chart until it is fetched afresh.
 - The table runs newest first, the latest year at the left, and runs the
   full length of the page: the year headings stay pinned at the top of the
   window as you scroll down, the line names at the left as you scroll

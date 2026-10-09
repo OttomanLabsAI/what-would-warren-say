@@ -176,6 +176,8 @@
     .spans { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 0 .9rem; }
     .spans button { padding: .35rem .7rem; font-size: .78rem; background: transparent; color: var(--ink); border-color: var(--rule); }
     .spans button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .spans .opt { margin-left: auto; display: inline-flex; align-items: center; gap: .4rem; padding: .35rem 0; font-family: var(--sans); font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); cursor: pointer; }
+    .spans .opt input { margin: 0; width: .95rem; height: .95rem; accent-color: var(--claret); cursor: pointer; }
     .price-graph { margin: 0; }
     .price-graph[hidden] { display: none; }
     .price-graph .rule { margin: -.4rem 0 .5rem; font-size: .9rem; }
@@ -218,6 +220,7 @@
     .chart .trend, .chart .mean { stroke: var(--teal); stroke-width: 1.5; stroke-linecap: round; }
     .chart .band { fill: var(--teal); fill-opacity: .1; }
     .chart .cross { stroke: var(--ink-40); stroke-width: 1; pointer-events: none; }
+    .chart .mark { stroke: var(--claret); stroke-width: 1; stroke-dasharray: 3 3; opacity: .6; pointer-events: none; }
     .chart .hit { fill: transparent; }
     .graph-tip { position: absolute; z-index: 1; padding: .35rem .6rem; border: 1px solid var(--ink); background: var(--white); font-family: var(--sans); font-size: .78rem; color: var(--ink-60); white-space: nowrap; pointer-events: none; box-shadow: 0 2px 8px rgba(51, 48, 46, .15); }
     .graph-tip b { display: block; font-size: .98rem; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -1317,6 +1320,25 @@
       });
     }
 
+    // EODHD's report history: each quarter's report date, the day of the earnings
+    // call, with the quarter it was for, before or after the market, and the
+    // figure against the estimate; oldest first, the reports still to come
+    // included. It serves the price chart's earnings-call lines; `next` stays
+    // the earliest report still to come.
+    function readReports(src) {
+      var out = [];
+      if (!src || typeof src !== 'object') return out;
+      Object.keys(src).forEach(function (k) {
+        var r = src[k];
+        if (!r || typeof r !== 'object') return;
+        var date = String(r.reportDate || '');
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+        out.push({ date: date, quarter: String(r.date || ''), when: String(r.beforeAfterMarket || ''), eps: num(r.epsActual), estimate: num(r.epsEstimate) });
+      });
+      out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.quarter < b.quarter ? -1 : a.quarter > b.quarter ? 1 : 0; });
+      return out;
+    }
+
     // EODHD's split history: each entry a date and a ratio, new shares over old
     // ("4.000000/1.000000" is four new for one old), kept as it came with the ratio
     // as a number, oldest first. EODHD restates its per-share figures for later
@@ -1399,13 +1421,15 @@
         sharesQ: {},
         eps: {},
         epsQ: {},
-        next: null
+        next: null,
+        reports: []
       };
       readShares(data.outstandingShares && data.outstandingShares.annual, c.shares);
       readShares(data.outstandingShares && data.outstandingShares.quarterly, c.sharesQ);
       readEps(data.Earnings && data.Earnings.Annual, c.eps);
       readEps(data.Earnings && data.Earnings.History, c.epsQ);
       c.next = nextReport(data.Earnings && data.Earnings.History);
+      c.reports = readReports(data.Earnings && data.Earnings.History);
       if (Array.isArray(splits)) c.splits = readSplits(splits);
       return c;
     }
@@ -3619,7 +3643,7 @@
         rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
     }
 
-    function chartSvg(periods, values, kind, unit, width, trend, st) {
+    function chartSvg(periods, values, kind, unit, width, trend, st, marks) {
       var n = periods.length;
       var have = values.filter(function (v) { return v !== null; });
       if (!n || !have.length) return '<p class="hint">No figures to draw for this range.</p>';
@@ -3660,6 +3684,10 @@
         svg += '<rect class="band" x="' + bx + '" y="' + Y(st.mean + st.sd).toFixed(1) + '" width="' + bw2 + '" height="' + (Y(st.mean - st.sd) - Y(st.mean + st.sd)).toFixed(1) + '"/>' +
           '<line class="mean" x1="' + bx + '" x2="' + (+bx + +bw2).toFixed(1) + '" y1="' + Y(st.mean).toFixed(1) + '" y2="' + Y(st.mean).toFixed(1) + '"/>';
       }
+      (marks || []).forEach(function (mk) {
+        var x = mk.edge === 'start' ? padL + band * mk.i : mk.edge === 'end' ? padL + band * (mk.i + 1) : X(mk.i);
+        svg += '<line class="mark" x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="' + padT + '" y2="' + (padT + plotH) + '"/>';
+      });
       if (kind === 'bar') {
         var bw = Math.min(24, Math.max(2, band - 2));
         values.forEach(function (v, i) {
@@ -3721,7 +3749,7 @@
         cross.setAttribute('x2', x);
         cross.style.display = kind === 'line' ? '' : 'none';
         tip.firstChild.textContent = values[i] === null ? '—' : fmtValue(values[i], unit);
-        tip.lastChild.textContent = periods[i].label;
+        tip.lastChild.textContent = periods[i].label + (periods[i].note ? ' \u00b7 ' + periods[i].note : '');
         tip.hidden = false;
         var rect = svg.getBoundingClientRect(), px = x * rect.width / svg.viewBox.baseVal.width;
         var bodyW = body.clientWidth, tipW = tip.offsetWidth;
@@ -3768,6 +3796,8 @@
     var SPANS = [['1d', '1D'], ['1w', '1W'], ['1m', '1M'], ['6m', '6M'], ['1y', '1Y'], ['5y', '5Y'], ['10y', '10Y'], ['all', 'All time']];
     var priceGraph = null;
     var PRICE_GRAPH_KEY = 'wwws.priceGraph.v1';
+    // the Earnings calls box in the spans row: off until ticked, kept for the session
+    var priceReportsOn = false;
 
     function priceGraphOpen() {
       try { return window.localStorage.getItem(PRICE_GRAPH_KEY) !== 'closed'; } catch (e) { return true; }
@@ -3817,7 +3847,7 @@
         graph = '<div class="price-graph" id="price-graph"' + (open ? '' : ' hidden') + '>' +
           '<div class="spans" id="price-spans" role="group" aria-label="Time span">' + SPANS.map(function (sp) {
             return '<button type="button" data-span="' + sp[0] + '" aria-pressed="false">' + sp[1] + '</button>';
-          }).join('') + '</div>' +
+          }).join('') + '<label class="opt" title="A dashed line at each earnings report date"><input type="checkbox" id="price-reports"' + (priceReportsOn ? ' checked' : '') + '> Earnings calls</label></div>' +
           '<p class="rule" id="price-sub"></p>' +
           '<div class="graph-body" id="price-body"></div>' +
           '<div class="graph-figures" id="price-figures"></div>' +
@@ -3859,6 +3889,11 @@
         var b = ev.target.closest ? ev.target.closest('button[data-span]') : null;
         if (!b || !priceGraph) return;
         priceGraph.span = b.getAttribute('data-span');
+        drawPrice();
+      });
+      var reportsBox = document.getElementById('price-reports');
+      if (reportsBox) reportsBox.addEventListener('change', function () {
+        priceReportsOn = reportsBox.checked;
         drawPrice();
       });
       if (!tokenInput.priceWired) {
@@ -4027,6 +4062,50 @@
       return ', restated for the splits of ' + since.slice().reverse().map(function (s) { return fmtDay(s.date); }).join(' and ');
     }
 
+    // where each earnings call falls among the bars shown: the bar whose period
+    // holds the report date (a daily bar's own day, a weekly bar's week, a
+    // monthly bar's month); on a daily chart the line sits at the edge of that
+    // day's band the report fell on, before the open or after the close, and on
+    // the day of five-minute bars at the start or the end of the day
+    function reportMarks(span, pts, reports) {
+      var marks = [];
+      if (!pts.length || !Array.isArray(reports) || !reports.length) return marks;
+      if (span === '1d') {
+        var day = pts[0].date.slice(0, 10);
+        reports.forEach(function (r) {
+          if (r.date !== day) return;
+          var after = r.when === 'AfterMarket';
+          marks.push({ i: after ? pts.length - 1 : 0, edge: after ? 'end' : 'start', report: r });
+        });
+        return marks;
+      }
+      var period = span === 'all' ? 'm' : (span === '5y' || span === '10y') ? 'w' : 'd';
+      var closes = pts.map(function (p) { return barCloseDate(p.date.slice(0, 10), period); });
+      var start = pts[0].date.slice(0, 10), end = closes[closes.length - 1];
+      reports.forEach(function (r) {
+        if (r.date < start || r.date > end) return;
+        var i = 0;
+        while (i < closes.length && closes[i] < r.date) i++;
+        if (i >= closes.length) return;
+        marks.push({ i: i, edge: period !== 'd' ? '' : r.when === 'AfterMarket' ? 'end' : r.when === 'BeforeMarket' ? 'start' : '', report: r });
+      });
+      return marks;
+    }
+
+    // "Earnings call after the close, quarter to 30 Sep 2026", for the hover readout
+    function reportNote(r) {
+      var when = r.when === 'BeforeMarket' ? ' before the open' : r.when === 'AfterMarket' ? ' after the close' : '';
+      return 'Earnings call' + when + (r.quarter ? ', quarter to ' + dayLabel(r.quarter) : '');
+    }
+
+    // the units line's word on the earnings-call lines, while the box is ticked
+    function reportsText(c, marks) {
+      if (!priceReportsOn) return '';
+      if (!Array.isArray(c.reports)) return ' No report dates are on file for this copy: a fresh fetch carries them.';
+      if (!marks.length) return ' No earnings call falls in this span.';
+      return ' Dashed lines mark the ' + (marks.length === 1 ? 'earnings call' : marks.length + ' earnings calls') + ' in the span, on the report date.';
+    }
+
     function priceFiguresHtml(pts, currency) {
       if (!pts.length) return '';
       var first = pts[0].value, last = pts[pts.length - 1].value, lo = pts[0], hi = pts[0];
@@ -4064,13 +4143,15 @@
         if (!priceGraph || priceGraph.span !== want || priceGraph.c !== c || body !== document.getElementById('price-body')) return;
         var series = got[1], splitsNote = got[0];
         var pts = pricePoints(span, series.rows, Array.isArray(c.splits) ? c.splits : []);
+        var marks = priceReportsOn ? reportMarks(span, pts, c.reports) : [];
+        marks.forEach(function (mk) { pts[mk.i].note = reportNote(mk.report); });
         var width = Math.max(300, Math.floor(body.clientWidth || 640));
         var values = pts.map(function (p) { return p.value; });
-        body.innerHTML = pts.length ? chartSvg(pts, values, 'line', 'price', width, 'none', null) : '<p class="hint">EODHD sent no prices for this span.</p>';
+        body.innerHTML = pts.length ? chartSvg(pts, values, 'line', 'price', width, 'none', null, marks) : '<p class="hint">EODHD sent no prices for this span.</p>';
         if (pts.length) wireGraphHover(body, pts, values, 'price', 'line');
         figures.innerHTML = priceFiguresHtml(pts, c.meta.currency);
         units.textContent = (c.meta.currency ? 'Prices in ' + c.meta.currency + '. ' : '') + 'Closing price of each bar, oldest at the left, newest at the right' + restatedText(pts, c.splits) + '. ' +
-          (span === '1d' ? 'Five calls for the day of five-minute bars.' : 'One call for the span.') + splitsNote;
+          (span === '1d' ? 'Five calls for the day of five-minute bars.' : 'One call for the span.') + reportsText(c, marks) + splitsNote;
       }).catch(function (e) {
         if (!priceGraph || priceGraph.span !== want || body !== document.getElementById('price-body')) return;
         body.innerHTML = '<p class="hint">' + esc(e && e.message ? e.message : 'The prices could not be fetched.') + '</p>';

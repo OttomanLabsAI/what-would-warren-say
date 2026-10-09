@@ -112,7 +112,12 @@ numbers: `renderNumbers`, `view-numbers`, `wwws.numbers.v1`) fetches EODHD
 fundamentals through the relay with the reader's own token in an `X-Api-Token` header,
 keeps the extracted company under `wwws.numbers.v1` (eight most recent; yearly
 statements plus the last `MAX_QUARTERS` = 40 quarters as `incomeQ`, `balanceQ`,
-`cashflowQ`, `sharesQ`, `epsQ`, and `splits`, EODHD's split history as
+`cashflowQ`, `sharesQ`, `epsQ`, `reports`, EODHD's report history from
+`Earnings.History` as `{ date, quarter, when, eps, estimate }` oldest first
+(the report date, the day of the earnings call; the quarter it was for;
+`BeforeMarket` or `AfterMarket`; the figure and the estimate; the reports
+still to come included; `readReports`, absent on a copy kept before it
+existed), and `splits`, EODHD's split history as
 `{ date, split, ratio }` oldest first, `[]` when there is none, absent on a
 copy kept before it existed) and the token under `wwws.eodhd.token` only
 when "remember" is ticked. A fetch asks `fundamentals/<symbol>` (ten calls)
@@ -297,7 +302,20 @@ call each). `spanRequest` builds the request, `pricePoints` the points, and
 each span is cached in `priceSeries` for the session. The chart is
 `chartSvg` with unit `price`: a line, no dots, no end label, and the axis
 fitted to the prices shown rather than starting at zero; it redraws on
-resize. There is no price dialog any more. Prices are never stored and
+resize. The spans row ends in an "Earnings calls" box (`#price-reports`),
+off until ticked and kept for the session in `priceReportsOn`, never
+stored: ticked, `reportMarks` finds the bar whose period holds each report
+date in the span (its own day, its week or its month, by `barCloseDate`;
+on a daily chart the line sits at the edge of the day's band the report
+fell on, before the open or after the close, and on the day of five-minute
+bars at the start or the end of the day), `chartSvg` draws them from its
+eighth argument as dashed claret `line.mark`s, the hover readout adds the
+bar's `note` (`reportNote`: "Earnings call after the close, quarter to 30
+Sep 2026", read by `wireGraphHover` on any chart) and the units line says
+how many fall in the span, that none does, or that the copy has no report
+dates on file (`reportsText`; a sample or store copy pulled before the
+history existed, or a kept copy fetched before it, until a fresh fetch).
+There is no price dialog any more. Prices are never stored and
 never exported.
 
 Stock splits. EODHD restates its per-share figures for later splits
@@ -436,8 +454,8 @@ reaches the whole pull without refetching: `--reextract` on the command
 line, the "Rebuild from saved replies" button on the pull page. `shortAbout`
 cuts the description to whole sentences of about 320 characters for the
 screen row's `about`. The engine's company shape, next-report rule and ratio
-formulas mirror `extractCompany`, `nextReport` and `NUMBER_ROWS` in
-`index.html`: change them together.
+formulas mirror `extractCompany`, `nextReport`, `readReports` and
+`NUMBER_ROWS` in `index.html`: change them together.
 
 `tools/lib/store.mjs` sends a pull to the store: `sign` (AWS Signature
 Version 4 in its header form, region `auto`, service `s3`, checked against
@@ -601,3 +619,4 @@ design are their own release, requested deliberately.
 | v1.35 | Search by name, a secret key, five more markets | The company box now takes a name as well as a ticker and suggests companies as you type, from everything on file: the arrows and Enter, or a click, open one at once without spending a call, and a typed ticker still fetches as before. Every account now carries a secret key, shown on the Account page with a Copy button, to say a request is yours in an email or the like; if it leaks, one click makes a new one and the old one stops working at once. Your new pull is on the site too: the companies of the Korea Stock Exchange, KOSDAQ, Shanghai, Shenzhen and Xetra now open from their rows and screen beside London, NASDAQ and New York, 17,609 companies with their latest year in all. |
 | v1.36 | The list of splits leaves the company page | The Splits line under the next report date is gone: a company with a long history of splits filled three lines with them. The splits themselves stay at work behind the price chart, which still restates earlier prices and says so in the note under it. |
 | v1.37 | Your chapter notes under every income-statement line | The analysis under each line of the income statement now comes from your own chapter notes, from revenue down to the one-off gains: the thresholds, the ten-year test of consistency and the book's examples, Coca-Cola and Moody's against General Motors and the airlines, where your notes give them. The lines that had no rule before, revenue, cost of goods sold, gross profit, operating income, interest expense and the one-off gains, carry one now, and the Screen's SG&A rule reads 30% or less, as your notes have it. |
+| v1.38 | Every earnings call marked on the price chart | The row of spans above the share-price chart now ends in an Earnings calls box, off until you tick it: ticked, a dashed claret line stands on the chart at every date the company reported its results, before the open or after the close on a daily chart, and hovering a marked day names the call and the quarter it was for. Companies fetched from now on carry their report history; those already on file say so and fill in with a fresh fetch. |

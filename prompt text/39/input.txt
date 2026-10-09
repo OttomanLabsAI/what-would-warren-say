@@ -1,0 +1,1 @@
+there should be a check box, off by default, that allows us to see vertical lines for every earnings call date
