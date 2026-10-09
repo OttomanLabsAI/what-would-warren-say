@@ -3,8 +3,10 @@
 A Cloudflare Workers site: a reading companion for *Warren Buffett and the
 Interpretation of Financial Statements* by Mary Buffett and David Clark,
 styled like a financial newspaper, or like the book's own cover with the
-switch at the top of the page. Three views sit under the masthead, and
-the site opens on Companies.
+switch at the top of the page. It is built on the book and analyses
+companies by the strategy the book sets out; it is not associated with
+Warren Buffett or Berkshire Hathaway, and the home page says so at the top.
+Three views sit under the masthead, and the site opens on Companies.
 
 **Chapters.** A section dropdown narrows the book to one part, a row of
 numbered tabs picks the chapter, and the contents page lists every chapter in

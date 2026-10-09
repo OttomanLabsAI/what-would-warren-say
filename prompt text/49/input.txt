@@ -1,1 +1,0 @@
-Make the Warren analytics interactive graphs and separate by section, eg interest. Under the heading, state what he looks for in red, like the table then show the analytic and conclusions as you have already shown

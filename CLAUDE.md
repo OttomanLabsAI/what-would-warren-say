@@ -112,8 +112,10 @@ as its note, a point; chapter 16 a point, the gain-or-loss equation, the
 book's property as a worked example, points; chapter 17 the box, a point,
 the pre-tax equation with the box's figures (the book takes every line
 below operating profit off it), points; chapter 18 the box, points, the
-tax check as an equation (income before tax times the rate, 35% in the
-book's day, against the taxes paid), points; chapter 19 the box, the
+tax check as an equation (income before tax times the rate, the tax to
+expect against the taxes paid: the example at today's United States rate
+of 21%, $1,500 giving $315, the note saying the box's $525 is the 35% of
+the book's day), points; chapter 19 the box, the
 net-earnings equation, points, the buyback trick as two columns of made-up
 figures (the owner asked for a worked example; the title says the figures
 are made up), points, the share-of-revenue equation, the book's two
@@ -159,8 +161,20 @@ class="term">`) renders every thesis, diagram text and point so it reads in
 bold: 600 in Newsreader and the sans, 900 in the Playfair thesis, inherited
 where the line is already bold. The notes as written are never marked up.
 
+Tax figures: the going rate is the United States federal corporate rate,
+21% since 2018, at the owner's request, named wherever a tax figure is
+judged or explained (chapter 18's check, the table's effective-tax-rate
+rule, the analytics' `judgeTax`); the book's 35% is mentioned only as the
+rate of the book's day behind the box's own arithmetic. Should the rate
+change, `US_TAX_RATE` and those three texts change together.
+
 The Companies view (the tab is labelled Companies; the code still calls it
-numbers: `renderNumbers`, `view-numbers`, `wwws.numbers.v1`) fetches EODHD
+numbers: `renderNumbers`, `view-numbers`, `wwws.numbers.v1`) opens, when no
+company is shown, with `noticeHtml`, the standing word at the top of the
+home page, at the owner's request and in this order: built on the book,
+Warren Buffett and the Interpretation of Financial Statements by Mary
+Buffett and David Clark, analysing companies by the strategy it sets out;
+not associated with Warren Buffett or Berkshire Hathaway. It fetches EODHD
 fundamentals through the relay with the reader's own token in an `X-Api-Token` header,
 keeps the extracted company under `wwws.numbers.v1` (eight most recent; yearly
 statements plus the last `MAX_QUARTERS` = 40 quarters as `incomeQ`, `balanceQ`,
@@ -260,8 +274,10 @@ years shown (`drawAnalyticsCharts` redraws every section on resize); the
 verdicts: `judgeGrossMargin` (40% or more every year passes, below 20% or
 mostly fails), `judgeSga` (steady, within 10 points, passes, and 30% or
 less every year is "low and steady"; a swing over 25 points fails),
-`judgeRd` and `judgeTax` (a note with the figures and the book's caution,
-no pass or fail), `judgeDepreciation` (10% or less this year and on
+`judgeRd` (a note with the figures and the book's caution, no pass or
+fail), `judgeTax` (against `US_TAX_RATE`, 21%: within five points or above
+passes, well under is mixed with the two readings, a lower-taxed country
+or flattered earnings), `judgeDepreciation` (10% or less this year and on
 average), `judgeInterest` (none is best, under 15% every year passes; a
 year with no operating income is left blank), `judgeNetEarnings` and
 `judgeEps` (rising, the trend up and the last above the first, steadily,
@@ -796,3 +812,4 @@ design are their own release, requested deliberately.
 | v1.46 | The assets and the current asset cycle written up | Chapters 22 and 23, the assets and the current asset cycle, now read as written-up breakdowns from your notes: the book's box of the assets from your photograph, the two kinds of asset with their lines, and the cycle of cash to inventory to receivables and back to cash, with the book's box of the current assets and the arrows on the three lines it runs through. Every switch on the site now shows green when it is on and red when it is off, and your latest export replaces the one on file. |
 | v1.47 | Warren Buffett's Analytics, the book's tests on one page | A button above a company's table now opens Warren Buffett's Analytics: a dashboard of tiles, one for each line the finished chapters give a rule for, from the gross margin to earnings per share, each with the last ten years drawn with its trend line, the chapter's TL;DR, and a verdict in the chapter's own terms, such as whether earnings per share have climbed steadily as Warren wants. Revenue and the other lines he does not judge on their own are left out, and more tiles join as more chapters are finished. |
 | v1.48 | The analytics as sections, each with its own live graph | Warren Buffett's Analytics now reads section by section, one for each line, with its heading, what Warren looks for in red as under the table's lines, the chapter's TL;DR, and then the graph and the conclusion. Every graph is now as interactive as the ones behind the table: a line or bars, the trend line or the mean band, the last ten years or every year on file with a two-thumb slider to narrow them, and the conclusion follows the years you show. |
+| v1.49 | A word at the top, and today's tax rate throughout | The home page now opens by saying what the site is: built on the book, Warren Buffett and the Interpretation of Financial Statements by Mary Buffett and David Clark, analysing companies by the strategy it sets out, and not associated with Warren Buffett or Berkshire Hathaway. Every tax figure now uses today's United States corporate rate of 21% rather than the 35% of the book's day: the check in chapter 18 is worked at 21%, the rule under the table's tax line names it, and the analytics judge a company's tax bill against it. |

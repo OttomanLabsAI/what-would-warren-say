@@ -127,6 +127,9 @@
 
     /* numbers */
     .numbers { padding: 1.4rem 1rem 2rem; }
+    /* the standing word at the top of the home page: built on the book, not associated with Warren Buffett or Berkshire Hathaway */
+    .notice { margin: 0 0 1.1rem; padding: 0 0 .8rem; border-bottom: 1px solid var(--rule); font-family: var(--text); font-style: italic; font-size: 1.02rem; line-height: 1.45; color: var(--ink-70); }
+    .notice b { font-weight: inherit; font-style: normal; }
     .fetch-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .7rem 1rem; align-items: end; margin-bottom: .6rem; }
     .fetch-form .f, .add-form .f { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
     .fetch-form .f > label, .add-form .f > label { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
@@ -1072,7 +1075,7 @@
             'The income taxes paid reflect the company’s true pre-tax earnings.',
             'Sometimes a company tells the world it is making more money than it is.'
           ] },
-          { kind: 'equation', title: 'The check', terms: ['Income before tax', 'The corporate tax rate', 'The tax to expect'], ops: ['×', '='], example: ['$1,500', '35%', '$525'], note: 'Set the result against the income taxes paid: in the book’s box they match. The 35% is the American rate of the book’s day; use the going rate where the company pays its tax. A figure that does not match raises questions.' },
+          { kind: 'equation', title: 'The check', terms: ['Income before tax', 'The corporate tax rate', 'The tax to expect'], ops: ['×', '='], example: ['$1,500', '21%', '$315'], note: 'Set the result against the income taxes paid. The box’s $525 is 35% of $1,500, the American rate of the book’s day; the United States rate today is 21%, so the tax to expect on $1,500 is $315. A figure that does not match the rate where the company pays its tax raises questions.' },
           { points: [
             'A company busy misleading the tax authorities is misleading its shareholders too.',
             'Companies with a Durable Competitive Advantage have no need to mislead to look good.'
@@ -1955,7 +1958,7 @@
       { label: 'Other income and gains, net', ch: '16', unit: 'money', rule: 'Not an important number: Warren tends not to use it.', value: function (y) { return v(y.inc, 'nonOperatingIncomeNetOther', 'totalOtherIncomeExpenseNet'); } },
       { label: 'Income before tax', ch: '17', unit: 'money', value: function (y) { return v(y.inc, 'incomeBeforeTax'); } },
       { label: 'Income tax', ch: '18', unit: 'money', value: function (y) { return v(y.inc, 'incomeTaxExpense', 'taxProvision'); } },
-      { label: 'Effective tax rate', rowKey: 'taxRate', ch: '18', unit: 'pct', ratio: true, rule: 'Should sit near the going corporate rate; a company paying far less may be flattering its earnings.', value: function (y) { return div(v(y.inc, 'incomeTaxExpense', 'taxProvision'), v(y.inc, 'incomeBeforeTax')); } },
+      { label: 'Effective tax rate', rowKey: 'taxRate', ch: '18', unit: 'pct', ratio: true, rule: 'Should sit near the 21% United States corporate rate; a company paying far less may be flattering its earnings.', value: function (y) { return div(v(y.inc, 'incomeTaxExpense', 'taxProvision'), v(y.inc, 'incomeBeforeTax')); } },
       { label: 'Net earnings', rowKey: 'netEarnings', ch: '19', unit: 'money', rule: 'Should trend upward over the years; a single year says nothing.', value: function (y) { return v(y.inc, 'netIncome'); } },
       { label: 'Net margin', rowKey: 'netMargin', ch: '19', unit: 'pct', ratio: true, rule: 'Over 20% suggests a durable competitive advantage; under 10% a competitive business.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.inc, 'totalRevenue')); } },
       { label: 'Earnings per share', rowKey: 'eps', ch: '20', unit: 'x', rule: 'A steady upward trend over ten years is what to look for.', value: function (y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y.shares); } },
@@ -2367,6 +2370,11 @@
 
     function fmtCount(n) { return Number(n).toLocaleString('en-US'); }
 
+    // the word at the top of the home page, at the owner's request: the book first, then that the site is nobody's but the owner's
+    function noticeHtml() {
+      return '<p class="notice">This site is built on the book <b>Warren Buffett and the Interpretation of Financial Statements</b>, by Mary Buffett and David Clark, and analyses companies by the strategy the book sets out. It is not associated with Warren Buffett or Berkshire Hathaway.</p>';
+    }
+
     function storeHtml() {
       var d = store.index, total = storeCount();
       if (!d || !total) return '';
@@ -2567,7 +2575,7 @@
         }
       }
       var shown = company || stored || sample || rowed;
-      app.innerHTML = '<section class="numbers">' + formHtml(symbol) +
+      app.innerHTML = '<section class="numbers">' + (!shown && !loading ? noticeHtml() : '') + formHtml(symbol) +
         '<p class="status" id="numbers-status" role="status" aria-live="polite"></p>' +
         (shown ? companyHtml(shown) : (loading ? '<p class="kept">Opening ' + esc(symbol) + '\u2026</p>' : storeHtml() + bundleHtml() + samplesHtml() + keptHtml(''))) + '</section>';
       currentCompany = shown || null;
@@ -4277,9 +4285,14 @@
       return { state: 'mixed', text: head + ', 15% or more in ' + ofYears(n - under, n) + ': not always within the 15% Warren looks for.' + tail };
     }
 
+    // the going rate is the United States federal corporate rate, 21% since 2018 (35% in the book's day), at the owner's request
+    var US_TAX_RATE = 0.21;
     function judgeTax(pts) {
       var n = pts.length, last = pts[n - 1], mean = meanOf(pts);
-      return { state: 'note', text: 'Paid ' + pc(last.v) + ' of its income before tax in taxes in ' + last.label + ', ' + pc(mean) + ' on average over ' + n + ' years. Warren multiplies income before tax by the tax rate and compares the result with the taxes paid: a company paying far less than the going corporate rate (35% in the book\u2019s day, 21% in the United States since 2018) may be reporting earnings it did not make.' };
+      var head = 'Paid ' + pc(last.v) + ' of its income before tax in taxes in ' + last.label + ', ' + pc(mean) + ' on average over ' + n + ' years, against the 21% United States corporate rate';
+      if (last.v > US_TAX_RATE + 0.05) return { state: 'pass', text: head + ': above the rate, so nothing here is flattered.' };
+      if (last.v >= US_TAX_RATE - 0.05) return { state: 'pass', text: head + ': near the rate, so the earnings look as real as the tax bill says.' };
+      return { state: 'mixed', text: head + ': well under the rate. Either the company is taxed elsewhere at less, or it is reporting earnings it did not make; a question to ask.' };
     }
 
     // a run that rises steadily: the trend up, the straight line fitting most of the movement, few down years
