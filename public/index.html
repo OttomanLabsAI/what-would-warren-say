@@ -397,6 +397,11 @@
     .statement tr.underlined td { border-bottom: 1px solid var(--ink); }
     .statement tr.underlined td.ar { border-bottom: 0; }
     .statement tr.gap td { padding: 0; height: .6rem; }
+    .statement.sheet { display: block; }
+    .statement.sheet .sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: .6rem 2.2rem; }
+    .statement.sheet .side { min-width: 0; }
+    .statement.sheet .side h5 { margin: .3rem 0 .35rem; font-size: 1rem; font-weight: 700; }
+    .statement td.head { font-weight: 700; }
     .points { margin: 0 0 1.2rem; padding-left: 1.2rem; font-size: 1.08rem; line-height: 1.5; }
     .breakdown strong.term { font-weight: 600; }
     .breakdown .thesis strong.term { font-weight: 900; }
@@ -615,6 +620,12 @@
     var PRETAX_ROWS = OTHER_ROWS_16.concat([['Income Before Tax', '$1,500']]);
     var TAX_ROWS_18 = PRETAX_ROWS.map(function (r) { return r && r[0] === 'Income Before Tax' ? ['Income Before Tax', '1,500'] : r; }).concat([['Income Taxes Paid', '$525']]);
     var NET_ROWS_19 = TAX_ROWS_18.map(function (r) { return r && r[0] === 'Income Taxes Paid' ? ['Income Taxes Paid', '525'] : r; }).concat([['Net Earnings', '$975']]);
+    // The balance sheet of chapter 21 from the owner's photographs: two sides,
+    // the rules where the book prints them, the two totals agreeing.
+    var SHEET_21 = {
+      assets: [['Cash & Short-Term Investments', '$4,208'], ['Total Inventory', '2,220'], ['Total Receivables, Net', '3,317'], ['Prepaid Expenses', '2,260'], ['Other Current Assets, Total', '0'], ['Total Current Assets', '12,005'], null, ['Property/Plant/Equipment', '8,493'], ['Goodwill, Net', '4,246'], ['Intangibles, Net', '7,863'], ['Long-Term Investments', '7,777'], ['Other Long-Term Assets', '2,675'], ['Other Assets', '0'], ['Total Assets', '$43,059']],
+      liabilities: [['Accounts Payable', '$1,380'], ['Accrued Expenses', '5,535'], ['Short-Term Debt', '5,919'], ['Long-Term Debt Due', '133'], ['Other Current Liabilities', '258'], ['Total Current Liabilities', '13,225'], null, ['Long-Term Debt', '3,277'], ['Deferred Income Tax', '1,890'], ['Minority Interest', '0'], ['Other Liabilities', '3,133'], ['Total Liabilities', '21,525'], null, ['Shareholders\u2019 Equity', null], ['Preferred Stock', '0'], ['Common Stock', '1,296'], ['Additional Paid in Capital', '7,378'], ['Retained Earnings', '36,235'], ['Treasury Stock\u2014Common', '\u221223,375'], ['Total Shareholders\u2019 Equity', '21,534'], null, ['Total Liabilities & Shareholders\u2019 Equity', '$43,059']]
+    };
     var BREAKDOWNS = {
       '1': {
         type: 'background',
@@ -1038,6 +1049,31 @@
           ] }
         ],
         raw: "EPS = net earnings / no. shares outstanding in a given time period\n\n-Popular metric in the investment world - the more the EPS, the higher the share prices\n\n-One yearly figure can't show us DCA\n\n-EPS for 10 years can tell us about long term competitive advantage - look for consistency and upward trend\n\n[add examples from the photos]"
+      },
+      '21': {
+        type: 'background',
+        tldr: 'Look at the balance sheet early: how much the company has in assets, cash and property, how much it owes, and the difference between the two, which is its net worth.',
+        thesis: 'The balance sheet is where Warren looks early: a snapshot, on one date, of what the company owns and what it owes, and the difference between the two is its net worth, the shareholders’ equity.',
+        body: [
+          { points: [
+            'One of the first things Warren does when working out whether a company has a Durable Competitive Advantage is to see how much it has in assets, cash and property, and how much it owes to vendors, the banks and the bondholders. The balance sheet is where he looks.',
+            'Unlike an income statement, a balance sheet is for a set date, not a year or a quarter: a snapshot of the company’s financial condition on that day. One can be drawn up for any day of the year, and the accounting department draws one at the end of each fiscal quarter.'
+          ] },
+          { kind: 'cols', title: 'The two parts', cols: [
+            { title: 'Assets', sub: 'What the company owns', lines: ['Current assets: cash and short-term investments, inventory, receivables, prepaid expenses.', 'Long-term assets: property, plant and equipment, goodwill, intangibles, long-term investments, other long-term assets.'] },
+            { title: 'Liabilities and shareholders’ equity', sub: 'What it owes, and what is left over', lines: ['Current liabilities, the money owed within the year: accounts payable, accrued expenses, short-term debt, long-term debt due.', 'Long-term liabilities, due in a year or more: what is owed to the vendors that sold the goods, unpaid taxes, bank loans and bond loans.', 'Shareholders’ equity: preferred and common stock, additional paid-in capital, retained earnings, less treasury stock.'] }
+          ] },
+          { kind: 'sheet', title: 'Balance Sheet', unit: '($ in millions)', sides: [
+            { title: 'Assets', rows: SHEET_21.assets, rules: [4, 12] },
+            { title: 'Liabilities', rows: SHEET_21.liabilities, rules: [4, 10, 18] }
+          ], caption: 'The balance sheet from the book, chapter 21, from your photographs: one side what is owned, the other what is owed and what is left to the shareholders, and the two sides agree at $43,059.' },
+          { kind: 'equation', title: 'Net worth', terms: ['Assets', 'Liabilities', 'Net worth, or shareholders’ equity'], ops: ['−', '='], example: ['$100K', '$25K', '$75K'], note: 'The book’s example: a business with $100K of assets and $25K of liabilities has a net worth, or shareholders’ equity, of $75K.' },
+          { kind: 'compare', title: 'The same sum, three ways', rows: [['Assets $100K, liabilities $25K', 'A net worth of $75K.'], ['Assets $100K, liabilities $175K', 'A negative net worth, or negative shareholders’ equity, of $75K.'], ['The book’s balance sheet', '$43,059 of assets less $21,525 of liabilities leaves $21,534 of shareholders’ equity.']] },
+          { points: [
+            'Warren, in his search for companies with a Durable Competitive Advantage, is looking for certain things in each category of assets and liabilities, which the chapters that follow take one by one.'
+          ] }
+        ],
+        raw: "-One of the first things to look at when assessing DCA is to see how much they have in assets\n\n-This is what the balance sheet is for\n\n-Balance sheets are only for a set date, unlike income statements - usually created at the end of a fiscal year\n\n-It is a snapshot of the financial conditions on that date\n\n-The first part is the assets - current assets: what is owed within one year - Long-term assets: Due in one year or more [get the  list of details of what is in here from the photos i gave you]\n\n-All assets - liabilities = net worth of the business (shareholders equity)\n\n[create the example balance sheet from the photo i gave you]\n\n\n\n[take example calculations from the photos i gave you]"
       }
     };
 
@@ -1100,13 +1136,24 @@
       }
       if (d.kind === 'statement') {
         var rules = d.rules || (d.rule !== undefined ? [d.rule] : []), arrows = d.arrows || (d.arrow !== undefined ? [d.arrow] : []);
-        return '<div class="diagram">' + title + '<div class="statement"><h4>' + wr(d.title) + '</h4><p class="unit">' + wr(d.unit) + '</p><table>' + d.rows.map(function (r, i) {
-          if (!r) return '<tr class="gap"><td class="ar"></td><td></td><td class="v"></td></tr>';
-          var here = arrows.indexOf(i) >= 0, head = r[1] === null;
-          return '<tr' + (rules.indexOf(i) >= 0 ? ' class="underlined"' : '') + (here ? ' data-here="true"' : '') + '><td class="ar">' + (here ? '<span aria-label="This chapter’s line">→</span>' : '') + '</td><td' + (head ? ' class="head"' : '') + '>' + wr(r[0]) + '</td><td class="v">' + (head ? '' : wr(r[1])) + '</td></tr>';
-        }).join('') + '</table></div>' + (d.caption ? '<p class="dnote">' + wr(d.caption) + '</p>' : '') + '</div>';
+        return '<div class="diagram">' + title + '<div class="statement"><h4>' + wr(d.title) + '</h4><p class="unit">' + wr(d.unit) + '</p><table>' + statementRows(d.rows, rules, arrows) + '</table></div>' + (d.caption ? '<p class="dnote">' + wr(d.caption) + '</p>' : '') + '</div>';
+      }
+      if (d.kind === 'sheet') {
+        // the book's balance sheet: two sides, each a run of rows like the box's
+        return '<div class="diagram">' + title + '<div class="statement sheet"><h4>' + wr(d.title) + '</h4><p class="unit">' + wr(d.unit) + '</p><div class="sides">' + d.sides.map(function (side) {
+          return '<div class="side"><h5>' + wr(side.title) + '</h5><table>' + statementRows(side.rows, side.rules || [], side.arrows || []) + '</table></div>';
+        }).join('') + '</div></div>' + (d.caption ? '<p class="dnote">' + wr(d.caption) + '</p>' : '') + '</div>';
       }
       return '';
+    }
+
+    // the rows of a box or a sheet: a row of null is a gap, a value of null a heading
+    function statementRows(rows, rules, arrows) {
+      return rows.map(function (r, i) {
+        if (!r) return '<tr class="gap"><td class="ar"></td><td></td><td class="v"></td></tr>';
+        var here = arrows.indexOf(i) >= 0, head = r[1] === null;
+        return '<tr' + (rules.indexOf(i) >= 0 ? ' class="underlined"' : '') + (here ? ' data-here="true"' : '') + '><td class="ar">' + (here ? '<span aria-label="This chapter’s line">→</span>' : '') + '</td><td' + (head ? ' class="head"' : '') + '>' + wr(r[0]) + '</td><td class="v">' + (head ? '' : wr(r[1])) + '</td></tr>';
+      }).join('');
     }
 
     // DCA in the owner's notes is the book's Durable Competitive Advantage: the
@@ -1752,32 +1799,32 @@
     function capex(y) { var c = v(y.cf, 'capitalExpenditures'); return c === null ? null : Math.abs(c); }
 
     // The lines the book walks through, with its chapter and its rule of thumb:
-    // the income-statement lines carry the owner's chapter notes (chapters 8 to
-    // 16, the thresholds and the book's examples as the notes give them), the
-    // rest the book's rule as first written up.
+    // one short line, the threshold as the owner's notes have it, only where the
+    // book gives a basic instruction; the plain lines carry none, and the
+    // chapter page holds the detail. The owner wants it kept this short.
     // unit: money (millions), pct, x (two decimals), years, shares (millions).
     var NUMBER_ROWS = [
       { group: 'Income statement' },
-      { label: 'Revenue', rowKey: 'revenue', ch: '8', unit: 'money', rule: 'Big revenue does not mean a profit; on its own it means nothing. After the revenue, take a long, careful look at the expenses.', value: function (y) { return v(y.inc, 'totalRevenue'); } },
-      { label: 'Cost of goods sold', ch: '9', unit: 'money', rule: 'The lower the better. Find out what is counted in it, which shows how management thinks about the business; alone it says little about a durable competitive advantage.', value: function (y) { return v(y.inc, 'costOfRevenue'); } },
-      { label: 'Gross profit', rowKey: 'grossProfit', ch: '10', unit: 'money', rule: 'Revenue less the materials and labour that made the goods. The figure itself says little; the margin under it says a lot about the economics of the business.', value: grossProfit },
-      { label: 'Gross margin', rowKey: 'grossMargin', ch: '10', unit: 'pct', ratio: true, rule: '40% and up tends to mean a durable competitive advantage, with exceptions; under 40% a highly competitive industry; below 20% a fiercely competitive one. Track the last ten years: consistency is the name of the game. Coca-Cola runs at 60% and more, Moody\u2019s at 73%, United Airlines at 14%.', value: function (y) { return div(grossProfit(y), v(y.inc, 'totalRevenue')); } },
-      { label: 'Selling, general and administrative', ch: '12', unit: 'money', rule: 'Lower and consistent is the key: a company that cannot cut it fast watches it eat more of the gross profit. Low SG&A with heavy research, capital spending or interest, as at Intel and Goodyear, has the same problem.', value: function (y) { return v(y.inc, 'sellingGeneralAdministrative'); } },
-      { label: 'SG&A as a share of gross profit', rowKey: 'sgaOfGrossProfit', ch: '12', unit: 'pct', ratio: true, rule: '30% of gross profit or less is great; many companies with a durable competitive advantage sit between 30% and 80%; near or above 100% is a highly competitive industry. Steady is what counts: Coca-Cola averages 59% and Moody\u2019s 25%, where GM swung from 28% to 83% in five years.', value: function (y) { return div(v(y.inc, 'sellingGeneralAdministrative'), grossProfit(y)); } },
-      { label: 'Research and development', ch: '13', unit: 'money', rule: 'An advantage built on technology can be replaced by newer technology, and one held by a patent ends when the patent expires. A company that must keep inventing to keep its advantage is not a sure thing, and Warren is not interested.', value: function (y) { return v(y.inc, 'researchDevelopment'); } },
-      { label: 'R&D as a share of gross profit', rowKey: 'rdOfGrossProfit', ch: '13', unit: 'pct', ratio: true, rule: 'Heavy, constant spending here is an inherent flaw in the advantage: Merck spends 29% of gross profit on research and 49% on SG&A, 78% together, and Intel about 30%, where Coca-Cola and Moody\u2019s have no such worry.', value: function (y) { return div(v(y.inc, 'researchDevelopment'), grossProfit(y)); } },
-      { label: 'Depreciation and amortisation', ch: '14', unit: 'money', rule: 'Machines and buildings wearing out, spread over their lives: a real cost that belongs in any count of earnings, since the press will have to be replaced. Warren ignores EBITDA, which adds it back.', value: function (y) { return v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'); } },
-      { label: 'Depreciation as a share of gross profit', rowKey: 'depreciationOfGrossProfit', ch: '14', unit: 'pct', ratio: true, rule: 'Low is the mark of a durable competitive advantage, around 10% of gross profit or less: Coca-Cola 6%, Wrigley 7%, Procter & Gamble 8%, against 22% to 57% at GM. As with any expense, less is always more.', value: function (y) { return div(v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'), grossProfit(y)); } },
-      { label: 'Operating income', ch: '11', unit: 'money', rule: 'Gross profit after the operating expenses: research, selling and administration, depreciation and amortisation, restructuring and the catch-all other. Heavy spending on any of them strips the advantage a high gross margin promises.', value: function (y) { return v(y.inc, 'operatingIncome'); } },
-      { label: 'Interest expense', ch: '15', unit: 'money', rule: 'Heavy interest means a fiercely competitive industry that needs big capital spending to keep up, or the debt of a leveraged buyout. A durable competitive advantage pays little or none.', value: function (y) { return v(y.inc, 'interestExpense'); } },
-      { label: 'Interest as a share of operating income', rowKey: 'interestOfOperatingIncome', ch: '15', unit: 'pct', ratio: true, rule: 'Under 15% of operating income tends to mean a durable competitive advantage: Procter & Gamble 8%, Wrigley 7%, against Goodyear 49% and United Airlines 61%. In any industry the lowest share is the likeliest to have the advantage, as Wells Fargo\u2019s 30% among the big banks.', value: function (y) { return div(v(y.inc, 'interestExpense'), v(y.inc, 'operatingIncome')); } },
-      { label: 'Other income and gains, net', ch: '16', unit: 'money', rule: 'Gains and losses on assets sold, the sale amount less the amount on the books, and the catch-all other: one-off, non-recurring events that can swell the bottom line, so take them out when judging the business for a durable competitive advantage.', value: function (y) { return v(y.inc, 'nonOperatingIncomeNetOther', 'totalOtherIncomeExpenseNet'); } },
-      { label: 'Income before tax', ch: '17', unit: 'money', rule: 'The number Warren uses: what the business earned after every expense, before tax, which is how every other investment is quoted, so a business can be weighed against them on equal terms.', value: function (y) { return v(y.inc, 'incomeBeforeTax'); } },
-      { label: 'Income tax', ch: '18', unit: 'money', rule: 'How Warren knows who is telling the truth: multiply the income before tax by the going rate, and if the tax paid is not close, questions follow. A company misleading the taxman misleads its shareholders too.', value: function (y) { return v(y.inc, 'incomeTaxExpense', 'taxProvision'); } },
-      { label: 'Effective tax rate', rowKey: 'taxRate', ch: '18', unit: 'pct', ratio: true, rule: 'Should sit near the going corporate rate, 35% in the book\u2019s day; a company paying much less is telling the world it earns more than it does. A durable competitive advantage has no need to mislead to look good.', value: function (y) { return div(v(y.inc, 'incomeTaxExpense', 'taxProvision'), v(y.inc, 'incomeBeforeTax')); } },
-      { label: 'Net earnings', rowKey: 'netEarnings', ch: '19', unit: 'money', rule: 'What Warren looks for: an upward trend over the years, not a single year, and the ride need not be smooth. Buybacks can lift earnings per share while net earnings fall, so he reads this line, not the per-share one.', value: function (y) { return v(y.inc, 'netIncome'); } },
-      { label: 'Net margin', rowKey: 'netMargin', ch: '19', unit: 'pct', ratio: true, rule: 'Over 20% of revenue is likely a durable competitive advantage; under 10% a highly competitive industry; 10% to 20% a grey area packed with investment gold not yet found. Coca-Cola 21% and Moody\u2019s 31%, against Southwest Airlines 7% and GM 3% in a good year. Banks run abnormally high, which is risk, not an advantage.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.inc, 'totalRevenue')); } },
-      { label: 'Earnings per share', rowKey: 'eps', ch: '20', unit: 'x', rule: 'A single year cannot show a durable competitive advantage; ten years can. Look for consistency and an upward trend, as in the book\u2019s $1.42 to $2.95 run, not the boom-and-bust swings and losses of a fiercely competitive industry.', value: function (y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y.shares); } },
+      { label: 'Revenue', rowKey: 'revenue', ch: '8', unit: 'money', value: function (y) { return v(y.inc, 'totalRevenue'); } },
+      { label: 'Cost of goods sold', ch: '9', unit: 'money', value: function (y) { return v(y.inc, 'costOfRevenue'); } },
+      { label: 'Gross profit', rowKey: 'grossProfit', ch: '10', unit: 'money', value: grossProfit },
+      { label: 'Gross margin', rowKey: 'grossMargin', ch: '10', unit: 'pct', ratio: true, rule: '40% and up is good; below 20% is not good.', value: function (y) { return div(grossProfit(y), v(y.inc, 'totalRevenue')); } },
+      { label: 'Selling, general and administrative', ch: '12', unit: 'money', value: function (y) { return v(y.inc, 'sellingGeneralAdministrative'); } },
+      { label: 'SG&A as a share of gross profit', rowKey: 'sgaOfGrossProfit', ch: '12', unit: 'pct', ratio: true, rule: '30% or less is great; what matters most is that it stays steady year to year.', value: function (y) { return div(v(y.inc, 'sellingGeneralAdministrative'), grossProfit(y)); } },
+      { label: 'Research and development', ch: '13', unit: 'money', value: function (y) { return v(y.inc, 'researchDevelopment'); } },
+      { label: 'R&D as a share of gross profit', rowKey: 'rdOfGrossProfit', ch: '13', unit: 'pct', ratio: true, rule: 'Heavy, constant spending just to keep up is a weakness, not a moat.', value: function (y) { return div(v(y.inc, 'researchDevelopment'), grossProfit(y)); } },
+      { label: 'Depreciation and amortisation', ch: '14', unit: 'money', value: function (y) { return v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'); } },
+      { label: 'Depreciation as a share of gross profit', rowKey: 'depreciationOfGrossProfit', ch: '14', unit: 'pct', ratio: true, rule: 'A durable competitive advantage tends to run low here, around 10% or less.', value: function (y) { return div(v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'), grossProfit(y)); } },
+      { label: 'Operating income', ch: '11', unit: 'money', value: function (y) { return v(y.inc, 'operatingIncome'); } },
+      { label: 'Interest expense', ch: '15', unit: 'money', value: function (y) { return v(y.inc, 'interestExpense'); } },
+      { label: 'Interest as a share of operating income', rowKey: 'interestOfOperatingIncome', ch: '15', unit: 'pct', ratio: true, rule: 'Under 15% of operating income; none at all is best.', value: function (y) { return div(v(y.inc, 'interestExpense'), v(y.inc, 'operatingIncome')); } },
+      { label: 'Other income and gains, net', ch: '16', unit: 'money', rule: 'Not an important number: Warren tends not to use it.', value: function (y) { return v(y.inc, 'nonOperatingIncomeNetOther', 'totalOtherIncomeExpenseNet'); } },
+      { label: 'Income before tax', ch: '17', unit: 'money', value: function (y) { return v(y.inc, 'incomeBeforeTax'); } },
+      { label: 'Income tax', ch: '18', unit: 'money', value: function (y) { return v(y.inc, 'incomeTaxExpense', 'taxProvision'); } },
+      { label: 'Effective tax rate', rowKey: 'taxRate', ch: '18', unit: 'pct', ratio: true, rule: 'Should sit near the going corporate rate; a company paying far less may be flattering its earnings.', value: function (y) { return div(v(y.inc, 'incomeTaxExpense', 'taxProvision'), v(y.inc, 'incomeBeforeTax')); } },
+      { label: 'Net earnings', rowKey: 'netEarnings', ch: '19', unit: 'money', rule: 'Should trend upward over the years; a single year says nothing.', value: function (y) { return v(y.inc, 'netIncome'); } },
+      { label: 'Net margin', rowKey: 'netMargin', ch: '19', unit: 'pct', ratio: true, rule: 'Over 20% suggests a durable competitive advantage; under 10% a competitive business.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.inc, 'totalRevenue')); } },
+      { label: 'Earnings per share', rowKey: 'eps', ch: '20', unit: 'x', rule: 'A steady upward trend over ten years is what to look for.', value: function (y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y.shares); } },
       { label: 'Shares outstanding', rowKey: 'sharesOutstanding', ch: '20', unit: 'shares', value: function (y) { return y.shares; } },
       { group: 'Balance sheet' },
       { label: 'Cash and cash equivalents', ch: '24', unit: 'money', value: function (y) { return v(y.bal, 'cashAndEquivalents', 'cash'); } },

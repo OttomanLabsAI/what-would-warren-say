@@ -25,9 +25,8 @@ fetches any company's fundamentals live. Under the company's name sits what it
 does, EODHD's business description with the website, head count, listing year
 and country beside it, three lines at a time with More for the rest. Either way it lays out the yearly history of the figures
 the book walks through: every statement line with the chapter beside it, and
-under the income-statement lines and the ratios the rule of thumb, drawn from
-the chapter notes for the chapters written up so far, from revenue to the
-one-off gains, with the book's thresholds and examples. With a token in the box
+the book's ratios with its rule of thumb under each, one short line with the
+threshold as the chapter notes have it. With a token in the box
 the company's current share price sits above the table, with the day's change
 and a Graph link that draws the price over the last day, week, month, six
 months, year, five years, ten years or all time; an Earnings calls box beside

@@ -73,7 +73,12 @@ line charts (`{ title, sub, years, values }` each, `unit` as in
 go into `chapterCharts`, and `drawChapterCharts`, called by `renderChapter`
 once the chapter is on the page and again on resize, draws each with
 `chartSvg` at its slot's width and wires the hover readout), `checks` a tick list with a
-note, `sum` lines adding to a total, `compare` labelled rows, `statement` the
+note, `sum` lines adding to a total, `compare` labelled rows, `sheet` the
+book's balance sheet as two sides (`sides`, each `{ title, rows, rules,
+arrows }` drawn by `statementRows`, the rows as a `statement`'s, in one
+white box under the sheet's title and unit; `SHEET_21` holds the one from
+the owner's photographs of chapter 21, the two totals agreeing at
+$43,059), `statement` the
 book's income-statement box with `rows` (a row of `null` is a gap, a value
 of `null` a heading), `rules` under rows and `arrows` on the chapter's
 lines (the older `rule` and `arrow` still read), as in the owner's
@@ -118,15 +123,19 @@ ten-year columns of earnings per share from the owner's photographs
 (2008 down to 1998, the consistent run and the erratic one) as `cols`, the
 same two runs as line charts underneath (`charts`, 1998 at the left, the
 losses in claret under the zero line), and
-the book's readings of them as examples. Chapters 11 to 19 open with
-the book's box. `partHtml` draws a part; a chapter without a body
+the book's readings of them as examples; chapter 21 points, the two parts
+of a balance sheet as `cols` (the kinds of asset and liability the book
+lists on its pages 69 and 70), the book's balance sheet as a `sheet`, the
+net-worth equation with the book's $100K and $25K, the three-way compare
+(the book's two businesses and the sheet's own totals), a point. Chapters
+11 to 19 open with the book's box. `partHtml` draws a part; a chapter without a body
 draws its diagrams, then its points. `renderChapter` draws a
 breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
 source is the owner's export under `notes/` (the latest export replaces
-the file of the same name; chapters 1 to 20 so far, the whole income
-statement); a new export with more finished chapters means writing them up
+the file of the same name; chapters 1 to 21 so far, the whole income
+statement and the first of the balance sheet); a new export with more finished chapters means writing them up
 here and keeping the file. Anything in square brackets in the owner's
 notes is an instruction to the write-up, not a note: "[make an example
 calculation]", "[show an example calculation]", "[add examples from the
@@ -219,16 +228,18 @@ No chart library: the page still loads nothing
 from elsewhere. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
 the book's lines to EODHD field names, several candidates per line, with the
-chapter and a `rule`, the analysis shown in claret under the line and over
-the line's graph: for the income-statement lines of chapters 8 to 20 it is
-drawn from the owner's chapter notes under `notes/` (the thresholds, the
-ten-year consistency test and the book's examples as the notes give them,
-on the money lines as well as the ratios), for the other lines the book's
-rule of thumb as first written up; a chapter the owner writes up later
-means rewriting its lines' rules from the notes in the same way. The rules
-are plain text (`esc`, not `wr`) and say durable competitive advantage in
-full, never the short form; "Every field EODHD reports" shows the
-raw statements. Sample data: `public/data/index.json` lists companies the
+chapter and, on the lines where the book gives a basic instruction, a
+`rule`: one short sentence in claret under the line and over the line's
+graph, the book's rule of thumb with the threshold as the owner's notes
+have it ("40% and up is good; below 20% is not good."). The plain lines,
+revenue, the costs, the profits, carry none: the owner wants the table kept
+this short and the chapter page to hold the detail, and had the long rules
+of v1.37 (examples, consistency tests, several sentences a line) cut back
+in v1.43. A chapter written up later adds a rule only where its notes give
+a new threshold or a basic instruction for a line that had none, in one
+short sentence. The rules are plain text (`esc`, not `wr`) and say durable
+competitive advantage in full, never the short form; "Every field EODHD
+reports" shows the raw statements. Sample data: `public/data/index.json` lists companies the
 owner pulled and `public/data/companies/<SYMBOL>.json` holds each in the
 page's shape (`tools/bundle-samples.mjs` writes both from `data/`); the page
 loads the index at boot (`loadSamples`), opens a company's file on first view
@@ -672,3 +683,4 @@ design are their own release, requested deliberately.
 | v1.40 | The income statement finished, with a TL;DR on every chapter | Chapters 17 to 20, income before tax, income taxes paid, net earnings and earnings per share, now read as written-up breakdowns from your notes, with the book's box carried down to net earnings from your photographs, the example calculations you asked for worked on the box's figures, the buyback trick in made-up figures, and the book's two ten-year columns of earnings per share with its reading of each. Every written-up chapter now opens with a TL;DR, the plainest instruction for the reader, in your words where you gave them, and the table's rules for those four lines come from the notes too. |
 | v1.41 | The two earnings runs drawn as lines | Chapter 20's two ten-year columns of earnings per share from the book now have line graphs underneath them, drawn at the page's width: the steady climb Warren looks for beside the erratic run he stays away from, its two losses in claret below the zero line, with the year and figure on hover. |
 | v1.42 | The bracketed notes are instructions, written into policy | Nothing on the page changed: every instruction in square brackets in your chapter notes, the example calculations for chapters 17 to 19 and the examples from the photographs for chapter 20, was already carried out. The rule itself is now written into the repository's standing policy, so any bracket in a future set of notes is treated as an instruction and a chapter with one unanswered counts as unfinished. |
+| v1.43 | The balance sheet opens, the table's rules short again | Chapter 21, the balance sheet in general, now reads as a written-up breakdown from your notes: what a balance sheet is and the two parts of it, with the kinds of asset and liability the book lists, the book's example balance sheet from your photographs drawn as two sides that agree at $43,059, and the net-worth sum worked three ways, the book's $100K business with $25K and then $175K of liabilities, and the sheet's own totals. The rules under the table's lines are short again: one plain line where the book gives a basic instruction, such as 40% and up is good and below 20% is not for the gross margin, and nothing under revenue and the other plain lines, with the chapter page holding the detail. |

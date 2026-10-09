@@ -1,5 +1,0 @@
-Nothing was missed. Every instruction in square brackets in your notes has its answer on the page: chapter 17's example calculation is the income-before-tax equation worked on the box's figures, $3,200 less $200 less the $1,275 and $225 to $1,500; chapter 18's is the tax check, $1,500 at 35% against the $525 paid; chapter 19's two are net earnings, $1,500 less $525 to $975, and the buyback trick in made-up figures; chapter 20's examples from the photographs are the two ten-year columns, the book's reading of each, and the line graphs underneath.
-
-The rule itself is now written into the repository's standing policy, so any session that writes up a later set of notes treats a bracket as an instruction and counts a chapter with one unanswered as unfinished. Nothing on the page changed in this release.
-
-Verified: the policy file is the only change, and the deploy dry run passes.
