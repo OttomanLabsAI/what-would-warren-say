@@ -55,7 +55,12 @@ The storage key and the export shape are a contract with existing exports:
 add fields, never rename or remove them, and change them only with a migration.
 
 Chapters the owner has finished are written up in `BREAKDOWNS` (keyed by
-chapter id): `type` (the owner's chapter type), `thesis`, `diagrams` (each
+chapter id): `type` (the owner's chapter type), `tldr` (the plainest
+instruction for the reader, one sentence, drawn as a boxed "TL;DR" line
+under the type line and above the thesis; every chapter written up carries
+one, in the owner's words where they gave them, as for chapters 15, 16, 18
+and 20, and a chapter written up later gets one too, at the owner's
+standing request), `thesis`, `diagrams` (each
 `{ kind, title, … }` drawn by `diagramHtml`: `flow` boxes and arrows, with
 `numbered: true` a "Step 1, Step 2" label in each box so it reads as
 instructions (chapter 8), `equation` `terms` joined by `ops` (a claret −, ÷
@@ -71,7 +76,10 @@ photographs: `STATEMENT_BOX` for chapters 8 and 9, reused with the arrow
 on Gross Profit for chapter 10, and `opexBox` over `OPEX_ROWS` for
 chapters 11 to 15 (chapter 12's third operating line reads "Interest" in
 the book and is kept so; chapter 15 adds the Interest Expense line) with
-`OTHER_ROWS_16` for chapter 16), `points`, and `raw` (the owner's summary from the export, byte for
+`OTHER_ROWS_16` for chapter 16 and, carried on below operating profit from
+the owner's photographs of chapters 17 to 19, `PRETAX_ROWS` (Income Before
+Tax, the arrow on it), `TAX_ROWS_18` (Income Taxes Paid) and `NET_ROWS_19`
+(Net Earnings, a rule under the taxes paid)), `points`, and `raw` (the owner's summary from the export, byte for
 byte, shown closed under "Your notes, as written"). A chapter whose notes
 give examples has a `body` instead of `diagrams` and `points`: the parts in
 the order of the notes, each a diagram, `{ points: [...] }` or `{ examples:
@@ -91,15 +99,31 @@ statements it shows up on, points, the share-of-gross-profit equation,
 examples, a point; chapter 15 the table of why interest runs high, a
 point, examples, the share-of-operating-income equation with the 15% rule
 as its note, a point; chapter 16 a point, the gain-or-loss equation, the
-book's property as a worked example, points. Chapters 11 to 16 open with
+book's property as a worked example, points; chapter 17 the box, a point,
+the pre-tax equation with the box's figures (the book takes every line
+below operating profit off it), points; chapter 18 the box, points, the
+tax check as an equation (income before tax times the rate, 35% in the
+book's day, against the taxes paid), points; chapter 19 the box, the
+net-earnings equation, points, the buyback trick as two columns of made-up
+figures (the owner asked for a worked example; the title says the figures
+are made up), points, the share-of-revenue equation, the book's two
+companies as a compare, points, examples, the tiers as a compare, a point;
+chapter 20 the earnings-per-share equation, points, the book's two
+ten-year columns of earnings per share from the owner's photographs
+(2008 down to 1998, the consistent run and the erratic one) as `cols`, and
+the book's readings of them as examples. Chapters 11 to 19 open with
 the book's box. `partHtml` draws a part; a chapter without a body
 draws its diagrams, then its points. `renderChapter` draws a
 breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
 source is the owner's export under `notes/` (the latest export replaces
-the file of the same name; chapters 1 to 16 so far); a new export with more
-finished chapters means writing them up here and keeping the file. DCA in
+the file of the same name; chapters 1 to 20 so far, the whole income
+statement); a new export with more finished chapters means writing them up
+here and keeping the file, and the owner's bracketed asks in the notes
+("[make an example calculation]", "[add examples from the photos]") are
+instructions to the write-up, answered with the book's figures where the
+book gives them and with figures marked as made up where it does not. DCA in
 the owner's notes is the book's Durable Competitive Advantage: a write-up
 says it in full, as `TERM`, wherever it is mentioned (never the short form,
 never "durable advantage"), and `wr` (escape, then the term in `<strong
@@ -186,7 +210,7 @@ from elsewhere. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
 the book's lines to EODHD field names, several candidates per line, with the
 chapter and a `rule`, the analysis shown in claret under the line and over
-the line's graph: for the income-statement lines of chapters 8 to 16 it is
+the line's graph: for the income-statement lines of chapters 8 to 20 it is
 drawn from the owner's chapter notes under `notes/` (the thresholds, the
 ten-year consistency test and the book's examples as the notes give them,
 on the money lines as well as the ratios), for the other lines the book's
@@ -635,3 +659,4 @@ design are their own release, requested deliberately.
 | v1.37 | Your chapter notes under every income-statement line | The analysis under each line of the income statement now comes from your own chapter notes, from revenue down to the one-off gains: the thresholds, the ten-year test of consistency and the book's examples, Coca-Cola and Moody's against General Motors and the airlines, where your notes give them. The lines that had no rule before, revenue, cost of goods sold, gross profit, operating income, interest expense and the one-off gains, carry one now, and the Screen's SG&A rule reads 30% or less, as your notes have it. |
 | v1.38 | Every earnings call marked on the price chart | The row of spans above the share-price chart now ends in an Earnings calls box, off until you tick it: ticked, a dashed claret line stands on the chart at every date the company reported its results, before the open or after the close on a daily chart, and hovering a marked day names the call and the quarter it was for. Companies fetched from now on carry their report history; those already on file say so and fill in with a fresh fetch. |
 | v1.39 | A slider under the graph, one box for ten years | The graph popup's From and To dropdowns are gone: a two-thumb slider sits under the chart instead, spanning every year or quarter on file, with the range it holds written between its ends, and the window is now a single Last 10 years box that moves the slider to the last ten years when ticked and back to the whole run when not, unticking itself when you move a thumb by hand. The last value's label now sits over its own bar, clear of the bar beside it, instead of printing across it. |
+| v1.40 | The income statement finished, with a TL;DR on every chapter | Chapters 17 to 20, income before tax, income taxes paid, net earnings and earnings per share, now read as written-up breakdowns from your notes, with the book's box carried down to net earnings from your photographs, the example calculations you asked for worked on the box's figures, the buyback trick in made-up figures, and the book's two ten-year columns of earnings per share with its reading of each. Every written-up chapter now opens with a TL;DR, the plainest instruction for the reader, in your words where you gave them, and the table's rules for those four lines come from the notes too. |

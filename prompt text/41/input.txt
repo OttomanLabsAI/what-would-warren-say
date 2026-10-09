@@ -1,0 +1,20 @@
+more information for you to populate
+
+every complete chapter needs a tldr at the top with the most basic instruction for the uset
+
+eg. per-share earning:
+
+get the last 10 years EPS and looks for steady upward trend
+
+eg. income taxes paid:
+
+multiply the pre-tax operating income by income tax and comapre to this number to see true earnings
+
+eg. Gain (or Loss) on Sale of Assets and Other
+
+not an important number for assessing DCA Warren tends not to use it
+
+Interest Expense
+A Durable Competitive Advantage tends to have less than 15% of operating income going out as interest but 0 is best
+
+do this for all chapters populated and when i give you new noes to add later
