@@ -164,10 +164,24 @@ variation, low, high, least-squares slope and R² on the period index,
 change, compound growth a year, falls and the largest fall), `chartSvg` draws
 the inline SVG (grid, axis, line or bar marks, the optional trend line or
 mean band, the last value labelled, hit bands for the hover readout) and
-`figuresHtml` the list under it. The window presets set the from-to range to
-the last 5 or 10 years (times four for quarters) and a hand-set range turns
-the window back to "shown"; a graph opens on the last 5 years (`openGraph`
-sets `window: '5'` and applies it), at the owner's request. No chart library: the page still loads nothing
+`figuresHtml` the list under it. The range is a slider under the chart
+(`#graph-range`: two native range inputs, `#graph-from` and `#graph-to`,
+stacked on one track so each thumb can be grabbed, the claret stretch
+`#graph-sel` between them in the track's own terms, the first and last
+periods on offer at the ends and the range itself between them,
+`#graph-span`; hidden with fewer than two periods) over every period kept
+on the graph, years or quarters (`graph.periods`, filled by
+`fillGraphRange`, the dates still kept as `graph.from` and `graph.to`;
+`syncGraphRange` puts the thumbs on them, `slide` reads a moved thumb and
+takes the other along when pushed past it). The Window group is one box,
+"Last 10 years" (`#graph-ten`, `graph.window` `'10'` or `'shown'`): ticked,
+`applyGraphWindow` moves the slider to the last ten years (forty quarters);
+unticked, to the whole run; a hand-moved thumb unticks it. A graph opens
+with the box ticked, at the owner's request; the dropdowns and the other
+presets went in v1.39. The last value's label (`text.end`) sits centred
+over its own mark, kept inside the right edge, lifted (dropped, under a
+negative) clear of any neighbouring mark it would cover, with a paper halo.
+No chart library: the page still loads nothing
 from elsewhere. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
 the book's lines to EODHD field names, several candidates per line, with the
@@ -620,3 +634,4 @@ design are their own release, requested deliberately.
 | v1.36 | The list of splits leaves the company page | The Splits line under the next report date is gone: a company with a long history of splits filled three lines with them. The splits themselves stay at work behind the price chart, which still restates earlier prices and says so in the note under it. |
 | v1.37 | Your chapter notes under every income-statement line | The analysis under each line of the income statement now comes from your own chapter notes, from revenue down to the one-off gains: the thresholds, the ten-year test of consistency and the book's examples, Coca-Cola and Moody's against General Motors and the airlines, where your notes give them. The lines that had no rule before, revenue, cost of goods sold, gross profit, operating income, interest expense and the one-off gains, carry one now, and the Screen's SG&A rule reads 30% or less, as your notes have it. |
 | v1.38 | Every earnings call marked on the price chart | The row of spans above the share-price chart now ends in an Earnings calls box, off until you tick it: ticked, a dashed claret line stands on the chart at every date the company reported its results, before the open or after the close on a daily chart, and hovering a marked day names the call and the quarter it was for. Companies fetched from now on carry their report history; those already on file say so and fill in with a fresh fetch. |
+| v1.39 | A slider under the graph, one box for ten years | The graph popup's From and To dropdowns are gone: a two-thumb slider sits under the chart instead, spanning every year or quarter on file, with the range it holds written between its ends, and the window is now a single Last 10 years box that moves the slider to the last ten years when ticked and back to the whole run when not, unticking itself when you move a thumb by hand. The last value's label now sits over its own bar, clear of the bar beside it, instead of printing across it. |

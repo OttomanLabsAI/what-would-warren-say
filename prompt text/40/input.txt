@@ -1,0 +1,5 @@
+i want the time period to be a slider at the bottom, nto dropdowns
+
+fix the location of that number
+
+i want this as a checkbox, it is the only option and will adjust the slider accordingly

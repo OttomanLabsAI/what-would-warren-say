@@ -204,13 +204,27 @@
     .graph-controls select { font-size: .88rem; padding: .35rem 1.8rem .35rem .55rem; }
     .graph-controls .type { padding: .35rem .7rem; }
     .graph-controls .type.off { color: var(--ink-40); border-color: var(--rule-light); cursor: default; }
+    .graph-range { margin: .1rem 20px .5rem 72px; }
+    .graph-range[hidden] { display: none; }
+    .graph-range .track { position: relative; height: 1.6rem; }
+    .graph-range .rail { position: absolute; left: .5rem; right: .5rem; top: 50%; height: 2px; margin-top: -1px; background: var(--rule); }
+    .graph-range .sel { position: absolute; top: 50%; height: 4px; margin-top: -2px; background: var(--claret); }
+    .graph-range input[type="range"] { position: absolute; left: 0; top: 0; width: 100%; height: 1.6rem; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; pointer-events: none; outline: none; }
+    .graph-range input[type="range"]::-webkit-slider-runnable-track { height: 1.6rem; background: transparent; }
+    .graph-range input[type="range"]::-moz-range-track { height: 2px; background: transparent; }
+    .graph-range input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: auto; box-sizing: border-box; width: 1rem; height: 1rem; margin-top: .3rem; border: 2px solid var(--ink); border-radius: 50%; background: var(--paper); cursor: ew-resize; }
+    .graph-range input[type="range"]::-moz-range-thumb { pointer-events: auto; box-sizing: border-box; width: 1rem; height: 1rem; border: 2px solid var(--ink); border-radius: 50%; background: var(--paper); cursor: ew-resize; }
+    .graph-range input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .graph-range input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .graph-range .ends { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; margin-top: .05rem; font-family: var(--sans); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-40); }
+    .graph-range .ends b { font-weight: 700; letter-spacing: .14em; color: var(--ink); }
     .graph-body { position: relative; min-height: 4rem; }
     .graph-body svg.chart { display: block; width: 100%; height: auto; font-family: var(--sans); outline: none; }
     .graph-body svg.chart:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
     .chart .grid { stroke: var(--rule-light); stroke-width: 1; }
     .chart .grid.zero { stroke: var(--rule); }
     .chart .axis { fill: var(--ink-60); font-size: 11px; }
-    .chart .end { fill: var(--ink-70); font-size: 11px; font-weight: 700; }
+    .chart .end { fill: var(--ink-70); font-size: 11px; font-weight: 700; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round; }
     .chart .series { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
     .chart .pt { fill: var(--ink); stroke: var(--paper); stroke-width: 2; }
     .chart .pt.neg { fill: var(--claret); }
@@ -3438,14 +3452,16 @@
         '<div class="graph-head"><div><p class="kicker" id="graph-kicker"></p><h3 id="graph-title"></h3><p class="rule" id="graph-rule"></p></div>' +
         '<button type="button" class="secondary" id="graph-close">Close</button></div>' +
         '<form class="graph-controls" id="graph-controls">' +
-        '<div class="pick"><label for="graph-from">From</label><select id="graph-from"></select></div>' +
-        '<div class="pick"><label for="graph-to">To</label><select id="graph-to"></select></div>' +
-        '<fieldset><legend>Window</legend><div class="types">' + graphOption('window', 'shown', 'Shown period') + graphOption('window', '5', 'Last 5 years') + graphOption('window', '10', 'Last 10 years') + '</div></fieldset>' +
+        '<fieldset><legend>Window</legend><div class="types"><label class="type"><input type="checkbox" name="gten" id="graph-ten"><b>Last 10 years</b></label></div></fieldset>' +
         '<fieldset><legend>Period</legend><div class="types">' + graphOption('period', 'annual', 'Annual') + graphOption('period', 'quarterly', 'Quarterly') + '</div></fieldset>' +
         '<fieldset><legend>Chart</legend><div class="types">' + graphOption('kind', 'line', 'Line') + graphOption('kind', 'bar', 'Bar') + '</div></fieldset>' +
         '<fieldset><legend>Trend</legend><div class="types">' + graphOption('trend', 'none', 'None') + graphOption('trend', 'line', 'Straight line') + graphOption('trend', 'band', 'Mean band') + '</div></fieldset>' +
         '</form>' +
         '<div class="graph-body" id="graph-body"></div>' +
+        '<div class="graph-range" id="graph-range"><div class="track"><div class="rail"></div><div class="sel" id="graph-sel"></div>' +
+        '<input type="range" id="graph-from" min="0" max="0" step="1" value="0" aria-label="From">' +
+        '<input type="range" id="graph-to" min="0" max="0" step="1" value="0" aria-label="To"></div>' +
+        '<div class="ends"><span id="graph-first"></span><b id="graph-span"></b><span id="graph-last"></span></div></div>' +
         '<div class="graph-figures" id="graph-figures"></div>' +
         '<p class="units" id="graph-units"></p></div>';
       document.body.appendChild(d);
@@ -3458,16 +3474,30 @@
         if (!graph) return;
         if (t.name === 'gkind') graph.kind = t.value;
         else if (t.name === 'gtrend') graph.trend = t.value;
-        else if (t.name === 'gwindow') { graph.window = t.value; applyGraphWindow(); }
+        else if (t.name === 'gten') { graph.window = t.checked ? '10' : 'shown'; applyGraphWindow(); }
         else if (t.name === 'gperiod') { graph.period = t.value; fillGraphRange(); applyGraphWindow(); }
-        else if (t.id === 'graph-from') { graph.from = t.value; if (graph.from > graph.to) graph.to = graph.from; graph.window = 'shown'; }
-        else if (t.id === 'graph-to') { graph.to = t.value; if (graph.to < graph.from) graph.from = graph.to; graph.window = 'shown'; }
-        d.querySelector('input[name="gwindow"][value="' + graph.window + '"]').checked = true;
-        d.querySelector('#graph-from').value = graph.from;
-        d.querySelector('#graph-to').value = graph.to;
+        d.querySelector('#graph-ten').checked = graph.window === '10';
         syncGraphOptions();
         drawGraph();
       });
+      // the slider under the chart: two thumbs on one track over every period on
+      // offer, From and To; a thumb pushed past the other takes it along, and a
+      // hand-set range is the shown period again
+      function slide(ev) {
+        if (!graph || !graph.periods || !graph.periods.length) return;
+        var from = d.querySelector('#graph-from'), to = d.querySelector('#graph-to');
+        var i0 = parseInt(from.value, 10) || 0, i1 = parseInt(to.value, 10) || 0;
+        if (ev.target === from && i0 > i1) i1 = i0;
+        else if (ev.target === to && i1 < i0) i0 = i1;
+        graph.from = graph.periods[i0].date;
+        graph.to = graph.periods[i1].date;
+        graph.window = 'shown';
+        d.querySelector('#graph-ten').checked = false;
+        syncGraphOptions();
+        drawGraph();
+      }
+      d.querySelector('#graph-from').addEventListener('input', slide);
+      d.querySelector('#graph-to').addEventListener('input', slide);
       window.addEventListener('resize', function () { if (d.open) drawGraph(); });
       graphDialog = d;
       return d;
@@ -3492,22 +3522,46 @@
       });
     }
 
+    // the periods on offer for the slider: every year, or every quarter, kept
+    // on the graph; the range opens on the whole run and the window narrows it
     function fillGraphRange() {
       var periods = graphPeriods(graph.c, graph.period);
-      var options = periods.map(function (p) { return '<option value="' + esc(p.date) + '">' + esc(p.label) + '</option>'; }).join('');
+      graph.periods = periods;
       var from = graphDialog.querySelector('#graph-from'), to = graphDialog.querySelector('#graph-to');
-      from.innerHTML = options;
-      to.innerHTML = options;
+      from.max = to.max = String(Math.max(0, periods.length - 1));
       graph.from = periods.length ? periods[0].date : '';
       graph.to = periods.length ? periods[periods.length - 1].date : '';
-      from.value = graph.from;
-      to.value = graph.to;
+      syncGraphRange();
     }
 
-    // the last 5 or 10 years of the periods on offer, as the shown range
+    // the slider shows the range in hand: the thumbs on their periods, the claret
+    // stretch between them, the first and last periods on offer at the ends and
+    // the range itself between those; hidden when there is only one period
+    function syncGraphRange() {
+      var d = graphDialog, ps = graph.periods || [];
+      var from = d.querySelector('#graph-from'), to = d.querySelector('#graph-to'), sel = d.querySelector('#graph-sel');
+      var dates = ps.map(function (p) { return p.date; });
+      var i0 = Math.max(0, dates.indexOf(graph.from)), i1 = Math.max(i0, dates.indexOf(graph.to));
+      var max = Math.max(1, ps.length - 1);
+      from.value = String(i0);
+      to.value = String(i1);
+      from.setAttribute('aria-valuetext', ps[i0] ? ps[i0].label : '');
+      to.setAttribute('aria-valuetext', ps[i1] ? ps[i1].label : '');
+      from.style.zIndex = i0 >= max ? '3' : '';
+      // the stretch between the thumbs, in the track's own terms so it follows the track as the popup resizes: a thumb is 1rem wide, its centre half that in from the end
+      sel.style.left = 'calc(.5rem + (100% - 1rem) * ' + (i0 / max).toFixed(4) + ')';
+      sel.style.width = 'calc((100% - 1rem) * ' + ((i1 - i0) / max).toFixed(4) + ')';
+      d.querySelector('#graph-first').textContent = ps.length ? ps[0].label : '';
+      d.querySelector('#graph-last').textContent = ps.length ? ps[ps.length - 1].label : '';
+      d.querySelector('#graph-span').textContent = ps[i0] && ps[i1] ? (i0 === i1 ? ps[i0].label : ps[i0].label + ' to ' + ps[i1].label) : '';
+      d.querySelector('#graph-range').hidden = ps.length < 2;
+    }
+
+    // the range the window asks for: the last ten years of the periods on offer
+    // (forty quarters) while the box is ticked, the whole run when it is not; a
+    // hand-moved thumb unticks the box and narrows from there
     function applyGraphWindow() {
       var periods = graphPeriods(graph.c, graph.period);
-      // "Shown period" is the table's whole run of years; a hand-set range narrows it from there
       var slice = graph.window === 'shown' ? periods : periods.slice(-(parseInt(graph.window, 10) * (graph.period === 'quarterly' ? 4 : 1)));
       if (!slice.length) return;
       graph.from = slice[0].date;
@@ -3515,7 +3569,7 @@
     }
 
     function syncGraphOptions() {
-      Array.prototype.forEach.call(graphDialog.querySelectorAll('.graph-controls input[type="radio"]'), function (input) {
+      Array.prototype.forEach.call(graphDialog.querySelectorAll('.graph-controls input[type="radio"], .graph-controls input[type="checkbox"]'), function (input) {
         input.parentNode.classList.toggle('on', input.checked);
         input.parentNode.classList.toggle('off', input.disabled);
       });
@@ -3523,7 +3577,7 @@
 
     function openGraph(c, row) {
       var d = ensureGraphDialog();
-      graph = { c: c, row: row, kind: 'line', period: 'annual', from: '', to: '', window: '5', trend: 'none' };
+      graph = { c: c, row: row, kind: 'line', period: 'annual', from: '', to: '', window: '10', trend: 'none', periods: [] };
       d.querySelector('#graph-kicker').textContent = c.meta.name + ' · ch. ' + row.ch;
       d.querySelector('#graph-title').textContent = row.label;
       d.querySelector('#graph-rule').textContent = row.rule || '';
@@ -3533,12 +3587,10 @@
       quarterly.parentNode.title = hasQ ? '' : 'No quarters are kept for this company: Fetch again pulls them.';
       d.querySelector('input[name="gperiod"][value="annual"]').checked = true;
       d.querySelector('input[name="gkind"][value="line"]').checked = true;
-      d.querySelector('input[name="gwindow"][value="5"]').checked = true;
+      d.querySelector('#graph-ten').checked = true;
       d.querySelector('input[name="gtrend"][value="none"]').checked = true;
       fillGraphRange();
       applyGraphWindow();
-      d.querySelector('#graph-from').value = graph.from;
-      d.querySelector('#graph-to').value = graph.to;
       syncGraphOptions();
       if (!d.open) d.showModal();
       drawGraph();
@@ -3714,8 +3766,19 @@
       var last = -1;
       values.forEach(function (v, i) { if (v !== null) last = i; });
       if (last >= 0 && unit !== 'price') {
-        var ly = values[last] < 0 ? Y(values[last]) + 16 : Y(values[last]) - 10;
-        svg += '<text class="end" x="' + X(last).toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + (last === n - 1 && n > 1 ? 'end' : 'middle') + '">' + esc(fmtValue(values[last], unit)) + '</text>';
+        // the last value's label sits centred over its own mark, kept inside the
+        // right edge, and is lifted (dropped, under a negative) clear of any
+        // neighbouring mark it would otherwise cover
+        var text = fmtValue(values[last], unit), lw = text.length * 6.6 + 6;
+        var lx = Math.max(padL + lw / 2, Math.min(X(last), W - 2 - lw / 2));
+        var below = values[last] < 0, ly = below ? Y(values[last]) + 16 : Y(values[last]) - 10;
+        var half = kind === 'bar' ? Math.min(24, Math.max(2, band - 2)) / 2 : 4;
+        values.forEach(function (v, i) {
+          if (v === null || i === last || X(i) + half < lx - lw / 2 || X(i) - half > lx + lw / 2) return;
+          ly = below ? Math.max(ly, Y(Math.min(v, 0)) + 16) : Math.min(ly, Y(Math.max(v, 0)) - 10);
+        });
+        ly = Math.max(12, Math.min(H - 4, ly));
+        svg += '<text class="end" x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle">' + esc(text) + '</text>';
       }
       svg += '<line class="cross" id="graph-cross" x1="0" x2="0" y1="' + padT + '" y2="' + (padT + plotH) + '" style="display:none"/>';
       periods.forEach(function (p, i) {
@@ -3771,6 +3834,7 @@
 
     function drawGraph() {
       if (!graph || !graphDialog) return;
+      syncGraphRange();
       var body = graphDialog.querySelector('#graph-body');
       var periods = graphPeriods(graph.c, graph.period).filter(function (p) { return p.date >= graph.from && p.date <= graph.to; });
       var values = graphValues(graph.c, graph.row, graph.period, periods);

@@ -1,0 +1,9 @@
+All three are in. The graph popup's From and To dropdowns are gone. A slider sits under the chart in their place, aligned with the plot: two thumbs on one track over every year or quarter on file, the claret stretch between them, the first and last periods at the ends and the range in hand written between them. Drag a thumb, or focus it and use the arrow keys, and the chart narrows as you go; a thumb pushed past the other takes it along, so the ends keep their order.
+
+The Window group is now the one box, Last 10 years. Ticked, it moves the slider to the last ten years, forty quarters on a quarterly chart; unticked, the slider opens to the whole run; moving a thumb by hand unticks it. A graph opens with the box ticked, so the last ten years is what you see first, where it used to be five.
+
+The last value's label now sits centred over its own bar or point, kept inside the right edge, and is lifted clear of a taller neighbour it would otherwise print across, with a paper halo behind the figures. On Burberry's gross margin the 52.5% stands beside the 2026 bar, not over the 2025 one.
+
+Verified: the graph suite drives the slider by index and by the arrow keys, checks the box moving it to the last ten years and back, the thumbs keeping their order, the claret stretch between them, the label over its own bar and clear of the others, and the popup on a phone; the other twelve suites still pass; the deploy dry run passes; the home page and the not-found page render as before, and the popup was screenshotted at desktop and phone widths and looked at.
+
+One gap in the record: of your three screenshots only the first, the popup with the dropdowns, was saved to disk by the app, so it alone is in the archive for this version. The two later ones, the circled 52.5% and the circled Last 10 years, arrived only as pictures in the message; if you drop them into the version's folder under prompt text they will be kept with it.

@@ -168,8 +168,8 @@ CLAUDE.md          standing policy for working in this repo
   and the analysts' estimate; a date that has passed says so.
 - Every line of the table has a small graph button. It opens a popup chart of
   that line: line or bar, by fiscal year or by quarter (year-based ratios use
-  the trailing four quarters), with a from-to range, presets for the last 5
-  and 10 years, an optional straight trend line or a mean band one standard
+  the trailing four quarters), with a two-thumb slider under the chart for the
+  range and a Last 10 years box that moves it, an optional straight trend line or a mean band one standard
   deviation wide, a hover readout, and under the chart the figures for the
   period shown: mean, median, standard deviation, variance, coefficient of
   variation, low and high, trend per period and its fit, change first to
