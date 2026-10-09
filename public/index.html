@@ -1555,29 +1555,32 @@
     }
     function capex(y) { var c = v(y.cf, 'capitalExpenditures'); return c === null ? null : Math.abs(c); }
 
-    // The lines the book walks through, with its chapter and its rule of thumb.
+    // The lines the book walks through, with its chapter and its rule of thumb:
+    // the income-statement lines carry the owner's chapter notes (chapters 8 to
+    // 16, the thresholds and the book's examples as the notes give them), the
+    // rest the book's rule as first written up.
     // unit: money (millions), pct, x (two decimals), years, shares (millions).
     var NUMBER_ROWS = [
       { group: 'Income statement' },
-      { label: 'Revenue', rowKey: 'revenue', ch: '8', unit: 'money', value: function (y) { return v(y.inc, 'totalRevenue'); } },
-      { label: 'Cost of goods sold', ch: '9', unit: 'money', value: function (y) { return v(y.inc, 'costOfRevenue'); } },
-      { label: 'Gross profit', rowKey: 'grossProfit', ch: '10', unit: 'money', value: grossProfit },
-      { label: 'Gross margin', rowKey: 'grossMargin', ch: '10', unit: 'pct', ratio: true, rule: '40% and up points to a durable advantage; under 20% is a competitive business.', value: function (y) { return div(grossProfit(y), v(y.inc, 'totalRevenue')); } },
-      { label: 'Selling, general and administrative', ch: '12', unit: 'money', value: function (y) { return v(y.inc, 'sellingGeneralAdministrative'); } },
-      { label: 'SG&A as a share of gross profit', rowKey: 'sgaOfGrossProfit', ch: '12', unit: 'pct', ratio: true, rule: 'Under 30% is excellent; what matters most is that it stays steady year to year.', value: function (y) { return div(v(y.inc, 'sellingGeneralAdministrative'), grossProfit(y)); } },
-      { label: 'Research and development', ch: '13', unit: 'money', value: function (y) { return v(y.inc, 'researchDevelopment'); } },
-      { label: 'R&D as a share of gross profit', rowKey: 'rdOfGrossProfit', ch: '13', unit: 'pct', ratio: true, rule: 'Heavy, constant spending just to keep up is a weakness, not a moat.', value: function (y) { return div(v(y.inc, 'researchDevelopment'), grossProfit(y)); } },
-      { label: 'Depreciation and amortisation', ch: '14', unit: 'money', value: function (y) { return v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'); } },
-      { label: 'Depreciation as a share of gross profit', rowKey: 'depreciationOfGrossProfit', ch: '14', unit: 'pct', ratio: true, rule: 'Durable advantages tend to run low here, around 10% or less.', value: function (y) { return div(v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'), grossProfit(y)); } },
-      { label: 'Operating income', ch: '11', unit: 'money', value: function (y) { return v(y.inc, 'operatingIncome'); } },
-      { label: 'Interest expense', ch: '15', unit: 'money', value: function (y) { return v(y.inc, 'interestExpense'); } },
-      { label: 'Interest as a share of operating income', rowKey: 'interestOfOperatingIncome', ch: '15', unit: 'pct', ratio: true, rule: 'Under 15% for a durable consumer business; none at all is best.', value: function (y) { return div(v(y.inc, 'interestExpense'), v(y.inc, 'operatingIncome')); } },
-      { label: 'Other income and gains, net', ch: '16', unit: 'money', value: function (y) { return v(y.inc, 'nonOperatingIncomeNetOther', 'totalOtherIncomeExpenseNet'); } },
+      { label: 'Revenue', rowKey: 'revenue', ch: '8', unit: 'money', rule: 'Big revenue does not mean a profit; on its own it means nothing. After the revenue, take a long, careful look at the expenses.', value: function (y) { return v(y.inc, 'totalRevenue'); } },
+      { label: 'Cost of goods sold', ch: '9', unit: 'money', rule: 'The lower the better. Find out what is counted in it, which shows how management thinks about the business; alone it says little about a durable competitive advantage.', value: function (y) { return v(y.inc, 'costOfRevenue'); } },
+      { label: 'Gross profit', rowKey: 'grossProfit', ch: '10', unit: 'money', rule: 'Revenue less the materials and labour that made the goods. The figure itself says little; the margin under it says a lot about the economics of the business.', value: grossProfit },
+      { label: 'Gross margin', rowKey: 'grossMargin', ch: '10', unit: 'pct', ratio: true, rule: '40% and up tends to mean a durable competitive advantage, with exceptions; under 40% a highly competitive industry; below 20% a fiercely competitive one. Track the last ten years: consistency is the name of the game. Coca-Cola runs at 60% and more, Moody\u2019s at 73%, United Airlines at 14%.', value: function (y) { return div(grossProfit(y), v(y.inc, 'totalRevenue')); } },
+      { label: 'Selling, general and administrative', ch: '12', unit: 'money', rule: 'Lower and consistent is the key: a company that cannot cut it fast watches it eat more of the gross profit. Low SG&A with heavy research, capital spending or interest, as at Intel and Goodyear, has the same problem.', value: function (y) { return v(y.inc, 'sellingGeneralAdministrative'); } },
+      { label: 'SG&A as a share of gross profit', rowKey: 'sgaOfGrossProfit', ch: '12', unit: 'pct', ratio: true, rule: '30% of gross profit or less is great; many companies with a durable competitive advantage sit between 30% and 80%; near or above 100% is a highly competitive industry. Steady is what counts: Coca-Cola averages 59% and Moody\u2019s 25%, where GM swung from 28% to 83% in five years.', value: function (y) { return div(v(y.inc, 'sellingGeneralAdministrative'), grossProfit(y)); } },
+      { label: 'Research and development', ch: '13', unit: 'money', rule: 'An advantage built on technology can be replaced by newer technology, and one held by a patent ends when the patent expires. A company that must keep inventing to keep its advantage is not a sure thing, and Warren is not interested.', value: function (y) { return v(y.inc, 'researchDevelopment'); } },
+      { label: 'R&D as a share of gross profit', rowKey: 'rdOfGrossProfit', ch: '13', unit: 'pct', ratio: true, rule: 'Heavy, constant spending here is an inherent flaw in the advantage: Merck spends 29% of gross profit on research and 49% on SG&A, 78% together, and Intel about 30%, where Coca-Cola and Moody\u2019s have no such worry.', value: function (y) { return div(v(y.inc, 'researchDevelopment'), grossProfit(y)); } },
+      { label: 'Depreciation and amortisation', ch: '14', unit: 'money', rule: 'Machines and buildings wearing out, spread over their lives: a real cost that belongs in any count of earnings, since the press will have to be replaced. Warren ignores EBITDA, which adds it back.', value: function (y) { return v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'); } },
+      { label: 'Depreciation as a share of gross profit', rowKey: 'depreciationOfGrossProfit', ch: '14', unit: 'pct', ratio: true, rule: 'Low is the mark of a durable competitive advantage, around 10% of gross profit or less: Coca-Cola 6%, Wrigley 7%, Procter & Gamble 8%, against 22% to 57% at GM. As with any expense, less is always more.', value: function (y) { return div(v(y.inc, 'depreciationAndAmortization', 'reconciledDepreciation'), grossProfit(y)); } },
+      { label: 'Operating income', ch: '11', unit: 'money', rule: 'Gross profit after the operating expenses: research, selling and administration, depreciation and amortisation, restructuring and the catch-all other. Heavy spending on any of them strips the advantage a high gross margin promises.', value: function (y) { return v(y.inc, 'operatingIncome'); } },
+      { label: 'Interest expense', ch: '15', unit: 'money', rule: 'Heavy interest means a fiercely competitive industry that needs big capital spending to keep up, or the debt of a leveraged buyout. A durable competitive advantage pays little or none.', value: function (y) { return v(y.inc, 'interestExpense'); } },
+      { label: 'Interest as a share of operating income', rowKey: 'interestOfOperatingIncome', ch: '15', unit: 'pct', ratio: true, rule: 'Under 15% of operating income tends to mean a durable competitive advantage: Procter & Gamble 8%, Wrigley 7%, against Goodyear 49% and United Airlines 61%. In any industry the lowest share is the likeliest to have the advantage, as Wells Fargo\u2019s 30% among the big banks.', value: function (y) { return div(v(y.inc, 'interestExpense'), v(y.inc, 'operatingIncome')); } },
+      { label: 'Other income and gains, net', ch: '16', unit: 'money', rule: 'Gains and losses on assets sold, the sale amount less the amount on the books, and the catch-all other: one-off, non-recurring events that can swell the bottom line, so take them out when judging the business for a durable competitive advantage.', value: function (y) { return v(y.inc, 'nonOperatingIncomeNetOther', 'totalOtherIncomeExpenseNet'); } },
       { label: 'Income before tax', ch: '17', unit: 'money', value: function (y) { return v(y.inc, 'incomeBeforeTax'); } },
       { label: 'Income tax', ch: '18', unit: 'money', value: function (y) { return v(y.inc, 'incomeTaxExpense', 'taxProvision'); } },
       { label: 'Effective tax rate', rowKey: 'taxRate', ch: '18', unit: 'pct', ratio: true, rule: 'Should sit near the going corporate rate; a company paying far less may be flattering its earnings.', value: function (y) { return div(v(y.inc, 'incomeTaxExpense', 'taxProvision'), v(y.inc, 'incomeBeforeTax')); } },
       { label: 'Net earnings', rowKey: 'netEarnings', ch: '19', unit: 'money', value: function (y) { return v(y.inc, 'netIncome'); } },
-      { label: 'Net margin', rowKey: 'netMargin', ch: '19', unit: 'pct', ratio: true, rule: 'Over 20% suggests a durable advantage; under 10% a competitive business.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.inc, 'totalRevenue')); } },
+      { label: 'Net margin', rowKey: 'netMargin', ch: '19', unit: 'pct', ratio: true, rule: 'Over 20% suggests a durable competitive advantage; under 10% a competitive business.', value: function (y) { return div(v(y.inc, 'netIncome'), v(y.inc, 'totalRevenue')); } },
       { label: 'Earnings per share', rowKey: 'eps', ch: '20', unit: 'x', rule: 'A steady upward trend over ten years is what to look for.', value: function (y) { return y.eps !== null ? y.eps : div(v(y.inc, 'netIncome'), y.shares); } },
       { label: 'Shares outstanding', rowKey: 'sharesOutstanding', ch: '20', unit: 'shares', value: function (y) { return y.shares; } },
       { group: 'Balance sheet' },
@@ -1618,7 +1621,7 @@
       { group: 'Cash flow statement' },
       { label: 'Cash from operations', ch: '50', unit: 'money', value: function (y) { return v(y.cf, 'totalCashFromOperatingActivities'); } },
       { label: 'Capital expenditures', ch: '51', unit: 'money', value: capex },
-      { label: 'Capital expenditures as a share of net earnings', rowKey: 'capexOfNetEarnings', ch: '51', unit: 'pct', ratio: true, annual: true, rule: 'Under 50% is good; under 25% is where durable advantages usually sit.', value: function (y) { return div(capex(y), v(y.inc, 'netIncome')); } },
+      { label: 'Capital expenditures as a share of net earnings', rowKey: 'capexOfNetEarnings', ch: '51', unit: 'pct', ratio: true, annual: true, rule: 'Under 50% is good; under 25% is where durable competitive advantages usually sit.', value: function (y) { return div(capex(y), v(y.inc, 'netIncome')); } },
       { label: 'Stock bought back, net', rowKey: 'stockBoughtBack', ch: '52', unit: 'money', rule: 'Buybacks raise your share of the business without a tax bill.', value: function (y) { var s = v(y.cf, 'salePurchaseOfStock'); return s === null ? null : -s; } },
       { label: 'Dividends paid', rowKey: 'dividendsPaid', ch: '52', unit: 'money', value: function (y) { var d = v(y.cf, 'dividendsPaid'); return d === null ? null : Math.abs(d); } },
       { label: 'Free cash flow', ch: '51', unit: 'money', value: function (y) { var f = v(y.cf, 'freeCashFlow'); if (f !== null) return f; var o = v(y.cf, 'totalCashFromOperatingActivities'), c = capex(y); return (o !== null && c !== null) ? o - c : null; } }
@@ -2372,7 +2375,7 @@
     function isNum(x) { return typeof x === 'number' && isFinite(x); }
     var SCREEN_RULES = [
       { key: 'grossMargin', label: 'Gross margin 40% or more', ch: '10', test: function (r) { return isNum(r.grossMargin) && r.grossMargin >= 0.4; } },
-      { key: 'sga', label: 'SG&A under 30% of gross profit', ch: '12', test: function (r) { return isNum(r.sgaOfGrossProfit) && r.sgaOfGrossProfit >= 0 && r.sgaOfGrossProfit < 0.3; } },
+      { key: 'sga', label: 'SG&A 30% of gross profit or less', ch: '12', test: function (r) { return isNum(r.sgaOfGrossProfit) && r.sgaOfGrossProfit >= 0 && r.sgaOfGrossProfit <= 0.3; } },
       { key: 'depreciation', label: 'Depreciation 10% of gross profit or less', ch: '14', test: function (r) { return isNum(r.depreciationOfGrossProfit) && r.depreciationOfGrossProfit >= 0 && r.depreciationOfGrossProfit <= 0.1; } },
       { key: 'interest', label: 'Interest under 15% of operating income', ch: '15', test: function (r) { return isNum(r.interestOfOperatingIncome) && r.interestOfOperatingIncome >= 0 && r.interestOfOperatingIncome < 0.15; } },
       { key: 'netMargin', label: 'Net margin over 20%', ch: '19', test: function (r) { return isNum(r.netMargin) && r.netMargin > 0.2; } },

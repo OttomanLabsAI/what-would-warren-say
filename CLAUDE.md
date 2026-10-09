@@ -166,7 +166,15 @@ sets `window: '5'` and applies it), at the owner's request. No chart library: th
 from elsewhere. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
 the book's lines to EODHD field names, several candidates per line, with the
-chapter and the book's rule of thumb; "Every field EODHD reports" shows the
+chapter and a `rule`, the analysis shown in claret under the line and over
+the line's graph: for the income-statement lines of chapters 8 to 16 it is
+drawn from the owner's chapter notes under `notes/` (the thresholds, the
+ten-year consistency test and the book's examples as the notes give them,
+on the money lines as well as the ratios), for the other lines the book's
+rule of thumb as first written up; a chapter the owner writes up later
+means rewriting its lines' rules from the notes in the same way. The rules
+are plain text (`esc`, not `wr`) and say durable competitive advantage in
+full, never the short form; "Every field EODHD reports" shows the
 raw statements. Sample data: `public/data/index.json` lists companies the
 owner pulled and `public/data/companies/<SYMBOL>.json` holds each in the
 page's shape (`tools/bundle-samples.mjs` writes both from `data/`); the page
@@ -592,3 +600,4 @@ design are their own release, requested deliberately.
 | v1.34 | The month of a split no longer reads as a crash | On the all-time chart the month in which a company split was divided once too often, so Nvidia's June 2024 fell from 109 to 12 and back. Each weekly and monthly bar is now judged by the day its closing price was struck, the end of its week or month, rather than the date the bar is labelled with, and the month of a split reads as it traded. |
 | v1.35 | Search by name, a secret key, five more markets | The company box now takes a name as well as a ticker and suggests companies as you type, from everything on file: the arrows and Enter, or a click, open one at once without spending a call, and a typed ticker still fetches as before. Every account now carries a secret key, shown on the Account page with a Copy button, to say a request is yours in an email or the like; if it leaks, one click makes a new one and the old one stops working at once. Your new pull is on the site too: the companies of the Korea Stock Exchange, KOSDAQ, Shanghai, Shenzhen and Xetra now open from their rows and screen beside London, NASDAQ and New York, 17,609 companies with their latest year in all. |
 | v1.36 | The list of splits leaves the company page | The Splits line under the next report date is gone: a company with a long history of splits filled three lines with them. The splits themselves stay at work behind the price chart, which still restates earlier prices and says so in the note under it. |
+| v1.37 | Your chapter notes under every income-statement line | The analysis under each line of the income statement now comes from your own chapter notes, from revenue down to the one-off gains: the thresholds, the ten-year test of consistency and the book's examples, Coca-Cola and Moody's against General Motors and the airlines, where your notes give them. The lines that had no rule before, revenue, cost of goods sold, gross profit, operating income, interest expense and the one-off gains, carry one now, and the Screen's SG&A rule reads 30% or less, as your notes have it. |

@@ -1,0 +1,16 @@
+The table's analysis now comes from your chapter notes. Every income-statement line from revenue, chapter 8, to the one-off gains, chapter 16, carries a rule in claret under its name, and the same rule heads the line's graph.
+
+- Revenue, cost of goods sold, gross profit, operating income, interest expense and other income had no rule before. Each now carries the notes' point: revenue alone means nothing, so look at the expenses; the lower the cost of goods the better, and what is counted in it shows how management thinks; the gross figure says little and the margin a lot; operating income is gross profit after the operating expenses, and heavy spending on any of them strips the advantage a high margin promises; heavy interest means a fiercely competitive industry or a leveraged buyout; gains on assets sold and the catch-all other are one-off and come out when judging the business.
+- Gross margin reads the notes' three tiers, 40% and up with exceptions, under 40% highly competitive, below 20% fiercely competitive, with the ten-year consistency test and Coca-Cola, Moody's and United Airlines as the yardsticks.
+- SG&A reads the 30% mark, the 30% to 80% range many companies with the advantage sit in, and near or above 100% as a highly competitive industry, with Coca-Cola, Moody's and GM's swing. The money line carries the point about Intel and Goodyear: low SG&A with heavy research, capital spending or interest has the same problem.
+- Research and development reads as the inherent flaw: technology replaced, patents expiring, Merck's 78% of gross profit on research and SG&A together, Intel's 30%, against Coca-Cola and Moody's.
+- Depreciation reads as a real cost that Warren keeps in earnings, ignoring EBITDA, with Coca-Cola 6%, Wrigley 7% and Procter & Gamble 8% against 22% to 57% at GM.
+- Interest reads the 15% of operating income mark with Procter & Gamble and Wrigley against Goodyear and United Airlines, and the lowest share in any industry as the likeliest to have the advantage, Wells Fargo's 30% among the big banks.
+
+The Screen keeps its twelve rules. The SG&A one now reads "30% of gross profit or less", as your notes have it, where it read "under 30%" before. The net margin and capital-expenditure rules, from chapters your notes have not reached, now say durable competitive advantage in full like the rest. The other lines beyond chapter 16 keep the book's rules until the notes reach them, and chapter 7's point, that the income statement shows whether a business has the advantage or struggles year to year, is the table's premise already.
+
+One effect to know about: the income-statement rows are taller, five to eight lines of claret at desktop width. On a phone, where the column is narrow, that part of the table is a long read.
+
+Verified: the company-table, graph, bundle, Screen, store, frame, phone, price, breakdown and search suites all pass in headless Chromium, with the two that asserted the old wording updated; the page script parses; the deploy dry run passes; the home page and the 404 page render as before, and the table was screenshotted at desktop and phone widths and read through.
+
+The archive for this version holds both of your messages, the original and the clarification, as sent.
