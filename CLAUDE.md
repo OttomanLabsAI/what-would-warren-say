@@ -127,10 +127,13 @@ marks and the tab dots, and local entries for them are left alone. The
 source is the owner's export under `notes/` (the latest export replaces
 the file of the same name; chapters 1 to 20 so far, the whole income
 statement); a new export with more finished chapters means writing them up
-here and keeping the file, and the owner's bracketed asks in the notes
-("[make an example calculation]", "[add examples from the photos]") are
-instructions to the write-up, answered with the book's figures where the
-book gives them and with figures marked as made up where it does not. DCA in
+here and keeping the file. Anything in square brackets in the owner's
+notes is an instruction to the write-up, not a note: "[make an example
+calculation]", "[show an example calculation]", "[add examples from the
+photos]" and whatever comes later. Every one is carried out in the chapter's
+write-up, with the book's figures where the book gives them and with
+figures marked as made up where it does not, and the notes as written keep
+the brackets. A write-up with a bracket left unanswered is unfinished. DCA in
 the owner's notes is the book's Durable Competitive Advantage: a write-up
 says it in full, as `TERM`, wherever it is mentioned (never the short form,
 never "durable advantage"), and `wr` (escape, then the term in `<strong
@@ -668,3 +671,4 @@ design are their own release, requested deliberately.
 | v1.39 | A slider under the graph, one box for ten years | The graph popup's From and To dropdowns are gone: a two-thumb slider sits under the chart instead, spanning every year or quarter on file, with the range it holds written between its ends, and the window is now a single Last 10 years box that moves the slider to the last ten years when ticked and back to the whole run when not, unticking itself when you move a thumb by hand. The last value's label now sits over its own bar, clear of the bar beside it, instead of printing across it. |
 | v1.40 | The income statement finished, with a TL;DR on every chapter | Chapters 17 to 20, income before tax, income taxes paid, net earnings and earnings per share, now read as written-up breakdowns from your notes, with the book's box carried down to net earnings from your photographs, the example calculations you asked for worked on the box's figures, the buyback trick in made-up figures, and the book's two ten-year columns of earnings per share with its reading of each. Every written-up chapter now opens with a TL;DR, the plainest instruction for the reader, in your words where you gave them, and the table's rules for those four lines come from the notes too. |
 | v1.41 | The two earnings runs drawn as lines | Chapter 20's two ten-year columns of earnings per share from the book now have line graphs underneath them, drawn at the page's width: the steady climb Warren looks for beside the erratic run he stays away from, its two losses in claret below the zero line, with the year and figure on hover. |
+| v1.42 | The bracketed notes are instructions, written into policy | Nothing on the page changed: every instruction in square brackets in your chapter notes, the example calculations for chapters 17 to 19 and the examples from the photographs for chapter 20, was already carried out. The rule itself is now written into the repository's standing policy, so any bracket in a future set of notes is treated as an instruction and a chapter with one unanswered counts as unfinished. |
