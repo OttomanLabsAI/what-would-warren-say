@@ -231,12 +231,12 @@
     .price .chg.neg { color: var(--claret); }
     .price .when { color: var(--ink-60); font-size: .85rem; }
     .spans { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin: 0 0 .9rem; }
-    .spans .seg { display: flex; flex-wrap: wrap; }
-    .spans button { position: relative; margin: 0 0 0 -1px; padding: .4rem .8rem; font-size: .66rem; letter-spacing: .14em; background: transparent; color: var(--ink); border-color: var(--rule); }
-    .spans button:first-child { margin-left: 0; }
-    .spans button:hover, .spans button:focus-visible { background: transparent; color: var(--ink); border-color: var(--ink); z-index: 1; }
-    .spans button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); z-index: 2; }
-    .spans .opt { margin-left: auto; display: inline-flex; align-items: center; gap: .5rem; padding: .3rem 0; font-family: var(--sans); font-size: .66rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); cursor: pointer; }
+    .spans .seg, .tile-controls .seg { display: flex; flex-wrap: wrap; }
+    .spans button, .tile-controls .seg button { position: relative; margin: 0 0 0 -1px; padding: .4rem .8rem; font-size: .66rem; letter-spacing: .14em; background: transparent; color: var(--ink); border-color: var(--rule); }
+    .spans button:first-child, .tile-controls .seg button:first-child { margin-left: 0; }
+    .spans button:hover, .spans button:focus-visible, .tile-controls .seg button:hover, .tile-controls .seg button:focus-visible { background: transparent; color: var(--ink); border-color: var(--ink); z-index: 1; }
+    .spans button[aria-pressed="true"], .tile-controls .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); z-index: 2; }
+    .spans .opt, .tile-controls .opt { margin-left: auto; display: inline-flex; align-items: center; gap: .5rem; padding: .3rem 0; font-family: var(--sans); font-size: .66rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); cursor: pointer; }
     .price-graph { margin: 0; }
     .price-graph[hidden] { display: none; }
     .price-graph .rule { margin: -.4rem 0 .5rem; font-size: .9rem; }
@@ -281,14 +281,20 @@
     /* Warren Buffett's Analytics: the book's tests from the chapters written up, one tile a line,
        the last ten years with the trend line and a verdict in the chapter's own terms */
     .analytics-line { margin: 0 0 1rem; }
-    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr)); gap: 1rem; margin: 0 0 .9rem; }
+    .tiles { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 0 0 .9rem; }
     .tile { min-width: 0; padding: .9rem 1rem 1rem; border: 1px solid var(--rule); background: var(--white); }
-    .tile header { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; margin: 0 0 .5rem; }
-    .tile h4 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; }
+    .tile header { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; margin: 0 0 .2rem; }
+    .tile h4 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.25rem; line-height: 1.2; }
     .tile .ref { font-family: var(--sans); font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); text-decoration: none; white-space: nowrap; }
     .tile .ref:hover { text-decoration: underline; }
-    .tile .tldr { margin: 0 0 .7rem; font-size: .88rem; background: var(--paper); }
+    .tile .rule { margin: 0 0 .35rem; font-size: .98rem; }
+    .tile .tldr-line { margin: 0 0 .7rem; font-family: var(--sans); font-size: .82rem; line-height: 1.4; color: var(--ink-60); }
+    .tile .tldr-line b { margin-right: .35rem; font-size: .66rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+    .tile-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin: 0 0 .5rem; }
+    .tile-controls .opt { margin-left: 0; }
+    .tile .sub { margin: 0 0 .2rem; font-family: var(--sans); font-size: .76rem; letter-spacing: .02em; color: var(--ink-60); }
     .tile .tile-chart { min-height: 6rem; }
+    .tile .graph-range { margin-bottom: .2rem; }
     .verdict { display: flex; gap: .55rem; margin: .6rem 0 0; font-family: var(--text); font-size: .98rem; line-height: 1.45; color: var(--ink); }
     .verdict .mark { flex: none; width: 1.3rem; height: 1.3rem; margin-top: .12rem; border: 1px solid var(--ink); font-family: var(--sans); font-size: .8rem; font-weight: 700; line-height: 1.2rem; text-align: center; color: var(--paper); background: var(--ink-60); }
     .verdict.pass .mark { background: var(--on); border-color: var(--on); }
@@ -4190,15 +4196,15 @@
     // the plain costs, have no tile; a chapter written up later that gives a
     // line a rule adds one here, with its judgement, in chapter order.
     var ANALYTICS = [
-      { key: 'grossMargin', judge: judgeGrossMargin },
-      { key: 'sgaOfGrossProfit', judge: judgeSga },
-      { key: 'rdOfGrossProfit', judge: judgeRd },
-      { key: 'depreciationOfGrossProfit', judge: judgeDepreciation },
-      { key: 'interestOfOperatingIncome', judge: judgeInterest, clean: function (v) { return v === null || v < 0 ? null : v; } },
-      { key: 'taxRate', judge: judgeTax },
-      { key: 'netEarnings', judge: judgeNetEarnings },
-      { key: 'netMargin', judge: judgeNetMargin },
-      { key: 'eps', judge: judgeEps }
+      { key: 'grossMargin', name: 'Gross margin', judge: judgeGrossMargin },
+      { key: 'sgaOfGrossProfit', name: 'Selling, general and administrative', judge: judgeSga },
+      { key: 'rdOfGrossProfit', name: 'Research and development', judge: judgeRd },
+      { key: 'depreciationOfGrossProfit', name: 'Depreciation', judge: judgeDepreciation },
+      { key: 'interestOfOperatingIncome', name: 'Interest', judge: judgeInterest, clean: function (v) { return v === null || v < 0 ? null : v; } },
+      { key: 'taxRate', name: 'Income tax', judge: judgeTax },
+      { key: 'netEarnings', name: 'Net earnings', judge: judgeNetEarnings },
+      { key: 'netMargin', name: 'Net margin', judge: judgeNetMargin },
+      { key: 'eps', name: 'Earnings per share', judge: judgeEps }
     ];
     var VERDICT_MARKS = { pass: ['\u2713', 'Passes'], fail: ['\u2717', 'Fails'], mixed: ['~', 'Mixed'], note: ['i', 'For your judgement'] };
     var analyticsDialog = null, analytics = null;
@@ -4324,59 +4330,142 @@
       d.setAttribute('aria-labelledby', 'analytics-title');
       d.innerHTML = '<div class="graph-inner">' +
         '<div class="graph-head"><div><p class="kicker" id="analytics-kicker"></p><h3 id="analytics-title">Warren Buffett\u2019s Analytics</h3>' +
-        '<p class="rule">The book\u2019s tests from the chapters written up so far: each line over the last ten fiscal years on file, with the straight-line trend and a verdict in the chapter\u2019s own terms.</p></div>' +
+        '<p class="rule">The book\u2019s tests from the chapters written up so far, a section a line: what Warren looks for, the line over the last ten fiscal years with its trend, and a verdict in the chapter\u2019s own terms.</p></div>' +
         '<button type="button" class="secondary" id="analytics-close">Close</button></div>' +
         '<div class="tiles" id="analytics-tiles"></div>' +
         '<p class="units" id="analytics-units"></p></div>';
       document.body.appendChild(d);
       d.querySelector('#analytics-close').addEventListener('click', function () { d.close(); });
+      // a section's controls: the chart kind and the trend as segments, the ten-year switch, the two thumbs of the slider
       d.addEventListener('click', function (ev) {
         if (ev.target === d) { d.close(); return; }
         var ref = ev.target.closest ? ev.target.closest('a.ref') : null;
-        if (ref) d.close();
+        if (ref) { d.close(); return; }
+        var b = ev.target.closest ? ev.target.closest('button[data-kind], button[data-trend]') : null;
+        if (!b || !analytics) return;
+        var t = tileOf(b);
+        if (!t) return;
+        if (b.hasAttribute('data-kind')) t.kind = b.getAttribute('data-kind'); else t.trend = b.getAttribute('data-trend');
+        drawTile(t);
+      });
+      d.addEventListener('change', function (ev) {
+        if (!analytics || !ev.target.classList || !ev.target.classList.contains('ten')) return;
+        var t = tileOf(ev.target);
+        if (!t) return;
+        t.window = ev.target.checked ? '10' : 'shown';
+        t.i0 = t.window === '10' ? Math.max(0, t.periods.length - 10) : 0;
+        t.i1 = Math.max(0, t.periods.length - 1);
+        drawTile(t);
+      });
+      d.addEventListener('input', function (ev) {
+        var inp = ev.target;
+        if (!analytics || !inp.classList || !(inp.classList.contains('from') || inp.classList.contains('to'))) return;
+        var t = tileOf(inp), el = t && tileEl(t);
+        if (!t) return;
+        var from = el.querySelector('.from'), to = el.querySelector('.to');
+        var i0 = parseInt(from.value, 10) || 0, i1 = parseInt(to.value, 10) || 0;
+        if (inp === from && i0 > i1) i1 = i0;
+        else if (inp === to && i1 < i0) i0 = i1;
+        t.i0 = i0; t.i1 = i1; t.window = 'shown';
+        drawTile(t);
       });
       window.addEventListener('resize', function () { if (d.open) drawAnalyticsCharts(); });
       analyticsDialog = d;
       return d;
     }
 
+    function tileOf(node) {
+      var el = node.closest ? node.closest('.tile[data-tile]') : null;
+      return el && analytics ? analytics.tiles[parseInt(el.getAttribute('data-tile'), 10)] : null;
+    }
+    function tileEl(t) { return analyticsDialog.querySelector('.tile[data-tile="' + t.index + '"]'); }
+
+    // a section: the heading and its chapter, what Warren looks for in claret as under the table's line, the chapter's
+    // TL;DR, the controls, the chart, the slider over every year on file, and the verdict over the years shown
+    function tileHtml(t) {
+      var b = BREAKDOWNS[t.row.ch];
+      var seg = function (attr, options, label) {
+        return '<div class="seg" role="group" aria-label="' + label + '">' + options.map(function (o) {
+          return '<button type="button" data-' + attr + '="' + o[0] + '" aria-pressed="false">' + o[1] + '</button>';
+        }).join('') + '</div>';
+      };
+      return '<section class="tile" data-key="' + esc(t.key) + '" data-tile="' + t.index + '">' +
+        '<header><h4>' + esc(t.name) + '</h4><a class="ref" href="#' + esc(t.row.ch) + '">ch. ' + esc(t.row.ch) + '</a></header>' +
+        '<p class="rule">' + esc(t.row.rule || '') + '</p>' +
+        (b && b.tldr ? '<p class="tldr-line"><b>TL;DR</b>' + wr(b.tldr) + '</p>' : '') +
+        '<div class="tile-controls">' + seg('kind', [['line', 'Line'], ['bar', 'Bar']], 'Chart') + seg('trend', [['none', 'None'], ['line', 'Straight line'], ['band', 'Mean band']], 'Trend') +
+        '<label class="opt"><input type="checkbox" class="ten" checked> Last 10 years</label></div>' +
+        '<p class="sub">' + esc(t.row.label) + ', by fiscal year</p>' +
+        '<div class="graph-body tile-chart"></div>' +
+        '<div class="graph-range tile-range"><div class="track"><div class="rail"></div><div class="sel"></div>' +
+        '<input type="range" class="from" min="0" max="0" step="1" value="0" aria-label="From">' +
+        '<input type="range" class="to" min="0" max="0" step="1" value="0" aria-label="To"></div>' +
+        '<div class="ends"><span class="first"></span><b class="span"></b><span class="last"></span></div></div>' +
+        '<p class="verdict"></p></section>';
+    }
+
     function openAnalytics(c) {
       var d = ensureAnalyticsDialog();
-      var periods = graphPeriods(c, 'annual').slice(-10);
-      var tiles = ANALYTICS.map(function (t) {
+      var periods = graphPeriods(c, 'annual'), n = periods.length;
+      var tiles = ANALYTICS.map(function (t, i) {
         var row = rowByKey(t.key);
         var values = graphValues(c, row, 'annual', periods);
         if (t.clean) values = values.map(t.clean);
-        var st = graphStats(periods, values, 'annual');
-        var pts = withFigures(periods, values);
-        var verdict = pts.length ? t.judge(pts, st, c.meta.currency, values) : { state: 'note', text: 'Nothing on file for this line.' };
-        return { key: t.key, row: row, periods: periods, values: values, st: st, verdict: verdict };
+        return { index: i, key: t.key, name: t.name, judge: t.judge, row: row, periods: periods, values: values, kind: 'line', trend: 'line', window: '10', i0: Math.max(0, n - 10), i1: Math.max(0, n - 1) };
       });
       analytics = { c: c, tiles: tiles };
-      d.querySelector('#analytics-kicker').textContent = c.meta.name + (periods.length ? ' \u00b7 ' + periods[0].label + ' to ' + periods[periods.length - 1].label : '');
-      d.querySelector('#analytics-tiles').innerHTML = tiles.map(function (t, i) {
-        var b = BREAKDOWNS[t.row.ch], mark = VERDICT_MARKS[t.verdict.state];
-        return '<section class="tile" data-key="' + esc(t.key) + '"><header><h4>' + esc(t.row.label) + '</h4><a class="ref" href="#' + esc(t.row.ch) + '">ch. ' + esc(t.row.ch) + '</a></header>' +
-          (b && b.tldr ? '<p class="tldr"><span class="label">TL;DR</span><span>' + wr(b.tldr) + '</span></p>' : '') +
-          '<div class="graph-body tile-chart" data-tile="' + i + '"></div>' +
-          '<p class="verdict ' + t.verdict.state + '"><span class="mark" role="img" aria-label="' + mark[1] + '">' + mark[0] + '</span><span>' + wr(t.verdict.text) + '</span></p></section>';
-      }).join('');
-      d.querySelector('#analytics-units').textContent = 'Ten fiscal years at most, oldest at the left, newest at the right; the straight line is the least-squares trend. ' +
+      d.querySelector('#analytics-kicker').textContent = c.meta.name + (n ? ' \u00b7 ' + periods[0].label + ' to ' + periods[n - 1].label + ' on file' : '');
+      d.querySelector('#analytics-tiles').innerHTML = tiles.map(tileHtml).join('');
+      d.querySelector('#analytics-units').textContent = 'Each chart opens on the last ten fiscal years, oldest at the left, newest at the right; the slider under it reaches every year on file, and the verdict follows the years shown. The straight line is the least-squares trend, the band one standard deviation either side of the mean. ' +
         (c.meta.currency ? 'Money in ' + c.meta.currency + ' millions, earnings per share in ' + c.meta.currency + '. ' : '') +
         'Only the lines whose chapters are written up are here, and not the ones Warren does not judge on their own, revenue and the plain costs; more join as more chapters are finished.';
       if (!d.open) d.showModal();
       drawAnalyticsCharts();
     }
 
+    // a section drawn for its state: the chart over the years between the thumbs, the controls pressed, the verdict
+    function drawTile(t) {
+      var el = tileEl(t);
+      if (!el) return;
+      var periods = t.periods.slice(t.i0, t.i1 + 1), values = t.values.slice(t.i0, t.i1 + 1);
+      var st = graphStats(periods, values, 'annual');
+      var slot = el.querySelector('.tile-chart');
+      var width = Math.max(300, Math.floor(slot.clientWidth || 480));
+      slot.innerHTML = chartSvg(periods, values, t.kind, t.row.unit, width, t.trend, st, null, 240);
+      wireGraphHover(slot, periods, values, t.row.unit, t.kind);
+      Array.prototype.forEach.call(el.querySelectorAll('button[data-kind]'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-kind') === t.kind ? 'true' : 'false'); });
+      Array.prototype.forEach.call(el.querySelectorAll('button[data-trend]'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-trend') === t.trend ? 'true' : 'false'); });
+      el.querySelector('.ten').checked = t.window === '10';
+      syncTileRange(el, t);
+      var pts = withFigures(periods, values);
+      var verdict = pts.length ? t.judge(pts, st, analytics.c.meta.currency, values) : { state: 'note', text: 'Nothing on file for this line over the years shown.' };
+      var mark = VERDICT_MARKS[verdict.state], v = el.querySelector('.verdict');
+      v.className = 'verdict ' + verdict.state;
+      v.innerHTML = '<span class="mark" role="img" aria-label="' + mark[1] + '">' + mark[0] + '</span><span>' + wr(verdict.text) + '</span>';
+    }
+
+    // the slider shows the years in hand, as the graph popup's does: the thumbs on their years, the claret stretch
+    // between them, the first and last years on file at the ends and the range itself between those
+    function syncTileRange(el, t) {
+      var ps = t.periods, from = el.querySelector('.from'), to = el.querySelector('.to'), sel = el.querySelector('.sel');
+      var max = Math.max(1, ps.length - 1);
+      from.max = to.max = String(Math.max(0, ps.length - 1));
+      from.value = String(t.i0);
+      to.value = String(t.i1);
+      from.setAttribute('aria-valuetext', ps[t.i0] ? ps[t.i0].label : '');
+      to.setAttribute('aria-valuetext', ps[t.i1] ? ps[t.i1].label : '');
+      from.style.zIndex = t.i0 >= max ? '3' : '';
+      sel.style.left = 'calc(.5rem + (100% - 1rem) * ' + (t.i0 / max).toFixed(4) + ')';
+      sel.style.width = 'calc((100% - 1rem) * ' + ((t.i1 - t.i0) / max).toFixed(4) + ')';
+      el.querySelector('.first').textContent = ps.length ? ps[0].label : '';
+      el.querySelector('.last').textContent = ps.length ? ps[ps.length - 1].label : '';
+      el.querySelector('.span').textContent = ps[t.i0] && ps[t.i1] ? (t.i0 === t.i1 ? ps[t.i0].label : ps[t.i0].label + ' to ' + ps[t.i1].label) : '';
+      el.querySelector('.tile-range').hidden = ps.length < 2;
+    }
+
     function drawAnalyticsCharts() {
       if (!analytics || !analyticsDialog) return;
-      Array.prototype.forEach.call(analyticsDialog.querySelectorAll('.tile-chart[data-tile]'), function (slot) {
-        var t = analytics.tiles[parseInt(slot.getAttribute('data-tile'), 10)];
-        if (!t) return;
-        var width = Math.max(300, Math.floor(slot.clientWidth || 480));
-        slot.innerHTML = chartSvg(t.periods, t.values, 'line', t.row.unit, width, 'line', t.st, null, 240);
-        wireGraphHover(slot, t.periods, t.values, t.row.unit, 'line');
-      });
+      analytics.tiles.forEach(drawTile);
     }
 
     // ---- the price: the latest quote under the headline, with its chart ----

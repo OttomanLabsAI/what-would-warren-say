@@ -237,17 +237,27 @@ Above the table, between the Add to line and the table, a company with
 years on file (not a row-only one) carries the button "Warren Buffett's
 Analytics" (`#analytics-open`), which opens one `<dialog
 class="graph-dialog analytics-dialog">` built once by
-`ensureAnalyticsDialog`: `openAnalytics` lays out one tile a line for
-`ANALYTICS` (the `rowKey` of a `NUMBER_ROWS` line and its judge, in chapter
-order: gross margin, SG&A, R&D and depreciation as shares of gross profit,
-interest as a share of operating income, the effective tax rate, net
-earnings, net margin, earnings per share), each over the last ten fiscal
-years on file (`graphPeriods` sliced, `graphValues`, `graphStats`), with
-the line's name and chapter link, the chapter's `tldr` in the same box as
-on the chapter page, a 240px `chartSvg` with the least-squares trend
-(`chartSvg` takes the height as its ninth argument) drawn by
-`drawAnalyticsCharts` at the tile's width and again on resize, and a
-verdict: `judgeGrossMargin` (40% or more every year passes, below 20% or
+`ensureAnalyticsDialog`: `openAnalytics` lays out one full-width section
+(`.tile`) a line for `ANALYTICS` (the `rowKey` of a `NUMBER_ROWS` line, the
+section's `name`, its judge, in chapter order: gross margin, SG&A, R&D and
+depreciation as shares of gross profit, interest as a share of operating
+income, the effective tax rate, net earnings, net margin, earnings per
+share), each, at the owner's request, as the table's lines read: the
+heading and its chapter link, what Warren looks for in claret (the line's
+`rule`, in the table's `.rule` style), the chapter's `tldr` on one line,
+then the interactive graph and the verdict. The graph works like the
+popup's: a Chart segment (Line, Bar), a Trend segment (None, Straight
+line, Mean band), a "Last 10 years" switch (`.ten`) and the two-thumb
+slider (`.tile-range`, `syncTileRange`) over every year on file
+(`graphPeriods`, `graphValues`, `graphStats`), each section with its own
+state (`kind`, `trend`, `window`, `i0`, `i1`, defaults line, the trend,
+the last ten years; a moved thumb unticks the switch), the dialog's one
+set of click, change and input listeners finding the section through
+`tileOf`, and `drawTile` drawing the years between the thumbs with a 240px
+`chartSvg` (`chartSvg` takes the height as its ninth argument), wiring the
+hover readout, pressing the controls and writing the verdict over the
+years shown (`drawAnalyticsCharts` redraws every section on resize); the
+verdicts: `judgeGrossMargin` (40% or more every year passes, below 20% or
 mostly fails), `judgeSga` (steady, within 10 points, passes, and 30% or
 less every year is "low and steady"; a swing over 25 points fails),
 `judgeRd` and `judgeTax` (a note with the figures and the book's caution,
@@ -785,3 +795,4 @@ design are their own release, requested deliberately.
 | v1.45 | The cover's lettering, and a switch that moves nothing | The Original masthead is now set the way the cover's title is lettered, slim Garamond capitals widely spaced in the cover's gold, instead of the heavier Roman face of v1.44. Switching between the two looks no longer shifts the page: the title, the subtitle, the headlines and the text keep the same heights and run the same width in either look, so only the lettering changes. |
 | v1.46 | The assets and the current asset cycle written up | Chapters 22 and 23, the assets and the current asset cycle, now read as written-up breakdowns from your notes: the book's box of the assets from your photograph, the two kinds of asset with their lines, and the cycle of cash to inventory to receivables and back to cash, with the book's box of the current assets and the arrows on the three lines it runs through. Every switch on the site now shows green when it is on and red when it is off, and your latest export replaces the one on file. |
 | v1.47 | Warren Buffett's Analytics, the book's tests on one page | A button above a company's table now opens Warren Buffett's Analytics: a dashboard of tiles, one for each line the finished chapters give a rule for, from the gross margin to earnings per share, each with the last ten years drawn with its trend line, the chapter's TL;DR, and a verdict in the chapter's own terms, such as whether earnings per share have climbed steadily as Warren wants. Revenue and the other lines he does not judge on their own are left out, and more tiles join as more chapters are finished. |
+| v1.48 | The analytics as sections, each with its own live graph | Warren Buffett's Analytics now reads section by section, one for each line, with its heading, what Warren looks for in red as under the table's lines, the chapter's TL;DR, and then the graph and the conclusion. Every graph is now as interactive as the ones behind the table: a line or bars, the trend line or the mean band, the last ten years or every year on file with a two-thumb slider to narrow them, and the conclusion follows the years you show. |

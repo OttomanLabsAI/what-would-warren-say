@@ -1,7 +1,0 @@
-good. above the table, make a button called Warren Buffett's Analytics
-
-it'll open up a with a dashboard bunch of tiles that use the TLDR of the important metrics so show a graph and a statement about it, eg. earnings per share will show the last 10 years eps and a regression line and state if it follows his requirement of growing and stable
-
-the page will not show things he doesnt car about such as raw revenue
-
-only incluse the currently finished chapters and update when i include new ones where required
