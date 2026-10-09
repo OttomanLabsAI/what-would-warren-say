@@ -233,6 +233,39 @@ with the box ticked, at the owner's request; the dropdowns and the other
 presets went in v1.39. The last value's label (`text.end`) sits centred
 over its own mark, kept inside the right edge, lifted (dropped, under a
 negative) clear of any neighbouring mark it would cover, with a paper halo.
+Above the table, between the Add to line and the table, a company with
+years on file (not a row-only one) carries the button "Warren Buffett's
+Analytics" (`#analytics-open`), which opens one `<dialog
+class="graph-dialog analytics-dialog">` built once by
+`ensureAnalyticsDialog`: `openAnalytics` lays out one tile a line for
+`ANALYTICS` (the `rowKey` of a `NUMBER_ROWS` line and its judge, in chapter
+order: gross margin, SG&A, R&D and depreciation as shares of gross profit,
+interest as a share of operating income, the effective tax rate, net
+earnings, net margin, earnings per share), each over the last ten fiscal
+years on file (`graphPeriods` sliced, `graphValues`, `graphStats`), with
+the line's name and chapter link, the chapter's `tldr` in the same box as
+on the chapter page, a 240px `chartSvg` with the least-squares trend
+(`chartSvg` takes the height as its ninth argument) drawn by
+`drawAnalyticsCharts` at the tile's width and again on resize, and a
+verdict: `judgeGrossMargin` (40% or more every year passes, below 20% or
+mostly fails), `judgeSga` (steady, within 10 points, passes, and 30% or
+less every year is "low and steady"; a swing over 25 points fails),
+`judgeRd` and `judgeTax` (a note with the figures and the book's caution,
+no pass or fail), `judgeDepreciation` (10% or less this year and on
+average), `judgeInterest` (none is best, under 15% every year passes; a
+year with no operating income is left blank), `judgeNetEarnings` and
+`judgeEps` (rising, the trend up and the last above the first, steadily,
+R² of .6 or more and at most two down years, with no loss, passes; not
+rising fails; the rest mixed) and `judgeNetMargin` (20% or more this year
+and in most years passes, under 10% fails, between is the grey area). The
+verdict carries a mark (`VERDICT_MARKS`: a tick on green for pass, a
+cross on claret for fail, a tilde for mixed, an i for a note) and says the
+term in full through `wr`. Revenue, the costs and the other lines Warren
+does not judge on their own have no tile, at the owner's request, and
+only chapters written up count: a chapter written up later that gives a
+line a rule adds a tile to `ANALYTICS` with its own judge, in chapter
+order, as part of writing the chapter up. A chapter link in a tile closes
+the dialog and opens the chapter.
 No chart library: the page still loads nothing
 from elsewhere. The export
 file never carries numbers or the token. `NUMBER_ROWS` in `index.html` maps
@@ -751,3 +784,4 @@ design are their own release, requested deliberately.
 | v1.44 | A second look, the controls restyled, a price slider | A switch at the top of the page now offers two looks: Newspaper, the salmon paper the site has had, and Original, drawn from the book's cover, with ivory paper, black ink, the title in the cover's gold Roman capitals, the text in a Garamond like the book's pages, and the burgundy kept for the accents. The buttons and options across the site now follow your input tools, square and hairline with the chosen option filled and every on/off box a switch, and the share-price chart has the same two-thumb slider as the line graphs, narrowing any span to the bars between the thumbs. |
 | v1.45 | The cover's lettering, and a switch that moves nothing | The Original masthead is now set the way the cover's title is lettered, slim Garamond capitals widely spaced in the cover's gold, instead of the heavier Roman face of v1.44. Switching between the two looks no longer shifts the page: the title, the subtitle, the headlines and the text keep the same heights and run the same width in either look, so only the lettering changes. |
 | v1.46 | The assets and the current asset cycle written up | Chapters 22 and 23, the assets and the current asset cycle, now read as written-up breakdowns from your notes: the book's box of the assets from your photograph, the two kinds of asset with their lines, and the cycle of cash to inventory to receivables and back to cash, with the book's box of the current assets and the arrows on the three lines it runs through. Every switch on the site now shows green when it is on and red when it is off, and your latest export replaces the one on file. |
+| v1.47 | Warren Buffett's Analytics, the book's tests on one page | A button above a company's table now opens Warren Buffett's Analytics: a dashboard of tiles, one for each line the finished chapters give a rule for, from the gross margin to earnings per share, each with the last ten years drawn with its trend line, the chapter's TL;DR, and a verdict in the chapter's own terms, such as whether earnings per share have climbed steadily as Warren wants. Revenue and the other lines he does not judge on their own are left out, and more tiles join as more chapters are finished. |

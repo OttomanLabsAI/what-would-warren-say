@@ -278,6 +278,23 @@
     .graph-range .ends { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; margin-top: .05rem; font-family: var(--sans); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-40); }
     .graph-range .ends b { font-weight: 700; letter-spacing: .14em; color: var(--ink); }
     .graph-body { position: relative; min-height: 4rem; }
+    /* Warren Buffett's Analytics: the book's tests from the chapters written up, one tile a line,
+       the last ten years with the trend line and a verdict in the chapter's own terms */
+    .analytics-line { margin: 0 0 1rem; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr)); gap: 1rem; margin: 0 0 .9rem; }
+    .tile { min-width: 0; padding: .9rem 1rem 1rem; border: 1px solid var(--rule); background: var(--white); }
+    .tile header { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; margin: 0 0 .5rem; }
+    .tile h4 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; }
+    .tile .ref { font-family: var(--sans); font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); text-decoration: none; white-space: nowrap; }
+    .tile .ref:hover { text-decoration: underline; }
+    .tile .tldr { margin: 0 0 .7rem; font-size: .88rem; background: var(--paper); }
+    .tile .tile-chart { min-height: 6rem; }
+    .verdict { display: flex; gap: .55rem; margin: .6rem 0 0; font-family: var(--text); font-size: .98rem; line-height: 1.45; color: var(--ink); }
+    .verdict .mark { flex: none; width: 1.3rem; height: 1.3rem; margin-top: .12rem; border: 1px solid var(--ink); font-family: var(--sans); font-size: .8rem; font-weight: 700; line-height: 1.2rem; text-align: center; color: var(--paper); background: var(--ink-60); }
+    .verdict.pass .mark { background: var(--on); border-color: var(--on); }
+    .verdict.fail .mark { background: var(--claret); border-color: var(--claret); }
+    .verdict.mixed .mark { background: var(--paper); color: var(--ink); }
+    .verdict.note .mark { background: var(--paper); color: var(--ink-60); border-color: var(--rule); }
     .graph-body svg.chart { display: block; width: 100%; height: auto; font-family: var(--sans); outline: none; }
     .graph-body svg.chart:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
     .chart .grid { stroke: var(--rule-light); stroke-width: 1; }
@@ -397,8 +414,8 @@
     .breakdown .type-line { margin: -.9rem 0 1.1rem; font-family: var(--sans); font-size: .82rem; color: var(--ink-60); }
     .breakdown .type-line .mark { margin-left: 0; }
     .breakdown .thesis { margin: 0 0 1.3rem; font-family: var(--display); font-size: 1.3rem; line-height: 1.35; color: var(--ink); }
-    .breakdown .tldr { margin: 0 0 1.2rem; padding: .65rem .9rem; border-left: 4px solid var(--claret); background: var(--white); font-family: var(--sans); font-size: .95rem; line-height: 1.45; color: var(--ink); }
-    .breakdown .tldr .label { display: block; margin-bottom: .2rem; font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
+    .breakdown .tldr, .tile .tldr { margin: 0 0 1.2rem; padding: .65rem .9rem; border-left: 4px solid var(--claret); background: var(--white); font-family: var(--sans); font-size: .95rem; line-height: 1.45; color: var(--ink); }
+    .breakdown .tldr .label, .tile .tldr .label { display: block; margin-bottom: .2rem; font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .diagram { margin: 0 0 1.5rem; font-family: var(--sans); }
     .diagram .dtitle { margin: 0 0 .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .diagram .dnote { margin: .5rem 0 0; font-family: var(--text); font-style: italic; font-size: .95rem; color: var(--ink-60); }
@@ -2224,6 +2241,7 @@
         '<button type="button" class="linkbtn" id="csv">Download CSV</button>' +
         (c.sample || c.store || c.rowOnly ? '' : '<button type="button" class="linkbtn" id="forget">Forget this company</button>') + '</p>' +
         addToHtml(c) +
+        (dates.length && !c.rowOnly ? '<p class="analytics-line"><button type="button" id="analytics-open">Warren Buffett\u2019s Analytics</button></p>' : '') +
         (c.rowOnly && dates.length ? '<p class="hint rowonly">Only the latest year is on file for this company, from the screen rows of the pull. Blank lines, earlier years and the quarters are not on file; a live fetch with an EODHD key brings them all.</p>' : '') +
         (dates.length ? tableHtml(c) : (c.rowOnly ? '<p class="hint rowonly">EODHD had no statements for this company when it was pulled.</p>' : '<p class="hint">EODHD returned no yearly statements for this company.</p>')) +
         (dates.length && !c.rowOnly ? '<details class="raw"><summary>Every field EODHD reports</summary>' +
@@ -4011,11 +4029,11 @@
         rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
     }
 
-    function chartSvg(periods, values, kind, unit, width, trend, st, marks) {
+    function chartSvg(periods, values, kind, unit, width, trend, st, marks, height) {
       var n = periods.length;
       var have = values.filter(function (v) { return v !== null; });
       if (!n || !have.length) return '<p class="hint">No figures to draw for this range.</p>';
-      var W = width, H = 320, padL = 72, padR = 20, padT = 22, padB = 44;
+      var W = width, H = height || 320, padL = 72, padR = 20, padT = 22, padB = 44;
       var plotW = W - padL - padR, plotH = H - padT - padB;
       var lo, hi;
       if (unit === 'price') {
@@ -4163,6 +4181,202 @@
       graphDialog.querySelector('#graph-units').textContent = units.charAt(0).toUpperCase() + units.slice(1) +
         (graph.period === 'quarterly' ? ', by quarter' + (graph.row.annual ? ', each built on the trailing four quarters' : '') : ', by fiscal year') +
         '. Oldest at the left, newest at the right.';
+    }
+
+    // ---- Warren Buffett's Analytics: the book's tests from the chapters written
+    // up so far, one tile a line, each the last ten fiscal years on file with the
+    // least-squares trend and a verdict in the chapter's own terms, at the
+    // owner's request. The lines Warren does not judge on their own, revenue and
+    // the plain costs, have no tile; a chapter written up later that gives a
+    // line a rule adds one here, with its judgement, in chapter order.
+    var ANALYTICS = [
+      { key: 'grossMargin', judge: judgeGrossMargin },
+      { key: 'sgaOfGrossProfit', judge: judgeSga },
+      { key: 'rdOfGrossProfit', judge: judgeRd },
+      { key: 'depreciationOfGrossProfit', judge: judgeDepreciation },
+      { key: 'interestOfOperatingIncome', judge: judgeInterest, clean: function (v) { return v === null || v < 0 ? null : v; } },
+      { key: 'taxRate', judge: judgeTax },
+      { key: 'netEarnings', judge: judgeNetEarnings },
+      { key: 'netMargin', judge: judgeNetMargin },
+      { key: 'eps', judge: judgeEps }
+    ];
+    var VERDICT_MARKS = { pass: ['\u2713', 'Passes'], fail: ['\u2717', 'Fails'], mixed: ['~', 'Mixed'], note: ['i', 'For your judgement'] };
+    var analyticsDialog = null, analytics = null;
+
+    function rowByKey(key) {
+      for (var i = 0; i < NUMBER_ROWS.length; i++) if (NUMBER_ROWS[i].rowKey === key) return NUMBER_ROWS[i];
+      return null;
+    }
+    // the years with a figure, oldest first
+    function withFigures(periods, values) {
+      var out = [];
+      values.forEach(function (v, i) { if (v !== null && v !== undefined && isFinite(v)) out.push({ v: v, label: periods[i].label }); });
+      return out;
+    }
+    function countWhere(pts, test) { return pts.filter(function (p) { return test(p.v); }).length; }
+    function meanOf(pts) { var s = 0; pts.forEach(function (p) { s += p.v; }); return s / pts.length; }
+    function lowOf(pts) { return Math.min.apply(null, pts.map(function (p) { return p.v; })); }
+    function highOf(pts) { return Math.max.apply(null, pts.map(function (p) { return p.v; })); }
+    function pc(v) { return fmtValue(v, 'pct'); }
+    function pointsText(spread) { var n = Math.round(spread * 100); return n + (n === 1 ? ' point' : ' points'); }
+    function yearsText(n) { return n === 1 ? 'the one year on file' : 'all ' + n + ' years'; }
+    function ofYears(k, n) { return k + ' of ' + n + ' years'; }
+
+    function judgeGrossMargin(pts) {
+      var n = pts.length, last = pts[n - 1];
+      var above = countWhere(pts, function (v) { return v >= 0.4; }), below = countWhere(pts, function (v) { return v < 0.2; });
+      var head = 'Gross margin ' + pc(last.v) + ' in ' + last.label;
+      if (above === n) return { state: 'pass', text: head + ', and 40% or more in ' + yearsText(n) + ': consistently the margin of a ' + TERM + '.' };
+      if (last.v < 0.2 || below > n / 2) return { state: 'fail', text: head + (below ? ', below 20% in ' + ofYears(below, n) : '') + ': not good.' };
+      return { state: 'mixed', text: head + '; 40% or more in ' + ofYears(above, n) + ', ' + pc(lowOf(pts)) + ' at the lowest: not the 40% Warren looks for year after year.' };
+    }
+
+    function judgeSga(pts) {
+      var n = pts.length, last = pts[n - 1], mean = meanOf(pts), lo = lowOf(pts), hi = highOf(pts), spread = hi - lo;
+      var under = countWhere(pts, function (v) { return v <= 0.3; });
+      var head = 'SG&A took ' + pc(last.v) + ' of gross profit in ' + last.label + ', ' + pc(mean) + ' on average over ' + n + ' years';
+      if (n === 1) return { state: 'note', text: head.replace(', ' + pc(mean) + ' on average over 1 years', '') + ': one year says nothing about how steady it is.' };
+      if (spread <= 0.1 && under === n) return { state: 'pass', text: head + ', 30% or less every year and within ' + pointsText(spread) + ' of each other: low and steady, as Warren wants.' };
+      if (spread <= 0.1) return { state: 'pass', text: head + ', within ' + pointsText(spread) + ' of each other: steady, which matters most to Warren, though above the 30% he calls great.' };
+      if (spread > 0.25) return { state: 'fail', text: head + ', swinging from ' + pc(lo) + ' to ' + pc(hi) + ': not the steady share of a ' + TERM + '.' };
+      return { state: 'mixed', text: head + ', from ' + pc(lo) + ' to ' + pc(hi) + ': ' + (under === n ? '30% or less every year, but not as steady as Warren likes.' : 'neither 30% or less every year nor steady.') };
+    }
+
+    function judgeRd(pts) {
+      var n = pts.length, last = pts[n - 1], mean = meanOf(pts);
+      if (highOf(pts) <= 0) return { state: 'note', text: 'No research and development is reported over the ' + n + ' years: nothing the company must keep spending to keep its advantage.' };
+      return { state: 'note', text: 'Research and development took ' + pc(last.v) + ' of gross profit in ' + last.label + ', ' + pc(mean) + ' on average over ' + n + ' years. The book gives no number: Warren is wary of a company that must spend heavily to keep its advantage, so the less it needs, the better.' };
+    }
+
+    function judgeDepreciation(pts) {
+      var n = pts.length, last = pts[n - 1], mean = meanOf(pts), lastLow = last.v <= 0.1, meanLow = mean <= 0.1;
+      var head = 'Depreciation took ' + pc(last.v) + ' of gross profit in ' + last.label + ', ' + pc(mean) + ' on average over ' + n + ' years';
+      if (lastLow && meanLow) return { state: 'pass', text: head + ': low, around 10% or less, as a ' + TERM + ' tends to run.' };
+      if (last.v > 0.2 && mean > 0.2) return { state: 'fail', text: head + ': well above the 10% or so Warren looks for.' };
+      if (lastLow) return { state: 'mixed', text: head + ': low this year, though higher than the 10% or so Warren looks for over the run.' };
+      if (meanLow) return { state: 'mixed', text: head + ': above the 10% or so Warren looks for this year, though low over the run.' };
+      return { state: 'mixed', text: head + ': above the 10% or so Warren looks for.' };
+    }
+
+    function judgeInterest(pts, st, currency, values) {
+      var skipped = values.length - pts.length - values.filter(function (v) { return v === undefined; }).length;
+      var tail = skipped > 0 ? ' A year with no operating income to set the interest against is left blank.' : '';
+      if (!pts.length) return { state: 'note', text: 'No operating income to set the interest against over the years on file.' };
+      var n = pts.length, last = pts[n - 1], under = countWhere(pts, function (v) { return v < 0.15; });
+      if (highOf(pts) === 0) return { state: 'pass', text: 'No interest expense at all over the ' + n + ' years: the best Warren can ask, a company that owes nothing worth mentioning.' + tail };
+      if (last.v === 0) return { state: 'pass', text: 'No interest expense in ' + last.label + (under === n ? ', and under 15% of operating income in every year' : '') + ': none at all is best.' + tail };
+      var head = 'Interest took ' + pc(last.v) + ' of operating income in ' + last.label;
+      if (under === n) return { state: 'pass', text: head + ', and under 15% in ' + yearsText(n) + ': within what a ' + TERM + ' tends to keep under, though none at all is best.' + tail };
+      if (last.v >= 0.15 && n - under > n / 2) return { state: 'fail', text: head + ', 15% or more in ' + ofYears(n - under, n) + ': more than a ' + TERM + ' tends to pay.' + tail };
+      return { state: 'mixed', text: head + ', 15% or more in ' + ofYears(n - under, n) + ': not always within the 15% Warren looks for.' + tail };
+    }
+
+    function judgeTax(pts) {
+      var n = pts.length, last = pts[n - 1], mean = meanOf(pts);
+      return { state: 'note', text: 'Paid ' + pc(last.v) + ' of its income before tax in taxes in ' + last.label + ', ' + pc(mean) + ' on average over ' + n + ' years. Warren multiplies income before tax by the tax rate and compares the result with the taxes paid: a company paying far less than the going corporate rate (35% in the book\u2019s day, 21% in the United States since 2018) may be reporting earnings it did not make.' };
+    }
+
+    // a run that rises steadily: the trend up, the straight line fitting most of the movement, few down years
+    function trendWords(st) {
+      var fit = st.r2 === null ? '' : ' (a straight line fits ' + Math.round(st.r2 * 100) + '% of the movement)';
+      var falls = st.falls === 0 ? 'no down year' : st.falls === 1 ? 'one down year' : st.falls + ' down years';
+      return { rising: st.slope > 0 && st.last.v > st.first.v, steady: st.r2 !== null && st.r2 >= 0.6 && st.falls <= 2, fit: fit, falls: falls };
+    }
+    function lossText(k) { return k ? ', with a loss in ' + (k === 1 ? 'one year' : k + ' years') : ''; }
+
+    function judgeNetEarnings(pts, st, currency) {
+      var n = pts.length, first = pts[0], last = pts[n - 1];
+      var money = function (v) { return (currency ? currency + ' ' : '') + fmtInt(v / 1e6) + ' million'; };
+      if (n < 3) return { state: 'note', text: 'Only ' + n + (n === 1 ? ' year' : ' years') + ' of net earnings on file: too few to read a trend.' };
+      var t = trendWords(st), losses = countWhere(pts, function (v) { return v < 0; });
+      var span = ' from ' + money(first.v) + ' in ' + first.label + ' to ' + money(last.v) + ' in ' + last.label;
+      if (t.rising && t.steady && !losses) return { state: 'pass', text: 'Net earnings rose' + span + ', a steady climb' + t.fit + ' with ' + t.falls + ': rising over the years, as Warren wants.' };
+      if (!t.rising) return { state: 'fail', text: 'Net earnings ' + (last.v < first.v ? 'fell' : 'did not rise') + span + lossText(losses) + ': not the rising earnings Warren looks for.' };
+      return { state: 'mixed', text: 'Net earnings rose on balance' + span + ', but erratically' + t.fit + ', with ' + t.falls + lossText(losses) + ': rising, but not steadily.' };
+    }
+
+    function judgeNetMargin(pts) {
+      var n = pts.length, last = pts[n - 1];
+      var over = countWhere(pts, function (v) { return v >= 0.2; }), under = countWhere(pts, function (v) { return v < 0.1; });
+      var head = 'Net earnings were ' + pc(last.v) + ' of revenue in ' + last.label;
+      if (last.v >= 0.2 && over >= n / 2) return { state: 'pass', text: head + ', over 20% in ' + ofYears(over, n) + ': the share that points to a ' + TERM + '.' };
+      if (last.v < 0.1 && under >= n / 2) return { state: 'fail', text: head + ', under 10% in ' + ofYears(under, n) + ': the share of a highly competitive industry.' };
+      if (last.v < 0.1) return { state: 'fail', text: head + ': under the 10% below which Warren sees a highly competitive business.' };
+      if (last.v >= 0.2) return { state: 'mixed', text: head + ': over 20% this year, though only in ' + ofYears(over, n) + '.' };
+      return { state: 'mixed', text: head + ': between 10% and 20%, the grey area.' };
+    }
+
+    function judgeEps(pts, st) {
+      var n = pts.length, first = pts[0], last = pts[n - 1];
+      var eps = function (v) { return (v < 0 ? '\u2212' : '') + Math.abs(v).toFixed(2); };
+      if (n < 3) return { state: 'note', text: 'Only ' + n + (n === 1 ? ' year' : ' years') + ' of earnings per share on file: too few to read a trend.' };
+      var t = trendWords(st), losses = countWhere(pts, function (v) { return v < 0; });
+      var span = ' from ' + eps(first.v) + ' in ' + first.label + ' to ' + eps(last.v) + ' in ' + last.label;
+      if (t.rising && t.steady && !losses) return { state: 'pass', text: 'Earnings per share rose' + span + ', a steady upward trend' + t.fit + ' with ' + t.falls + ' and no loss: what Warren is looking for.' };
+      if (!t.rising) return { state: 'fail', text: 'Earnings per share ' + (last.v < first.v ? 'fell' : 'did not rise') + span + lossText(losses) + ': not the steady upward trend Warren looks for.' };
+      return { state: 'mixed', text: 'Earnings per share rose on balance' + span + ', but erratically' + t.fit + ', with ' + t.falls + lossText(losses) + ': upward, but not the steady trend Warren looks for.' };
+    }
+
+    function ensureAnalyticsDialog() {
+      if (analyticsDialog) return analyticsDialog;
+      var d = document.createElement('dialog');
+      d.className = 'graph-dialog analytics-dialog';
+      d.setAttribute('aria-labelledby', 'analytics-title');
+      d.innerHTML = '<div class="graph-inner">' +
+        '<div class="graph-head"><div><p class="kicker" id="analytics-kicker"></p><h3 id="analytics-title">Warren Buffett\u2019s Analytics</h3>' +
+        '<p class="rule">The book\u2019s tests from the chapters written up so far: each line over the last ten fiscal years on file, with the straight-line trend and a verdict in the chapter\u2019s own terms.</p></div>' +
+        '<button type="button" class="secondary" id="analytics-close">Close</button></div>' +
+        '<div class="tiles" id="analytics-tiles"></div>' +
+        '<p class="units" id="analytics-units"></p></div>';
+      document.body.appendChild(d);
+      d.querySelector('#analytics-close').addEventListener('click', function () { d.close(); });
+      d.addEventListener('click', function (ev) {
+        if (ev.target === d) { d.close(); return; }
+        var ref = ev.target.closest ? ev.target.closest('a.ref') : null;
+        if (ref) d.close();
+      });
+      window.addEventListener('resize', function () { if (d.open) drawAnalyticsCharts(); });
+      analyticsDialog = d;
+      return d;
+    }
+
+    function openAnalytics(c) {
+      var d = ensureAnalyticsDialog();
+      var periods = graphPeriods(c, 'annual').slice(-10);
+      var tiles = ANALYTICS.map(function (t) {
+        var row = rowByKey(t.key);
+        var values = graphValues(c, row, 'annual', periods);
+        if (t.clean) values = values.map(t.clean);
+        var st = graphStats(periods, values, 'annual');
+        var pts = withFigures(periods, values);
+        var verdict = pts.length ? t.judge(pts, st, c.meta.currency, values) : { state: 'note', text: 'Nothing on file for this line.' };
+        return { key: t.key, row: row, periods: periods, values: values, st: st, verdict: verdict };
+      });
+      analytics = { c: c, tiles: tiles };
+      d.querySelector('#analytics-kicker').textContent = c.meta.name + (periods.length ? ' \u00b7 ' + periods[0].label + ' to ' + periods[periods.length - 1].label : '');
+      d.querySelector('#analytics-tiles').innerHTML = tiles.map(function (t, i) {
+        var b = BREAKDOWNS[t.row.ch], mark = VERDICT_MARKS[t.verdict.state];
+        return '<section class="tile" data-key="' + esc(t.key) + '"><header><h4>' + esc(t.row.label) + '</h4><a class="ref" href="#' + esc(t.row.ch) + '">ch. ' + esc(t.row.ch) + '</a></header>' +
+          (b && b.tldr ? '<p class="tldr"><span class="label">TL;DR</span><span>' + wr(b.tldr) + '</span></p>' : '') +
+          '<div class="graph-body tile-chart" data-tile="' + i + '"></div>' +
+          '<p class="verdict ' + t.verdict.state + '"><span class="mark" role="img" aria-label="' + mark[1] + '">' + mark[0] + '</span><span>' + wr(t.verdict.text) + '</span></p></section>';
+      }).join('');
+      d.querySelector('#analytics-units').textContent = 'Ten fiscal years at most, oldest at the left, newest at the right; the straight line is the least-squares trend. ' +
+        (c.meta.currency ? 'Money in ' + c.meta.currency + ' millions, earnings per share in ' + c.meta.currency + '. ' : '') +
+        'Only the lines whose chapters are written up are here, and not the ones Warren does not judge on their own, revenue and the plain costs; more join as more chapters are finished.';
+      if (!d.open) d.showModal();
+      drawAnalyticsCharts();
+    }
+
+    function drawAnalyticsCharts() {
+      if (!analytics || !analyticsDialog) return;
+      Array.prototype.forEach.call(analyticsDialog.querySelectorAll('.tile-chart[data-tile]'), function (slot) {
+        var t = analytics.tiles[parseInt(slot.getAttribute('data-tile'), 10)];
+        if (!t) return;
+        var width = Math.max(300, Math.floor(slot.clientWidth || 480));
+        slot.innerHTML = chartSvg(t.periods, t.values, 'line', t.row.unit, width, 'line', t.st, null, 240);
+        wireGraphHover(slot, t.periods, t.values, t.row.unit, 'line');
+      });
     }
 
     // ---- the price: the latest quote under the headline, with its chart ----
@@ -4605,7 +4819,9 @@
       var btn = ev.target.closest ? ev.target.closest('button.yr') : null;
       if (btn && currentCompany) { ev.preventDefault(); toggleYear(currentCompany, btn.getAttribute('data-date')); return; }
       var g = ev.target.closest ? ev.target.closest('button.graph') : null;
-      if (g && currentCompany) { ev.preventDefault(); openGraph(currentCompany, NUMBER_ROWS[parseInt(g.getAttribute('data-row'), 10)]); }
+      if (g && currentCompany) { ev.preventDefault(); openGraph(currentCompany, NUMBER_ROWS[parseInt(g.getAttribute('data-row'), 10)]); return; }
+      var a = ev.target.closest ? ev.target.closest('#analytics-open') : null;
+      if (a && currentCompany) { ev.preventDefault(); openAnalytics(currentCompany); }
     });
     var viewChapters = document.getElementById('view-chapters');
     var viewNumbers = document.getElementById('view-numbers');

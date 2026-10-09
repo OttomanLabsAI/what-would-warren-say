@@ -33,7 +33,10 @@ and a chart under it that draws the price over the last day, week, month, six
 months, year, five years, ten years or all time, with a two-thumb slider under
 the chart that narrows the span to the bars between the thumbs; an Earnings
 calls box beside the spans, off until ticked, stands a dashed line on the chart at every date
-the company reported its results. Fetched companies are
+the company reported its results. A button above the table, Warren Buffett's
+Analytics, opens a dashboard of tiles, one for each line the finished
+chapters give a rule for, each with its last ten years and trend line, the
+chapter's TL;DR and a verdict in the chapter's terms. Fetched companies are
 kept on the device, the table downloads as CSV, and an expandable section
 lists every field EODHD reported.
 
