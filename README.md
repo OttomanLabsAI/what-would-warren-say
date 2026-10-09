@@ -2,7 +2,8 @@
 
 A Cloudflare Workers site: a reading companion for *Warren Buffett and the
 Interpretation of Financial Statements* by Mary Buffett and David Clark,
-styled like a financial newspaper. Three views sit under the masthead, and
+styled like a financial newspaper, or like the book's own cover with the
+switch at the top of the page. Three views sit under the masthead, and
 the site opens on Companies.
 
 **Chapters.** A section dropdown narrows the book to one part, a row of
@@ -28,9 +29,10 @@ the book walks through: every statement line with the chapter beside it, and
 the book's ratios with its rule of thumb under each, one short line with the
 threshold as the chapter notes have it. With a token in the box
 the company's current share price sits above the table, with the day's change
-and a Graph link that draws the price over the last day, week, month, six
-months, year, five years, ten years or all time; an Earnings calls box beside
-the spans, off until ticked, stands a dashed line on the chart at every date
+and a chart under it that draws the price over the last day, week, month, six
+months, year, five years, ten years or all time, with a two-thumb slider under
+the chart that narrows the span to the bars between the thumbs; an Earnings
+calls box beside the spans, off until ticked, stands a dashed line on the chart at every date
 the company reported its results. Fetched companies are
 kept on the device, the table downloads as CSV, and an expandable section
 lists every field EODHD reported.
@@ -63,7 +65,7 @@ public/
   favicon.svg
   robots.txt
   _headers         security and caching headers
-  assets/fonts/    Playfair Display and Newsreader, latin subsets, self-hosted
+  assets/fonts/    Playfair Display, Newsreader, Cinzel and EB Garamond, latin subsets, self-hosted
 src/worker.js      the EODHD relay and the store; every other request goes to the assets
 wrangler.jsonc     Worker + assets config, and the store's bucket binding
 package.json       wrangler as a devDependency, dev/deploy/check/pull/upload scripts
@@ -309,10 +311,14 @@ exists in the account; a deploy with the binding and no bucket fails.
 
 ## Fonts
 
-Headlines are set in Playfair Display (Claus Eggers Sørensen) and text in
-Newsreader (Production Type). Both are published under the SIL Open Font
-License 1.1 and are served from `public/assets/fonts/` as latin-subset woff2
-files taken from Google Fonts, so the page makes no request to Google at all.
+The page has two looks, switched at the top of the page and remembered on
+the device. Newspaper, the default, sets headlines in Playfair Display (Claus
+Eggers Sørensen) and text in Newsreader (Production Type). Original, after
+the book's cover, sets the masthead in Cinzel (Natanael Gama) and the text
+and headlines in EB Garamond (Georg Duffner and Octavio Pardo). All four are
+published under the SIL Open Font License 1.1 and are served from
+`public/assets/fonts/` as latin-subset woff2 files taken from Google Fonts,
+so the page makes no request to Google at all.
 A notice beside them carries the copyright lines and the licence link,
 and each file carries the same in its own metadata.
 

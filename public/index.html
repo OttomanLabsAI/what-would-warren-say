@@ -6,6 +6,7 @@
   <title>What Would Warren Say?</title>
   <meta name="description" content="A reading companion for Warren Buffett and the Interpretation of Financial Statements: pick a section, open a chapter, write its summary and your notes, and export or import everything written.">
   <meta name="theme-color" content="#FFF1E5">
+  <script>try { if (localStorage.getItem('wwws.scheme.v1') === 'original') { document.documentElement.setAttribute('data-scheme', 'original'); } } catch (e) {}</script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -14,6 +15,9 @@
     @font-face { font-family: 'Playfair Display'; font-style: italic; font-weight: 700; font-display: swap; src: url(assets/fonts/playfair-display-latin-italic.woff2) format('woff2'); }
     @font-face { font-family: 'Newsreader'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(assets/fonts/newsreader-latin.woff2) format('woff2'); }
     @font-face { font-family: 'Newsreader'; font-style: italic; font-weight: 400; font-display: swap; src: url(assets/fonts/newsreader-latin-italic.woff2) format('woff2'); }
+    @font-face { font-family: 'Cinzel'; font-style: normal; font-weight: 400 900; font-display: swap; src: url(assets/fonts/cinzel-latin.woff2) format('woff2'); }
+    @font-face { font-family: 'EB Garamond'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(assets/fonts/eb-garamond-latin.woff2) format('woff2'); }
+    @font-face { font-family: 'EB Garamond'; font-style: italic; font-weight: 400 800; font-display: swap; src: url(assets/fonts/eb-garamond-latin-italic.woff2) format('woff2'); }
 
     :root {
       --paper: #FFF1E5;
@@ -31,6 +35,32 @@
       --text: 'Newsreader', Georgia, 'Times New Roman', serif;
       --sans: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
     }
+    /* The Original scheme, from the book's cover: ivory paper, black ink, the
+       title's dull gold for the masthead in Cinzel's Roman capitals, EB Garamond
+       for the text as on the page, the claret kept, the links in the gold's
+       darker tone. Chosen with the switch in the dateline, kept under
+       wwws.scheme.v1, and set on <html> before first paint by the script in
+       the head. */
+    :root[data-scheme="original"] {
+      --paper: #F4EFE1;
+      --paper-deep: #E8E0C9;
+      --white: #FCFAF4;
+      --ink: #1F1C17;
+      --ink-70: #3B3730;
+      --ink-60: #57524A;
+      --ink-40: #8A8477;
+      --rule: #C6BEA6;
+      --rule-light: #E1DAC4;
+      --teal: #6B6239;
+      --gold: #857A52;
+      --display: 'EB Garamond', Georgia, 'Times New Roman', serif;
+      --text: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    }
+    :root[data-scheme="original"] body { font-size: 1.2rem; font-variant-numeric: lining-nums; }
+    :root[data-scheme="original"] .masthead h1 { font-family: 'Cinzel', 'EB Garamond', Georgia, serif; font-weight: 700; font-size: clamp(1.7rem, 5.4vw, 3rem); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+    :root[data-scheme="original"] .headline, :root[data-scheme="original"] .graph-head h3 { font-weight: 600; font-variant-caps: small-caps; letter-spacing: .05em; }
+    :root[data-scheme="original"] .breakdown .thesis { font-weight: 700; }
+    :root[data-scheme="original"] .breakdown .thesis strong.term { font-weight: 800; }
 
     html { background: var(--paper); scrollbar-gutter: stable; }
     body { margin: 0; color: var(--ink); font-family: var(--text); font-size: 1.125rem; line-height: 1.5; }
@@ -39,21 +69,37 @@
 
     /* masthead */
     .masthead { padding: 1rem 1rem .75rem; border-bottom: 3px double var(--ink); text-align: center; }
-    .dateline { display: flex; justify-content: flex-end; gap: 1rem; font-family: var(--sans); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); border-bottom: 1px solid var(--rule); padding-bottom: .45rem; margin-bottom: .9rem; }
+    .dateline { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem 1rem; font-family: var(--sans); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-60); border-bottom: 1px solid var(--rule); padding-bottom: .45rem; margin-bottom: .9rem; }
     .masthead h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(2.1rem, 6.5vw, 3.6rem); line-height: 1.05; letter-spacing: .005em; }
     .masthead h1 a { color: inherit; text-decoration: none; }
+    .dateline #today { margin-left: auto; white-space: nowrap; }
+    .scheme { display: flex; align-items: center; white-space: nowrap; }
+    .scheme button { position: relative; margin: 0 0 0 -1px; padding: .22rem .6rem; border: 1px solid var(--rule); background: transparent; font: inherit; font-size: .62rem; letter-spacing: .14em; text-transform: inherit; color: var(--ink-60); cursor: pointer; }
+    .scheme button:first-child { margin-left: 0; }
+    .scheme button:hover, .scheme button:focus-visible { background: transparent; color: var(--ink); border-color: var(--ink); outline: none; z-index: 1; }
+    .scheme button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); font-weight: 600; z-index: 2; }
     .tagline { margin: .4rem 0 0; font-style: italic; color: var(--ink-70); font-size: 1.05rem; }
 
     /* controls */
     .controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem .75rem; padding: .7rem 1rem; border-bottom: 1px solid var(--rule); font-family: var(--sans); }
     .controls > button { padding: .5rem .7rem; }
     .controls label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
-    select { font-family: var(--sans); font-size: .95rem; color: var(--ink); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2333302E' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right .65rem center; border: 1px solid var(--ink); border-radius: 0; padding: .45rem 2rem .45rem .65rem; appearance: none; -webkit-appearance: none; max-width: 100%; }
-    select:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    select { font-family: var(--sans); font-size: .82rem; letter-spacing: .06em; color: var(--ink); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2333302E' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right .65rem center; border: 1px solid var(--rule); border-radius: 0; padding: .45rem 2rem .45rem .65rem; appearance: none; -webkit-appearance: none; max-width: 100%; }
+    select:hover { border-color: var(--ink); }
+    select:focus { outline: none; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
     .spacer { flex: 1; }
-    button { font-family: var(--sans); font-size: .82rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .5rem .9rem; border: 1px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
+    /* the controls follow the owner's input tools: square, a hairline or ink border, small spaced
+       capitals, a filled button that turns outlined under the pointer and an outlined one that
+       fills, choices butted together as segments with the chosen one filled, and every on/off
+       box a switch, a square with a knob that slides to the right when on; the same in both schemes */
+    button { font-family: var(--sans); font-size: .7rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; padding: .55rem 1rem; border: 1px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
     button.secondary { background: transparent; color: var(--ink); }
-    button:hover, button:focus-visible { background: var(--claret); border-color: var(--claret); color: #fff; outline: none; }
+    button:hover, button:focus-visible { background: var(--paper); color: var(--ink); outline: none; }
+    button.secondary:hover, button.secondary:focus-visible { background: var(--ink); color: var(--paper); }
+    button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .switch input, .opt input, .remember input, .rules input { appearance: none; -webkit-appearance: none; position: relative; flex: none; box-sizing: border-box; width: 2.2rem; height: 1.15rem; margin: 0; border: 1px solid var(--ink); border-radius: 0; background: var(--paper); background-image: linear-gradient(var(--ink), var(--ink)); background-repeat: no-repeat; background-size: .95rem calc(100% - 2px); background-position: 1px 1px; transition: background-position .15s; cursor: pointer; vertical-align: middle; }
+    .switch input:checked, .opt input:checked, .remember input:checked, .rules input:checked { background-position: calc(100% - 1px) 1px; }
+    .switch input:focus-visible, .opt input:focus-visible, .remember input:focus-visible, .rules input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
     #import-file { display: none; }
     .status { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); }
 
@@ -64,7 +110,7 @@
     .view.active { color: var(--claret); border-bottom-color: var(--claret); }
     @media (max-width: 40rem) { .view { padding: .45rem .35rem; font-size: .68rem; letter-spacing: .05em; } }
     .section-pick { display: flex; align-items: center; gap: .6rem; flex: 4 1 13rem; min-width: 0; max-width: 34rem; }
-    .section-pick select { flex: 1 1 0; min-width: 0; max-width: 13.5rem; font-size: .9rem; padding-right: 1.6rem; }
+    .section-pick select { flex: 1 1 0; min-width: 0; max-width: 13.5rem; padding-right: 1.6rem; }
     .section-pick[hidden] { display: none; }
     @media (min-width: 50rem) { .section-pick[hidden] { display: flex; visibility: hidden; } }
 
@@ -73,8 +119,8 @@
     .fetch-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .7rem 1rem; align-items: end; margin-bottom: .6rem; }
     .fetch-form .f, .add-form .f { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
     .fetch-form .f > label, .add-form .f > label { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
-    .fetch-form input[type="text"], .fetch-form input[type="password"], .add-form input[type="text"] { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); width: 100%; box-sizing: border-box; }
-    .fetch-form input:focus, .add-form input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .fetch-form input[type="text"], .fetch-form input[type="password"], .add-form input[type="text"] { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--rule); border-radius: 0; background: var(--white); color: var(--ink); width: 100%; box-sizing: border-box; }
+    .fetch-form input:focus, .add-form input:focus { outline: none; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
     .fetch-form .f.find { position: relative; }
     .suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 20; margin: 0; padding: 0; list-style: none; background: var(--white); border: 1px solid var(--ink); border-top: 0; box-shadow: 0 8px 18px rgba(51, 48, 46, .14); max-height: 19rem; overflow-y: auto; font-family: var(--sans); font-size: .92rem; }
     .suggest[hidden] { display: none; }
@@ -87,7 +133,6 @@
     .secret b { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .secret code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9rem; background: var(--white); border: 1px solid var(--ink); padding: .25rem .5rem; word-break: break-all; user-select: all; }
     .remember { display: flex; align-items: center; gap: .45rem; font-family: var(--sans); font-size: .82rem; color: var(--ink-70); padding-bottom: .55rem; }
-    .remember input { margin: 0; accent-color: var(--claret); }
     .hint { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); margin: .25rem 0 1rem; }
     .company-meta { font-family: var(--sans); font-size: .82rem; color: var(--ink-60); margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; }
     .linkbtn { background: none; border: 0; padding: 0; color: var(--teal); font-family: var(--sans); font-size: .82rem; font-weight: 600; letter-spacing: normal; text-transform: none; cursor: pointer; text-decoration: underline; }
@@ -147,12 +192,13 @@
     .screen-controls { display: flex; flex-wrap: wrap; gap: .9rem 2rem; align-items: flex-start; margin: 0 0 1rem; font-family: var(--sans); }
     .screen-controls .f { display: flex; flex-direction: column; gap: .35rem; }
     .screen-controls label.t, .rules legend { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); padding: 0; }
-    .screen-controls input[type=search] { font-family: var(--sans); font-size: .95rem; padding: .45rem .6rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); min-width: 16rem; }
+    .screen-controls input[type=search] { font-family: var(--sans); font-size: .95rem; padding: .45rem .6rem; border: 1px solid var(--rule); border-radius: 0; background: var(--white); color: var(--ink); min-width: 16rem; }
+    .screen-controls input[type=search]:focus { outline: none; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
     .rules { border: 0; padding: 0; margin: 0; min-width: 0; flex: 1 1 28rem; }
     .rules legend { margin-bottom: .35rem; }
     .rules .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: .2rem 1.2rem; }
-    .rules label { display: flex; align-items: baseline; gap: .45rem; font-size: .85rem; color: var(--ink); cursor: pointer; }
-    .rules input { accent-color: var(--claret); margin: 0; position: relative; top: .1rem; flex: none; }
+    .rules label { display: flex; align-items: flex-start; gap: .55rem; font-size: .85rem; color: var(--ink); cursor: pointer; }
+    .rules input { margin-top: .15rem; }
     .rules .n { color: var(--ink-40); font-size: .78rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .screen-count { font-family: var(--sans); font-size: .82rem; color: var(--ink-60); margin: 0 0 .6rem; }
     .ntable.screen thead th { white-space: normal; min-width: 5.5rem; vertical-align: bottom; line-height: 1.25; }
@@ -173,11 +219,13 @@
     .price .chg { font-weight: 600; font-variant-numeric: tabular-nums; }
     .price .chg.neg { color: var(--claret); }
     .price .when { color: var(--ink-60); font-size: .85rem; }
-    .spans { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 0 .9rem; }
-    .spans button { padding: .35rem .7rem; font-size: .78rem; background: transparent; color: var(--ink); border-color: var(--rule); }
-    .spans button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-    .spans .opt { margin-left: auto; display: inline-flex; align-items: center; gap: .4rem; padding: .35rem 0; font-family: var(--sans); font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); cursor: pointer; }
-    .spans .opt input { margin: 0; width: .95rem; height: .95rem; accent-color: var(--claret); cursor: pointer; }
+    .spans { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin: 0 0 .9rem; }
+    .spans .seg { display: flex; flex-wrap: wrap; }
+    .spans button { position: relative; margin: 0 0 0 -1px; padding: .4rem .8rem; font-size: .66rem; letter-spacing: .14em; background: transparent; color: var(--ink); border-color: var(--rule); }
+    .spans button:first-child { margin-left: 0; }
+    .spans button:hover, .spans button:focus-visible { background: transparent; color: var(--ink); border-color: var(--ink); z-index: 1; }
+    .spans button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); z-index: 2; }
+    .spans .opt { margin-left: auto; display: inline-flex; align-items: center; gap: .5rem; padding: .3rem 0; font-family: var(--sans); font-size: .66rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); cursor: pointer; }
     .price-graph { margin: 0; }
     .price-graph[hidden] { display: none; }
     .price-graph .rule { margin: -.4rem 0 .5rem; font-size: .9rem; }
@@ -201,7 +249,7 @@
     .graph-controls .pick label, .graph-controls legend { padding: 0; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
     .graph-controls fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
     .graph-controls legend { margin-bottom: .3rem; }
-    .graph-controls select { font-size: .88rem; padding: .35rem 1.8rem .35rem .55rem; }
+    .graph-controls select { padding: .35rem 1.8rem .35rem .55rem; }
     .graph-controls .type { padding: .35rem .7rem; }
     .graph-controls .type.off { color: var(--ink-40); border-color: var(--rule-light); cursor: default; }
     .graph-range { margin: .1rem 20px .5rem 72px; }
@@ -214,8 +262,8 @@
     .graph-range input[type="range"]::-moz-range-track { height: 2px; background: transparent; }
     .graph-range input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: auto; box-sizing: border-box; width: 1rem; height: 1rem; margin-top: .3rem; border: 2px solid var(--ink); border-radius: 50%; background: var(--paper); cursor: ew-resize; }
     .graph-range input[type="range"]::-moz-range-thumb { pointer-events: auto; box-sizing: border-box; width: 1rem; height: 1rem; border: 2px solid var(--ink); border-radius: 50%; background: var(--paper); cursor: ew-resize; }
-    .graph-range input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--teal); outline-offset: 2px; }
-    .graph-range input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .graph-range input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .graph-range input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--ink); outline-offset: 2px; }
     .graph-range .ends { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; margin-top: .05rem; font-family: var(--sans); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-40); }
     .graph-range .ends b { font-weight: 700; letter-spacing: .14em; color: var(--ink); }
     .graph-body { position: relative; min-height: 4rem; }
@@ -262,8 +310,8 @@
     .wlist-desc { margin: -.4rem 0 1rem; font-family: var(--text); font-style: italic; font-size: 1.05rem; color: var(--ink-60); }
     .add-to { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem; margin: 0 0 1rem; font-family: var(--sans); font-size: .9rem; color: var(--ink); }
     .add-to label { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
-    .add-to select { font-size: .88rem; padding: .35rem 1.8rem .35rem .55rem; }
-    .add-to button { padding: .35rem .7rem; font-size: .74rem; }
+    .add-to select { padding: .35rem 1.8rem .35rem .55rem; }
+    .add-to button { padding: .4rem .7rem; font-size: .62rem; }
     .add-to .status { flex-basis: 100%; }
     @media (max-width: 40rem) { .add-form, .add-form.one, .add-form.two { grid-template-columns: 1fr; } }
     /* the account: sign in or sign up, then what the account holds */
@@ -273,8 +321,8 @@
     .account form.acct h3 { margin: 0 0 .1rem; font-family: var(--display); font-weight: 700; font-size: 1.2rem; }
     .account form.acct .f { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
     .account form.acct .f > label { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
-    .account form.acct input { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); min-width: 0; }
-    .account form.acct input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .account form.acct input { font-family: var(--sans); font-size: 1rem; padding: .5rem .65rem; border: 1px solid var(--rule); border-radius: 0; background: var(--white); color: var(--ink); min-width: 0; }
+    .account form.acct input:focus { outline: none; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
     .account form.acct .row { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-top: .2rem; }
     .account form.acct .err { font-family: var(--sans); font-size: .88rem; color: var(--claret); }
     .account .who { margin: 0 0 .6rem; font-family: var(--sans); font-size: .95rem; }
@@ -298,15 +346,17 @@
     .field > label { display: block; margin-bottom: .4rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
     fieldset.field { border: 0; padding: 0; margin: 1.25rem 0; min-width: 0; }
     fieldset.field legend { padding: 0; margin-bottom: .4rem; font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-60); }
-    .types { display: flex; flex-wrap: wrap; gap: .4rem; }
-    .type { display: inline-flex; align-items: center; gap: .5rem; margin: 0; padding: .45rem .8rem; border: 1px solid var(--rule); background: var(--white); cursor: pointer; font-family: var(--sans); font-size: .85rem; letter-spacing: normal; text-transform: none; color: var(--ink-60); }
-    .type input { margin: 0; accent-color: var(--claret); }
-    .type b { font-weight: 700; color: var(--ink); }
-    .type:hover { border-color: var(--ink); }
-    .type.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-    .type.on b { color: var(--paper); }
-    .type.on input { accent-color: var(--paper); }
-    .type:focus-within { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .types { display: flex; flex-wrap: wrap; gap: .35rem 0; }
+    .type { position: relative; display: inline-flex; align-items: baseline; gap: .5rem; margin: 0 0 0 -1px; padding: .45rem .9rem; border: 1px solid var(--rule); background: transparent; cursor: pointer; font-family: var(--sans); font-size: .66rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+    .type:first-child { margin-left: 0; }
+    .type input[type="radio"] { position: absolute; left: 0; top: 0; width: 1px; height: 1px; margin: 0; opacity: 0; }
+    .type b { font-weight: 600; color: inherit; }
+    .type span { font-size: .78rem; font-weight: 400; letter-spacing: .01em; text-transform: none; color: var(--ink-60); }
+    .type:hover { border-color: var(--ink); z-index: 1; }
+    .type.on { background: var(--ink); border-color: var(--ink); color: var(--paper); z-index: 2; }
+    .type.on span { color: inherit; opacity: .85; }
+    .type:has(input[type="radio"]:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; z-index: 3; }
+    .type.switch, .type.switch.on, .type.switch:hover { margin: 0; padding: .35rem 0; border: 0; background: transparent; color: var(--ink); align-items: center; }
     .mark.type-tag { color: var(--teal); border-color: var(--teal); }
     .mark.store-tag { color: var(--ink-60); border-color: var(--ink-60); }
     textarea { display: block; width: 100%; box-sizing: border-box; font-family: var(--text); font-size: 1.125rem; line-height: 1.55; padding: .85rem 1rem; color: var(--ink); background: var(--white); border: 1px solid var(--rule); border-radius: 0; resize: vertical; }
@@ -418,12 +468,15 @@
       .ntable thead th.todate, .ntable thead th.todate button.yr { white-space: normal; }
       .ntable thead th.todate { max-width: 4.5rem; }
       .rule { font-size: .7rem; }
+      /* the slider's end dates take the whole width under the track, each on one line */
+      .graph-range .ends { margin-left: -72px; margin-right: -20px; }
+      .graph-range .ends span { white-space: nowrap; }
     }
   </style>
 </head>
 <body>
   <header class="masthead wrap">
-    <div class="dateline"><span id="today"></span></div>
+    <div class="dateline"><div class="scheme" role="group" aria-label="Colour scheme"><button type="button" data-scheme="newspaper" aria-pressed="true">Newspaper</button><button type="button" data-scheme="original" aria-pressed="false">Original</button></div><span id="today"></span></div>
     <h1><a href="#">What Would Warren Say?</a></h1>
     <p class="tagline">Warren Buffett and the Interpretation of Financial Statements &middot; Mary Buffett and David Clark</p>
   </header>
@@ -3657,7 +3710,7 @@
         '<div class="graph-head"><div><p class="kicker" id="graph-kicker"></p><h3 id="graph-title"></h3><p class="rule" id="graph-rule"></p></div>' +
         '<button type="button" class="secondary" id="graph-close">Close</button></div>' +
         '<form class="graph-controls" id="graph-controls">' +
-        '<fieldset><legend>Window</legend><div class="types"><label class="type"><input type="checkbox" name="gten" id="graph-ten"><b>Last 10 years</b></label></div></fieldset>' +
+        '<fieldset><legend>Window</legend><div class="types"><label class="type switch"><input type="checkbox" name="gten" id="graph-ten"><b>Last 10 years</b></label></div></fieldset>' +
         '<fieldset><legend>Period</legend><div class="types">' + graphOption('period', 'annual', 'Annual') + graphOption('period', 'quarterly', 'Quarterly') + '</div></fieldset>' +
         '<fieldset><legend>Chart</legend><div class="types">' + graphOption('kind', 'line', 'Line') + graphOption('kind', 'bar', 'Bar') + '</div></fieldset>' +
         '<fieldset><legend>Trend</legend><div class="types">' + graphOption('trend', 'none', 'None') + graphOption('trend', 'line', 'Straight line') + graphOption('trend', 'band', 'Mean band') + '</div></fieldset>' +
@@ -4114,11 +4167,15 @@
           '<span class="when">' + esc(quoteWhen(q)) + '</span>' +
           '<button type="button" class="linkbtn" id="price-toggle" aria-controls="price-graph" aria-expanded="' + (open ? 'true' : 'false') + '">' + (open ? 'Hide graph' : 'Show graph') + '</button>';
         graph = '<div class="price-graph" id="price-graph"' + (open ? '' : ' hidden') + '>' +
-          '<div class="spans" id="price-spans" role="group" aria-label="Time span">' + SPANS.map(function (sp) {
+          '<div class="spans"><div class="seg" id="price-spans" role="group" aria-label="Time span">' + SPANS.map(function (sp) {
             return '<button type="button" data-span="' + sp[0] + '" aria-pressed="false">' + sp[1] + '</button>';
-          }).join('') + '<label class="opt" title="A dashed line at each earnings report date"><input type="checkbox" id="price-reports"' + (priceReportsOn ? ' checked' : '') + '> Earnings calls</label></div>' +
+          }).join('') + '</div><label class="opt" title="A dashed line at each earnings report date"><input type="checkbox" id="price-reports"' + (priceReportsOn ? ' checked' : '') + '> Earnings calls</label></div>' +
           '<p class="rule" id="price-sub"></p>' +
           '<div class="graph-body" id="price-body"></div>' +
+          '<div class="graph-range" id="price-range" hidden><div class="track"><div class="rail"></div><div class="sel" id="price-sel"></div>' +
+          '<input type="range" id="price-from" min="0" max="0" step="1" value="0" aria-label="From">' +
+          '<input type="range" id="price-to" min="0" max="0" step="1" value="0" aria-label="To"></div>' +
+          '<div class="ends"><span id="price-first"></span><b id="price-span"></b><span id="price-last"></span></div></div>' +
           '<div class="graph-figures" id="price-figures"></div>' +
           '<p class="units" id="price-units"></p></div>';
       } else if (e && e.error) {
@@ -4165,6 +4222,8 @@
         priceReportsOn = reportsBox.checked;
         drawPrice();
       });
+      var from = document.getElementById('price-from'), to = document.getElementById('price-to');
+      if (from && to) { from.addEventListener('input', slidePrice); to.addEventListener('input', slidePrice); }
       if (!tokenInput.priceWired) {
         tokenInput.priceWired = true;
         tokenInput.addEventListener('change', function () {
@@ -4179,7 +4238,7 @@
       }
       var e = quotes[c.symbol];
       if (e && e.q) {
-        priceGraph = { c: c, span: priceGraph && priceGraph.span ? priceGraph.span : '5y' };
+        priceGraph = { c: c, span: priceGraph && priceGraph.span ? priceGraph.span : '5y', range: priceGraph && priceGraph.c === c ? priceGraph.range : null };
         drawPrice();
       }
       if ((!e || (!e.loading && !e.q && !e.error) || (e.q && Date.now() - e.at > QUOTE_LIFE)) && getToken()) fetchQuote(c, tokenInput, rememberBox);
@@ -4410,22 +4469,77 @@
         loadPriceSeries(c, span)
       ]).then(function (got) {
         if (!priceGraph || priceGraph.span !== want || priceGraph.c !== c || body !== document.getElementById('price-body')) return;
-        var series = got[1], splitsNote = got[0];
-        var pts = pricePoints(span, series.rows, Array.isArray(c.splits) ? c.splits : []);
-        var marks = priceReportsOn ? reportMarks(span, pts, c.reports) : [];
-        marks.forEach(function (mk) { pts[mk.i].note = reportNote(mk.report); });
-        var width = Math.max(300, Math.floor(body.clientWidth || 640));
-        var values = pts.map(function (p) { return p.value; });
-        body.innerHTML = pts.length ? chartSvg(pts, values, 'line', 'price', width, 'none', null, marks) : '<p class="hint">EODHD sent no prices for this span.</p>';
-        if (pts.length) wireGraphHover(body, pts, values, 'price', 'line');
-        figures.innerHTML = priceFiguresHtml(pts, c.meta.currency);
-        units.textContent = (c.meta.currency ? 'Prices in ' + c.meta.currency + '. ' : '') + 'Closing price of each bar, oldest at the left, newest at the right' + restatedText(pts, c.splits) + '. ' +
-          (span === '1d' ? 'Five calls for the day of five-minute bars.' : 'One call for the span.') + reportsText(c, marks) + splitsNote;
+        var series = got[1];
+        var all = pricePoints(span, series.rows, Array.isArray(c.splits) ? c.splits : []);
+        var r = priceGraph.range;
+        if (!r || r.symbol !== c.symbol || r.span !== span || r.n !== all.length) priceGraph.range = { symbol: c.symbol, span: span, n: all.length, i0: 0, i1: Math.max(0, all.length - 1) };
+        priceGraph.all = all;
+        priceGraph.splitsNote = got[0];
+        syncPriceRange(g, all);
+        renderPriceSlice(g);
       }).catch(function (e) {
         if (!priceGraph || priceGraph.span !== want || body !== document.getElementById('price-body')) return;
         body.innerHTML = '<p class="hint">' + esc(e && e.message ? e.message : 'The prices could not be fetched.') + '</p>';
         figures.innerHTML = ''; units.textContent = '';
       });
+    }
+
+    // the slider under the price chart, as under the graph popup: two thumbs on one
+    // track over every bar of the span loaded, From and To; a thumb pushed past the
+    // other takes it along; a new span, or another company, opens whole again
+    function slidePrice(ev) {
+      var g = document.getElementById('price-graph');
+      if (!g || !priceGraph || !priceGraph.range || !priceGraph.all) return;
+      var from = g.querySelector('#price-from'), to = g.querySelector('#price-to');
+      var i0 = parseInt(from.value, 10) || 0, i1 = parseInt(to.value, 10) || 0;
+      if (ev.target === from && i0 > i1) i1 = i0;
+      else if (ev.target === to && i1 < i0) i0 = i1;
+      priceGraph.range.i0 = i0;
+      priceGraph.range.i1 = i1;
+      syncPriceRange(g, priceGraph.all);
+      renderPriceSlice(g);
+    }
+
+    // the slider shows the range in hand: the thumbs on their bars, the claret
+    // stretch between them, the first and last bars of the span at the ends and
+    // the range itself between those; hidden when the span has fewer than two bars
+    function syncPriceRange(g, all) {
+      var r = priceGraph.range, from = g.querySelector('#price-from'), to = g.querySelector('#price-to'), sel = g.querySelector('#price-sel');
+      if (!from || !to || !sel) return;
+      var max = Math.max(1, all.length - 1);
+      from.max = to.max = String(Math.max(0, all.length - 1));
+      from.value = String(r.i0);
+      to.value = String(r.i1);
+      from.setAttribute('aria-valuetext', all[r.i0] ? all[r.i0].label : '');
+      to.setAttribute('aria-valuetext', all[r.i1] ? all[r.i1].label : '');
+      from.style.zIndex = r.i0 >= max ? '3' : '';
+      sel.style.left = 'calc(.5rem + (100% - 1rem) * ' + (r.i0 / max).toFixed(4) + ')';
+      sel.style.width = 'calc((100% - 1rem) * ' + ((r.i1 - r.i0) / max).toFixed(4) + ')';
+      g.querySelector('#price-first').textContent = all.length ? all[0].label : '';
+      g.querySelector('#price-last').textContent = all.length ? all[all.length - 1].label : '';
+      g.querySelector('#price-span').textContent = all[r.i0] && all[r.i1] ? (r.i0 === r.i1 ? all[r.i0].label : all[r.i0].label + ' to ' + all[r.i1].label) : '';
+      g.querySelector('#price-range').hidden = all.length < 2;
+    }
+
+    // the chart, the figures and the units line for the bars between the thumbs;
+    // the earnings-call marks are found on the whole span and kept where they fall inside it
+    function renderPriceSlice(g) {
+      var c = priceGraph.c, span = priceGraph.span, all = priceGraph.all, r = priceGraph.range;
+      var body = g.querySelector('#price-body'), figures = g.querySelector('#price-figures'), units = g.querySelector('#price-units');
+      var pts = all.slice(r.i0, r.i1 + 1).map(function (p) { return { date: p.date, label: p.label, short: p.short, value: p.value }; });
+      var marks = [];
+      (priceReportsOn ? reportMarks(span, all, c.reports) : []).forEach(function (mk) {
+        if (mk.i < r.i0 || mk.i > r.i1) return;
+        marks.push({ i: mk.i - r.i0, edge: mk.edge, report: mk.report });
+      });
+      marks.forEach(function (mk) { pts[mk.i].note = reportNote(mk.report); });
+      var width = Math.max(300, Math.floor(body.clientWidth || 640));
+      var values = pts.map(function (p) { return p.value; });
+      body.innerHTML = pts.length ? chartSvg(pts, values, 'line', 'price', width, 'none', null, marks) : '<p class="hint">EODHD sent no prices for this span.</p>';
+      if (pts.length) wireGraphHover(body, pts, values, 'price', 'line');
+      figures.innerHTML = priceFiguresHtml(pts, c.meta.currency);
+      units.textContent = (c.meta.currency ? 'Prices in ' + c.meta.currency + '. ' : '') + 'Closing price of each bar, oldest at the left, newest at the right' + restatedText(pts, c.splits) + '. ' +
+        (span === '1d' ? 'Five calls for the day of five-minute bars.' : 'One call for the span.') + reportsText(c, marks) + priceGraph.splitsNote;
     }
 
     var currentCompany = null;
@@ -4594,6 +4708,30 @@
     });
 
     // ---- boot --------------------------------------------------------------
+    // ---- the colour scheme: Newspaper, the salmon paper, or Original, the
+    // book's cover; chosen in the dateline, kept under SCHEME_KEY, and set on
+    // <html> by the head script before first paint, here again on a choice
+    var SCHEME_KEY = 'wwws.scheme.v1';
+    function savedScheme() {
+      try { return window.localStorage.getItem(SCHEME_KEY) === 'original' ? 'original' : 'newspaper'; } catch (e) { return 'newspaper'; }
+    }
+    function applyScheme(name) {
+      var original = name === 'original';
+      if (original) document.documentElement.setAttribute('data-scheme', 'original'); else document.documentElement.removeAttribute('data-scheme');
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', original ? '#F4EFE1' : '#FFF1E5');
+      Array.prototype.forEach.call(document.querySelectorAll('.scheme button[data-scheme]'), function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-scheme') === (original ? 'original' : 'newspaper') ? 'true' : 'false');
+      });
+    }
+    document.querySelector('.scheme').addEventListener('click', function (ev) {
+      var b = ev.target.closest ? ev.target.closest('button[data-scheme]') : null;
+      if (!b) return;
+      var name = b.getAttribute('data-scheme') === 'original' ? 'original' : 'newspaper';
+      try { window.localStorage.setItem(SCHEME_KEY, name); } catch (e) {}
+      applyScheme(name);
+    });
+    applyScheme(savedScheme());
     document.getElementById('today').textContent = new Date().toLocaleDateString('en-GB', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });

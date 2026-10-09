@@ -12,7 +12,17 @@ Newsreader
   Copyright 2020 The Newsreader Project Authors
   (http://github.com/productiontype/Newsreader)
 
-Both families are licensed under the SIL Open Font License, Version 1.1.
+Cinzel
+  cinzel-latin.woff2
+  Copyright 2011 The Cinzel Project Authors
+  (https://github.com/NDISCOVER/Cinzel), with Reserved Font Name "Cinzel".
+
+EB Garamond
+  eb-garamond-latin.woff2, eb-garamond-latin-italic.woff2
+  Copyright 2017 The EB Garamond Project Authors
+  (https://github.com/octaviopardo/EBGaramond12)
+
+All four families are licensed under the SIL Open Font License, Version 1.1.
 The licence text and its FAQ are published at https://openfontlicense.org
 and at http://scripts.sil.org/OFL. Each font file also carries its copyright
 notice and the licence URL in its own name table. The files here are the

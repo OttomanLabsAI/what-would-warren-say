@@ -19,7 +19,7 @@ public/            everything served as assets
   favicon.svg
   _headers         security + caching headers
   robots.txt
-  assets/fonts/    Playfair Display + Newsreader woff2 (OFL), the only assets
+  assets/fonts/    Playfair Display + Newsreader + Cinzel + EB Garamond woff2 (OFL), the only assets
 src/worker.js      /api/eodhd/{fundamentals,real-time,eod,intraday,splits}/<symbol> -> eodhd.com; /api/data/<key> -> the R2 bucket (binding DATA); everything else -> env.ASSETS
 wrangler.jsonc     main + assets (binding ASSETS, 404-page) + EODHD_BASE var; r2_buckets DATA -> wwws-data commented out until the bucket exists
 package.json       wrangler devDependency + dev/deploy/check/pull/pull-app/bundle-samples/upload-store scripts
@@ -373,7 +373,17 @@ bar's `note` (`reportNote`: "Earnings call after the close, quarter to 30
 Sep 2026", read by `wireGraphHover` on any chart) and the units line says
 how many fall in the span, that none does, or that the copy has no report
 dates on file (`reportsText`; a sample or store copy pulled before the
-history existed, or a kept copy fetched before it, until a fresh fetch).
+history existed, or a kept copy fetched before it, until a fresh fetch). Under the chart, above the figures, the same two-thumb slider as
+the graph dialog's (`#price-range`: `#price-from`, `#price-to`, the stretch
+`#price-sel`, the ends `#price-first` and `#price-last` with the range
+`#price-span` between) runs over every bar of the span loaded
+(`priceGraph.all`; `priceGraph.range` is `{ symbol, span, n, i0, i1 }`):
+`syncPriceRange` puts the thumbs on it, `slidePrice` reads a moved thumb and
+takes the other along when pushed past it, and `renderPriceSlice` draws the
+bars between them with their figures, the earnings-call marks found on the
+whole span and kept where they fall inside, and the units line; a new span
+or another company opens whole, a resize or a hide and show keeps the
+range, and nothing of it is stored.
 There is no price dialog any more. Prices are never stored and
 never exported.
 
@@ -532,12 +542,41 @@ is the command line over it (`R2_ENDPOINT`, `R2_ACCESS_KEY_ID`,
 `data/r2.json` when remembered. Neither puts the keys in the repository or
 the site.
 
-The look is a financial newspaper: paper `#FFF1E5`, ink `#33302E`, claret
-`#990F3D` for accents, teal `#0D7680` for links, Playfair Display for the
-masthead and headlines, Newsreader for text, the system sans for controls. The
-fonts are self-hosted under `public/assets/fonts/`; they never change, which is
-what the immutable cache on `/assets/*` is for. Anything else moved under
-`/assets/` needs a fingerprinted name. Keep `index.html` single-file.
+The look has two schemes, chosen with the switch at the left of the dateline
+(`.scheme`: two plain buttons, Newspaper and Original, the chosen one
+`aria-pressed`; on a phone the dateline wraps, the switch on the first line
+and the date on its own line at the right), kept under `wwws.scheme.v1`
+(`original` or `newspaper`) and set as `data-scheme="original"` on `<html>`:
+by the one-line script in the head before anything is parsed or painted, so
+a reload shows no flash, and by `applyScheme` on a choice, which also moves
+the pressed state and the meta theme-color. Newspaper, the default, is a
+financial newspaper: paper `#FFF1E5`, ink `#33302E`, claret `#990F3D` for
+accents, teal `#0D7680` for links, Playfair Display for the masthead and
+headlines, Newsreader for text, the system sans for controls. Original is the
+book's cover, at the owner's request: ivory paper `#F4EFE1`, black ink
+`#1F1C17`, the masthead in Cinzel's Roman capitals in the cover's dull gold
+`#857A52`, EB Garamond for the text (a step larger, 1.2rem, with lining
+figures) and the headlines (small caps), the claret kept as the owner asked,
+the links in the gold's darker tone `#6B6239`. It is the one
+`:root[data-scheme="original"]` block, which overrides the variables and
+those few rules; nothing else in the stylesheet knows the scheme, so a new
+rule uses the variables. `404.html` carries the same variables, faces and
+head script and follows the choice, with no switch. The choice is a device
+setting like the price graph's: never exported, never synced. The controls
+follow the owner's input-tools page in both schemes: square, a hairline or
+ink border, small spaced capitals; a filled button turns outlined under the
+pointer and an outlined one fills; a choice of several (the scheme switch,
+the spans row's `.seg`, the `.types` of the chapter type and of the graph
+dialog) is butted segments, the chosen one filled, the radio hidden; every
+on/off box (`.opt`, `.remember`, `.rules`, the graph dialog's `.type.switch`)
+is a switch, a square whose knob slides to the right when on, drawn on the
+native checkbox so `checked` is still the state; text inputs and selects
+have the hairline border and an ink border with an inset ring on focus; the
+claret stays for the accents, not the controls. The fonts,
+four families under the OFL, are self-hosted under `public/assets/fonts/`;
+they never change, which is what the immutable cache on `/assets/*` is for.
+Anything else moved under `/assets/` needs a fingerprinted name. Keep
+`index.html` single-file.
 
 Two rules keep the page still when switching views: `scrollbar-gutter: stable`
 on `html`, so the centred column neither moves nor narrows when a scrollbar
@@ -684,3 +723,4 @@ design are their own release, requested deliberately.
 | v1.41 | The two earnings runs drawn as lines | Chapter 20's two ten-year columns of earnings per share from the book now have line graphs underneath them, drawn at the page's width: the steady climb Warren looks for beside the erratic run he stays away from, its two losses in claret below the zero line, with the year and figure on hover. |
 | v1.42 | The bracketed notes are instructions, written into policy | Nothing on the page changed: every instruction in square brackets in your chapter notes, the example calculations for chapters 17 to 19 and the examples from the photographs for chapter 20, was already carried out. The rule itself is now written into the repository's standing policy, so any bracket in a future set of notes is treated as an instruction and a chapter with one unanswered counts as unfinished. |
 | v1.43 | The balance sheet opens, the table's rules short again | Chapter 21, the balance sheet in general, now reads as a written-up breakdown from your notes: what a balance sheet is and the two parts of it, with the kinds of asset and liability the book lists, the book's example balance sheet from your photographs drawn as two sides that agree at $43,059, and the net-worth sum worked three ways, the book's $100K business with $25K and then $175K of liabilities, and the sheet's own totals. The rules under the table's lines are short again: one plain line where the book gives a basic instruction, such as 40% and up is good and below 20% is not for the gross margin, and nothing under revenue and the other plain lines, with the chapter page holding the detail. |
+| v1.44 | A second look, the controls restyled, a price slider | A switch at the top of the page now offers two looks: Newspaper, the salmon paper the site has had, and Original, drawn from the book's cover, with ivory paper, black ink, the title in the cover's gold Roman capitals, the text in a Garamond like the book's pages, and the burgundy kept for the accents. The buttons and options across the site now follow your input tools, square and hairline with the chosen option filled and every on/off box a switch, and the share-price chart has the same two-thumb slider as the line graphs, narrowing any span to the bars between the thumbs. |
