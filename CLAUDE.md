@@ -127,15 +127,24 @@ the book's readings of them as examples; chapter 21 points, the two parts
 of a balance sheet as `cols` (the kinds of asset and liability the book
 lists on its pages 69 and 70), the book's balance sheet as a `sheet`, the
 net-worth equation with the book's $100K and $25K, the three-way compare
-(the book's two businesses and the sheet's own totals), a point. Chapters
-11 to 19 open with the book's box. `partHtml` draws a part; a chapter without a body
+(the book's two businesses and the sheet's own totals), a point; chapter
+22 the book's box of the assets (the sheet's assets side, from the owner's
+photograph of page 72), points, the two kinds of asset as a `tree` (the root
+Total assets, a branch each for the current assets and all the other assets,
+the lines of each as chips), points; chapter 23 the book's box of the
+current assets (`CURRENT_BOX`: the sheet's first six lines, the total with
+its dollar sign, the arrows on cash, inventory and receivables, as the
+owner's photographs of chapters 23 and 24 print it), points, the cycle as a
+`flow` (Cash, Inventory, Accounts receivable, Cash), a point; the owner's
+"DSA" in chapter 23's notes is read as DCA. Chapters 11 to 19, 22 and 23
+open with the book's box. `partHtml` draws a part; a chapter without a body
 draws its diagrams, then its points. `renderChapter` draws a
 breakdown instead of the boxes for those chapters, `entryFor` and
 `isWritten` make them count as written with their type in the contents, the
 marks and the tab dots, and local entries for them are left alone. The
 source is the owner's export under `notes/` (the latest export replaces
-the file of the same name; chapters 1 to 21 so far, the whole income
-statement and the first of the balance sheet); a new export with more finished chapters means writing them up
+the file of the same name; chapters 1 to 23 so far, the whole income
+statement and the first three of the balance sheet); a new export with more finished chapters means writing them up
 here and keeping the file. Anything in square brackets in the owner's
 notes is an instruction to the write-up, not a note: "[make an example
 calculation]", "[show an example calculation]", "[add examples from the
@@ -584,7 +593,9 @@ the spans row's `.seg`, the `.types` of the chapter type and of the graph
 dialog) is butted segments, the chosen one filled, the radio hidden; every
 on/off box (`.opt`, `.remember`, `.rules`, the graph dialog's `.type.switch`)
 is a switch, a square whose knob slides to the right when on, drawn on the
-native checkbox so `checked` is still the state; text inputs and selects
+native checkbox so `checked` is still the state, its track green (`--on`)
+when on and claret when off, at the owner's request, so the state reads at
+a glance; text inputs and selects
 have the hairline border and an ink border with an inset ring on focus; the
 claret stays for the accents, not the controls. The fonts,
 three families under the OFL, are self-hosted under `public/assets/fonts/`;
@@ -739,3 +750,4 @@ design are their own release, requested deliberately.
 | v1.43 | The balance sheet opens, the table's rules short again | Chapter 21, the balance sheet in general, now reads as a written-up breakdown from your notes: what a balance sheet is and the two parts of it, with the kinds of asset and liability the book lists, the book's example balance sheet from your photographs drawn as two sides that agree at $43,059, and the net-worth sum worked three ways, the book's $100K business with $25K and then $175K of liabilities, and the sheet's own totals. The rules under the table's lines are short again: one plain line where the book gives a basic instruction, such as 40% and up is good and below 20% is not for the gross margin, and nothing under revenue and the other plain lines, with the chapter page holding the detail. |
 | v1.44 | A second look, the controls restyled, a price slider | A switch at the top of the page now offers two looks: Newspaper, the salmon paper the site has had, and Original, drawn from the book's cover, with ivory paper, black ink, the title in the cover's gold Roman capitals, the text in a Garamond like the book's pages, and the burgundy kept for the accents. The buttons and options across the site now follow your input tools, square and hairline with the chosen option filled and every on/off box a switch, and the share-price chart has the same two-thumb slider as the line graphs, narrowing any span to the bars between the thumbs. |
 | v1.45 | The cover's lettering, and a switch that moves nothing | The Original masthead is now set the way the cover's title is lettered, slim Garamond capitals widely spaced in the cover's gold, instead of the heavier Roman face of v1.44. Switching between the two looks no longer shifts the page: the title, the subtitle, the headlines and the text keep the same heights and run the same width in either look, so only the lettering changes. |
+| v1.46 | The assets and the current asset cycle written up | Chapters 22 and 23, the assets and the current asset cycle, now read as written-up breakdowns from your notes: the book's box of the assets from your photograph, the two kinds of asset with their lines, and the cycle of cash to inventory to receivables and back to cash, with the book's box of the current assets and the arrows on the three lines it runs through. Every switch on the site now shows green when it is on and red when it is off, and your latest export replaces the one on file. |

@@ -1,0 +1,5 @@
+more information for chapters
+
+tables]
+
+make the backgrounds green on the switches that are on and red for off so it is easier to see

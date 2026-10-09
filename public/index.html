@@ -30,6 +30,7 @@
       --rule: #CCC1B7;
       --rule-light: #E6D9CE;
       --claret: #990F3D;
+      --on: #1E7B4F;
       --teal: #0D7680;
       --display: 'Playfair Display', Georgia, 'Times New Roman', serif;
       --text: 'Newsreader', Georgia, 'Times New Roman', serif;
@@ -100,14 +101,15 @@
     /* the controls follow the owner's input tools: square, a hairline or ink border, small spaced
        capitals, a filled button that turns outlined under the pointer and an outlined one that
        fills, choices butted together as segments with the chosen one filled, and every on/off
-       box a switch, a square with a knob that slides to the right when on; the same in both schemes */
+       box a switch, a square with a knob that slides to the right when on, its track green when
+       on and claret when off so the state reads at a glance; the same in both schemes */
     button { font-family: var(--sans); font-size: .7rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; padding: .55rem 1rem; border: 1px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
     button.secondary { background: transparent; color: var(--ink); }
     button:hover, button:focus-visible { background: var(--paper); color: var(--ink); outline: none; }
     button.secondary:hover, button.secondary:focus-visible { background: var(--ink); color: var(--paper); }
     button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-    .switch input, .opt input, .remember input, .rules input { appearance: none; -webkit-appearance: none; position: relative; flex: none; box-sizing: border-box; width: 2.2rem; height: 1.15rem; margin: 0; border: 1px solid var(--ink); border-radius: 0; background: var(--paper); background-image: linear-gradient(var(--ink), var(--ink)); background-repeat: no-repeat; background-size: .95rem calc(100% - 2px); background-position: 1px 1px; transition: background-position .15s; cursor: pointer; vertical-align: middle; }
-    .switch input:checked, .opt input:checked, .remember input:checked, .rules input:checked { background-position: calc(100% - 1px) 1px; }
+    .switch input, .opt input, .remember input, .rules input { appearance: none; -webkit-appearance: none; position: relative; flex: none; box-sizing: border-box; width: 2.2rem; height: 1.15rem; margin: 0; border: 1px solid var(--ink); border-radius: 0; background: var(--claret); background-image: linear-gradient(var(--paper), var(--paper)); background-repeat: no-repeat; background-size: .95rem calc(100% - 2px); background-position: 1px 1px; transition: background-position .15s, background-color .15s; cursor: pointer; vertical-align: middle; }
+    .switch input:checked, .opt input:checked, .remember input:checked, .rules input:checked { background-color: var(--on); background-position: calc(100% - 1px) 1px; }
     .switch input:focus-visible, .opt input:focus-visible, .remember input:focus-visible, .rules input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
     #import-file { display: none; }
     .status { font-family: var(--sans); font-size: .8rem; color: var(--ink-60); }
@@ -688,6 +690,14 @@
       assets: [['Cash & Short-Term Investments', '$4,208'], ['Total Inventory', '2,220'], ['Total Receivables, Net', '3,317'], ['Prepaid Expenses', '2,260'], ['Other Current Assets, Total', '0'], ['Total Current Assets', '12,005'], null, ['Property/Plant/Equipment', '8,493'], ['Goodwill, Net', '4,246'], ['Intangibles, Net', '7,863'], ['Long-Term Investments', '7,777'], ['Other Long-Term Assets', '2,675'], ['Other Assets', '0'], ['Total Assets', '$43,059']],
       liabilities: [['Accounts Payable', '$1,380'], ['Accrued Expenses', '5,535'], ['Short-Term Debt', '5,919'], ['Long-Term Debt Due', '133'], ['Other Current Liabilities', '258'], ['Total Current Liabilities', '13,225'], null, ['Long-Term Debt', '3,277'], ['Deferred Income Tax', '1,890'], ['Minority Interest', '0'], ['Other Liabilities', '3,133'], ['Total Liabilities', '21,525'], null, ['Shareholders\u2019 Equity', null], ['Preferred Stock', '0'], ['Common Stock', '1,296'], ['Additional Paid in Capital', '7,378'], ['Retained Earnings', '36,235'], ['Treasury Stock\u2014Common', '\u221223,375'], ['Total Shareholders\u2019 Equity', '21,534'], null, ['Total Liabilities & Shareholders\u2019 Equity', '$43,059']]
     };
+    // the book's box of the current assets, as chapters 23 and 24 print it from
+    // the owner's photographs: the first six lines of the sheet, the total with its
+    // dollar sign, the arrows on the three lines the cycle runs through
+    var CURRENT_BOX = {
+      title: 'Balance Sheet/Assets', unit: '($ in millions)',
+      rows: SHEET_21.assets.slice(0, 5).concat([['Total Current Assets', '$12,005']]),
+      rules: [4], arrows: [0, 1, 2]
+    };
     var BREAKDOWNS = {
       '1': {
         type: 'background',
@@ -1136,6 +1146,45 @@
           ] }
         ],
         raw: "-One of the first things to look at when assessing DCA is to see how much they have in assets\n\n-This is what the balance sheet is for\n\n-Balance sheets are only for a set date, unlike income statements - usually created at the end of a fiscal year\n\n-It is a snapshot of the financial conditions on that date\n\n-The first part is the assets - current assets: what is owed within one year - Long-term assets: Due in one year or more [get the  list of details of what is in here from the photos i gave you]\n\n-All assets - liabilities = net worth of the business (shareholders equity)\n\n[create the example balance sheet from the photo i gave you]\n\n\n\n[take example calculations from the photos i gave you]"
+      },
+      '22': {
+        type: 'overview',
+        tldr: 'Read the assets in their two groups, the current ones first in order of liquidity and then all the others: together they are the total assets, and the mix tells you what kind of business this is.',
+        thesis: 'The assets are where all the goodies are kept: the current assets, cash or what turns into cash fast, listed in order of liquidity, and all the other assets, which will not be turned into cash in the year ahead. Together they are the company’s total assets, and they tell of its economic character and whether or not it has a Durable Competitive Advantage.',
+        body: [
+          { kind: 'statement', title: 'Balance Sheet/Assets', unit: '($ in millions)', rows: SHEET_21.assets, rules: [4, 12], caption: 'The box from the book, chapter 22, from your photograph: the current assets first, in order of liquidity, then all the other assets, adding to total assets of $43,059.' },
+          { points: [
+            'This is where all the goodies are kept.',
+            'Accounting divides the assets into two kinds: the current assets and all the other assets.'
+          ] },
+          { kind: 'tree', title: 'The two kinds of asset', root: 'Total assets', branches: [
+            { title: 'Current assets', lines: ['Cash, or what can be converted to cash fast, listed in order of liquidity.'], chips: ['Cash and cash equivalents', 'Short-term investments', 'Net receivables', 'Inventory', 'Other, the general slush fund'] },
+            { title: 'All other assets', lines: ['Not current: what cannot and will not be converted to cash in the year ahead.'], chips: ['Long-term investments', 'Property, plant and equipment', 'Intangible assets', 'Accumulated amortization', 'Other assets', 'Deferred long-term asset charges'] }
+          ] },
+          { points: [
+            'Collectively they are the company’s total assets.',
+            'The assets tell of the economic character of the business, and whether or not it has a Durable Competitive Advantage.'
+          ] }
+        ],
+        raw: "-This is where all the goodies are kept\n\n-Accounting types divid into:\n\nCurrent Assets: These are cash or can be converted to cash fast and are listed in order of liquidity\nCash and Cash equivalents\nShort-term investments\nNet receivables\nInventory\nOther (general slush fund)\n\nAll Other Assets: Not current and cannot and will not be converted to cash in the year ahead\nLong-term investments\nProperty Plant and Equipment\nIntangible Assets\nAccumulated Amortization\nOther Assets\nDeferred Long-term Asset Charges\n\n-Collectively they are a company's total assets\n\n-Tells of the economic character and whether or not DCA"
+      },
+      '23': {
+        type: 'overview',
+        tldr: 'Follow the cash round the cycle, cash to inventory to receivables and back to cash, and read each stop for signs of a Durable Competitive Advantage.',
+        thesis: 'The current assets are the working assets: cash goes out to buy inventory, the inventory sold becomes accounts receivable, and the receivables paid become cash again. Each element of that cycle can tell whether or not the company has a Durable Competitive Advantage.',
+        body: [
+          { kind: 'statement', title: CURRENT_BOX.title, unit: CURRENT_BOX.unit, rows: CURRENT_BOX.rows, rules: CURRENT_BOX.rules, arrows: CURRENT_BOX.arrows, caption: 'The box from the book, chapter 23, from your photograph: the current assets, with the arrows on the three lines the cycle runs through.' },
+          { points: [
+            'The current assets are also known as the working assets.',
+            'They are the cycle of cash going out to buy inventory.',
+            'The inventory, once sold, becomes accounts receivable; the receivables, once paid, become cash.'
+          ] },
+          { kind: 'flow', title: 'The current asset cycle', steps: ['Cash', 'Inventory', 'Accounts receivable', 'Cash'] },
+          { points: [
+            'The different elements of the current cycle can tell us whether or not the company has a Durable Competitive Advantage.'
+          ] }
+        ],
+        raw: "-AKA working assets\n\n-It is the cycle of cash going to buy inventory\n\n-Inventory sold become Accounts Receivable, when paid becomes cash\n\nInventory -> Accounts Receivable -> Cash\n\n-The different elements of the current cycle can tell us whether it is a DSA or not"
       }
     };
 
