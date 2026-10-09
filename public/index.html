@@ -341,6 +341,11 @@
     .diagram { margin: 0 0 1.5rem; font-family: var(--sans); }
     .diagram .dtitle { margin: 0 0 .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .diagram .dnote { margin: .5rem 0 0; font-family: var(--text); font-style: italic; font-size: .95rem; color: var(--ink-60); }
+    .diagram .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; }
+    .diagram .charts figure { margin: 0; padding: .7rem .8rem .4rem; border: 1px solid var(--rule); background: var(--white); min-width: 0; }
+    .diagram .charts figcaption { margin: 0 0 .4rem; }
+    .diagram .charts figcaption b { display: block; font-size: 1rem; font-weight: 700; color: var(--ink); }
+    .diagram .charts figcaption span { font-family: var(--text); font-style: italic; font-size: .95rem; color: var(--ink-60); }
     .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: .5rem; }
     .flow .step { flex: 1 1 11rem; min-width: 0; padding: .6rem .75rem; border: 1px solid var(--ink); background: var(--white); font-size: .9rem; line-height: 1.35; }
     .flow .arrow { align-self: center; flex: none; color: var(--claret); font-size: 1.2rem; }
@@ -1023,6 +1028,10 @@
             { title: 'What Warren looks for', sub: 'Consistent, and trending up', lines: ['2008: $2.95', '2007: $2.68', '2006: $2.37', '2005: $2.17', '2004: $2.06', '2003: $1.95', '2002: $1.65', '2001: $1.60', '2000: $1.48', '1999: $1.30', '1998: $1.42'] },
             { title: 'What Warren stays away from', sub: 'Erratic, with losses', lines: ['2008: $2.50', '2007: a loss of $0.45', '2006: $3.89', '2005: a loss of $6.05', '2004: $6.39', '2003: $5.03', '2002: $3.35', '2001: $1.77', '2000: $6.68', '1999: $8.53', '1998: $5.24'] }
           ] },
+          { kind: 'charts', title: 'The same ten years, as lines', unit: 'x', charts: [
+            { title: 'What Warren looks for', sub: 'Consistent, and trending up', years: [1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008], values: [1.42, 1.30, 1.48, 1.60, 1.65, 1.95, 2.06, 2.17, 2.37, 2.68, 2.95] },
+            { title: 'What Warren stays away from', sub: 'Erratic, with losses', years: [1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008], values: [5.24, 8.53, 6.68, 1.77, 3.35, 5.03, 6.39, -6.05, 3.89, -0.45, 2.50] }
+          ], note: 'Earnings per share in dollars, 1998 at the left and 2008 at the right, the losses in claret below the zero line. Hover a point for its year and figure.' },
           { examples: [
             { title: 'The consistent one', sub: 'The book’s reading of the first column', items: ['Consistent earnings with a long-term upward trend: an excellent sign that the company has some kind of long-term competitive advantage working in its favour', 'Consistent earnings usually mean the company is selling a product, or a mix of products, that does not need to go through the expensive process of change', 'The upward trend means the economics are strong enough to pay for more market share, through advertising or expansion, or for financial engineering such as buying back stock'] },
             { title: 'The erratic one', sub: 'The book’s reading of the second column', items: ['A downward trend punctuated by losses: a fiercely competitive industry, prone to booms and busts', 'The booms come when demand outruns supply; the company raises production to meet it, costs rise, and supply ends up in excess across the industry', 'Excess supply means falling prices, and the company loses money until the next boom', 'There are thousands of companies like this, and the wild swings in their shares, caused by erratic earnings, look like buying opportunities to traditional value investors; what they are really buying is a long, slow boat ride to investor nowhere'] }
@@ -1077,6 +1086,15 @@
         };
         return '<div class="diagram">' + title + eqRow(d.terms, '') + (d.example ? eqRow(d.example, 'example') : '') + (d.note ? '<p class="dnote">' + wr(d.note) + '</p>' : '') + '</div>';
       }
+      if (d.kind === 'charts') {
+        // the series are kept aside and drawn into their slots at the page's width by drawChapterCharts
+        return '<div class="diagram">' + title + '<div class="charts">' + d.charts.map(function (c) {
+          var periods = c.years.map(function (y) { return { date: String(y), label: String(y), short: String(y) }; });
+          chapterCharts.push({ periods: periods, values: c.values, unit: d.unit || 'x' });
+          return '<figure><figcaption><b>' + wr(c.title) + '</b>' + (c.sub ? '<span>' + wr(c.sub) + '</span>' : '') + '</figcaption>' +
+            '<div class="graph-body chapter-chart" data-chart="' + (chapterCharts.length - 1) + '"></div></figure>';
+        }).join('') + '</div>' + (d.note ? '<p class="dnote">' + wr(d.note) + '</p>' : '') + '</div>';
+      }
       if (d.kind === 'compare') {
         return '<div class="diagram">' + title + '<div class="compare">' + d.rows.map(function (r) { return '<div class="row"><b>' + wr(r[0]) + '</b><span>' + wr(r[1]) + '</span></div>'; }).join('') + '</div></div>';
       }
@@ -1120,7 +1138,24 @@
       return diagramHtml(part);
     }
 
+    // the line charts a chapter's write-up carries (chapter 20's two ten-year
+    // runs of earnings per share): their series, filled as the html is built,
+    // drawn into their slots once the chapter is on the page, at the slot's
+    // width, and again on resize
+    var chapterCharts = [];
+    function drawChapterCharts() {
+      Array.prototype.forEach.call(document.querySelectorAll('#app .chapter-chart[data-chart]'), function (slot) {
+        var spec = chapterCharts[parseInt(slot.getAttribute('data-chart'), 10)];
+        if (!spec) return;
+        var width = Math.max(260, Math.floor(slot.clientWidth || 560));
+        slot.innerHTML = chartSvg(spec.periods, spec.values, 'line', spec.unit, width, 'none', null);
+        wireGraphHover(slot, spec.periods, spec.values, spec.unit, 'line');
+      });
+    }
+    window.addEventListener('resize', function () { if (document.querySelector('#app .chapter-chart')) drawChapterCharts(); });
+
     function breakdownHtml(ch, b) {
+      chapterCharts = [];
       var body = b.body || (b.diagrams || []).concat(b.points ? [{ points: b.points }] : []);
       var dated = false;
       return '<p class="type-line"><span class="mark type-tag">' + esc(TYPE_NAMES[b.type]) + '</span> <span>Written up from your notes.</span></p>' +
@@ -1237,6 +1272,7 @@
           '<p class="kicker">' + esc(PARTS[ch.part]) + ' &middot; ' + (ch.num ? 'Chapter ' + ch.num : 'Introduction') + '</p>' +
           '<h2 class="headline">' + esc(ch.title) + '</h2>' +
           breakdownHtml(ch, BREAKDOWNS[ch.id]) + pager + '</article>';
+        drawChapterCharts();
         pendingFlush = null;
         return;
       }

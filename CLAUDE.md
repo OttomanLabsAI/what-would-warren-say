@@ -67,7 +67,12 @@ instructions (chapter 8), `equation` `terms` joined by `ops` (a claret −, ÷
 or =, the last term the bold result) with an optional `example` row of
 figures and a `note`, which is how the owner wants "revenue less expenses"
 shown (chapters 7, 9 and 10), `tree`
-a root with branches and chips, `cols` columns, `checks` a tick list with a
+a root with branches and chips, `cols` columns, `charts` a row of small
+line charts (`{ title, sub, years, values }` each, `unit` as in
+`NUMBER_ROWS`, a `note`; the html carries a slot per chart and the series
+go into `chapterCharts`, and `drawChapterCharts`, called by `renderChapter`
+once the chapter is on the page and again on resize, draws each with
+`chartSvg` at its slot's width and wires the hover readout), `checks` a tick list with a
 note, `sum` lines adding to a total, `compare` labelled rows, `statement` the
 book's income-statement box with `rows` (a row of `null` is a gap, a value
 of `null` a heading), `rules` under rows and `arrows` on the chapter's
@@ -110,7 +115,9 @@ are made up), points, the share-of-revenue equation, the book's two
 companies as a compare, points, examples, the tiers as a compare, a point;
 chapter 20 the earnings-per-share equation, points, the book's two
 ten-year columns of earnings per share from the owner's photographs
-(2008 down to 1998, the consistent run and the erratic one) as `cols`, and
+(2008 down to 1998, the consistent run and the erratic one) as `cols`, the
+same two runs as line charts underneath (`charts`, 1998 at the left, the
+losses in claret under the zero line), and
 the book's readings of them as examples. Chapters 11 to 19 open with
 the book's box. `partHtml` draws a part; a chapter without a body
 draws its diagrams, then its points. `renderChapter` draws a
@@ -660,3 +667,4 @@ design are their own release, requested deliberately.
 | v1.38 | Every earnings call marked on the price chart | The row of spans above the share-price chart now ends in an Earnings calls box, off until you tick it: ticked, a dashed claret line stands on the chart at every date the company reported its results, before the open or after the close on a daily chart, and hovering a marked day names the call and the quarter it was for. Companies fetched from now on carry their report history; those already on file say so and fill in with a fresh fetch. |
 | v1.39 | A slider under the graph, one box for ten years | The graph popup's From and To dropdowns are gone: a two-thumb slider sits under the chart instead, spanning every year or quarter on file, with the range it holds written between its ends, and the window is now a single Last 10 years box that moves the slider to the last ten years when ticked and back to the whole run when not, unticking itself when you move a thumb by hand. The last value's label now sits over its own bar, clear of the bar beside it, instead of printing across it. |
 | v1.40 | The income statement finished, with a TL;DR on every chapter | Chapters 17 to 20, income before tax, income taxes paid, net earnings and earnings per share, now read as written-up breakdowns from your notes, with the book's box carried down to net earnings from your photographs, the example calculations you asked for worked on the box's figures, the buyback trick in made-up figures, and the book's two ten-year columns of earnings per share with its reading of each. Every written-up chapter now opens with a TL;DR, the plainest instruction for the reader, in your words where you gave them, and the table's rules for those four lines come from the notes too. |
+| v1.41 | The two earnings runs drawn as lines | Chapter 20's two ten-year columns of earnings per share from the book now have line graphs underneath them, drawn at the page's width: the steady climb Warren looks for beside the erratic run he stays away from, its two losses in claret below the zero line, with the year and figure on hover. |
