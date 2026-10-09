@@ -131,10 +131,10 @@ CLAUDE.md          standing policy for working in this repo
   fundamentals and one for the split history, so companies are kept on
   the device under `wwws.numbers.v1` (the eight most recent) and shown again
   without a call.
-- Stock splits: each company keeps its split history from EODHD, listed
-  under the next report date, and the price chart divides every bar before
-  a split by the splits since, so a four-for-one no longer reads as a
-  crash. A company without the list on file asks for it once when its chart
+- Stock splits: each company keeps its split history from EODHD, and the
+  price chart divides every bar before a split by the splits since, so a
+  four-for-one no longer reads as a crash; the note under the chart names
+  the splits it is restated for. A company without the list on file asks for it once when its chart
   is drawn. EODHD's per-share figures, the shares outstanding and the
   earnings per share, come restated for later splits already, so the table
   is left as it comes. The token is kept under `wwws.eodhd.token` only when

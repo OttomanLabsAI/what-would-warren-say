@@ -181,8 +181,7 @@
     .price-graph .rule { margin: -.4rem 0 .5rem; font-size: .9rem; }
     .price-graph .chart .pt { display: none; }
     .price-graph .chart .series { stroke-width: 1.5; }
-    .next-report b, .splits b { margin-right: .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
-    .splits { margin: 0 0 .6rem; font-family: var(--sans); font-size: .95rem; color: var(--ink); }
+    .next-report b { margin-right: .5rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .ntable button.graph { display: inline-block; vertical-align: middle; margin-left: .35rem; padding: .1rem .2rem; border: 0; background: none; color: var(--ink-40); line-height: 0; cursor: pointer; }
     .ntable button.graph:hover, .ntable button.graph:focus-visible { background: none; color: var(--claret); outline: none; }
     .ntable button.graph svg { display: block; }
@@ -1322,8 +1321,8 @@
     // ("4.000000/1.000000" is four new for one old), kept as it came with the ratio
     // as a number, oldest first. EODHD restates its per-share figures for later
     // splits already (shares outstanding, earnings per share, the balance-sheet
-    // share count), so the list serves the price chart, whose closes are as
-    // traded, and the Splits line on the company page.
+    // share count), so the list serves the price chart alone, whose closes are
+    // as traded; the page carries no Splits line, at the owner's request.
     function readSplits(src) {
       var out = [];
       if (!Array.isArray(src)) return out;
@@ -1346,14 +1345,6 @@
       var f = 1;
       (splits || []).forEach(function (s) { if (s.date > date) f *= s.ratio; });
       return f;
-    }
-
-    // "4 for 1 on 31 August 2020", from the ratio as EODHD wrote it
-    function splitText(s) {
-      var m = /^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/.exec(String(s.split || ''));
-      function n(x) { x = parseFloat(x); return Math.abs(x - Math.round(x)) < 1e-6 ? String(Math.round(x)) : String(Math.round(x * 100) / 100); }
-      var a = m ? n(m[1]) : n(s.ratio >= 1 ? s.ratio : 1), b = m ? n(m[2]) : n(s.ratio >= 1 ? 1 : 1 / s.ratio);
-      return a + ' for ' + b + ' on ' + fmtDay(s.date);
     }
 
     function fetchSplits(symbol) {
@@ -1870,7 +1861,6 @@
         priceHtml(c) +
         aboutHtml(c) +
         nextReportHtml(c) +
-        splitsHtml(c) +
         '<p class="company-meta"><span>' + esc(bits.join(' \u00b7 ')) + '</span>' +
         (c.sample ? '<span>Sample data pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.store ? '<span>In the store, pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : c.rowOnly ? '<span>Latest year only, from the screen rows pulled ' + esc(fmtDate(c.fetchedAt)) + '</span>' : '<span>Fetched ' + esc(fmtDate(c.fetchedAt)) + '</span>') +
         '<button type="button" class="linkbtn" id="refresh">' + (c.sample || c.store || c.rowOnly ? 'Fetch a live copy' : 'Fetch again') + '</button>' +
@@ -1883,13 +1873,6 @@
           rawTableHtml('Income statement', c.income, newest, newestLabels) +
           rawTableHtml('Balance sheet', c.balance, newest, newestLabels) +
           rawTableHtml('Cash flow statement', c.cashflow, newest, newestLabels) + '</details>' : '');
-    }
-
-    // the company's splits, newest first, when it has any on file
-    function splitsHtml(c) {
-      if (!Array.isArray(c.splits) || !c.splits.length) return '';
-      var list = c.splits.slice().reverse().map(splitText);
-      return '<p class="splits"><b>Splits</b>' + esc(list.join(', ')) + '. The chart restates earlier prices for them; EODHD\u2019s per-share figures are restated already.</p>';
     }
 
     // Add to a watchlist: the generic list first, then the others, the ones that
@@ -4015,7 +3998,6 @@
       entry.promise = fetchSplits(c.symbol).then(function (rows) {
         c.splits = readSplits(rows);
         if (numbers.companies[c.symbol] === c) saveNumbers();
-        refreshSplitsLine(c);
         return c.splits;
       }, function (e) {
         entry.failedAt = Date.now();
@@ -4025,15 +4007,12 @@
       return entry.promise;
     }
 
-    // the Splits line of the page on show, drawn again once the list has arrived
-    function refreshSplitsLine(c) {
-      if (!currentCompany || currentCompany.symbol !== c.symbol) return;
-      var old = app.querySelector('.splits'), holder = document.createElement('div');
-      holder.innerHTML = splitsHtml(c);
-      var fresh = holder.firstElementChild;
-      if (old) { if (fresh) old.parentNode.replaceChild(fresh, old); else old.parentNode.removeChild(old); return; }
-      var anchor = app.querySelector('.next-report');
-      if (fresh && anchor && anchor.parentNode) anchor.parentNode.insertBefore(fresh, anchor.nextSibling);
+    // "4 for 1 on 31 August 2020", from the ratio as EODHD wrote it
+    function splitText(s) {
+      var m = /^\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*$/.exec(String(s.split || ''));
+      function n(x) { x = parseFloat(x); return Math.abs(x - Math.round(x)) < 1e-6 ? String(Math.round(x)) : String(Math.round(x * 100) / 100); }
+      var a = m ? n(m[1]) : n(s.ratio >= 1 ? s.ratio : 1), b = m ? n(m[2]) : n(s.ratio >= 1 ? 1 : 1 / s.ratio);
+      return a + ' for ' + b + ' on ' + fmtDay(s.date);
     }
 
     // "restated for the 4 for 1 split of 31 August 2020": the splits since the first bar shown

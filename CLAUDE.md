@@ -312,10 +312,10 @@ is EODHD's `splits/<symbol>` reply, kept by `readSplits` as it came,
 mirrored in `tools/lib/pull.mjs`. A company with none on file asks for it
 once a session when its chart is drawn (`ensureSplits`; a failure is asked
 again after `SPLITS_RETRY`, the chart drawn as traded with a note
-meanwhile), and a kept copy saves it. `splitsHtml` draws the Splits line
-under the next-report line, newest first, `splitText` reading the ratio
-as EODHD wrote it ("4 for 1 on 31 August 2020"); a company with no splits,
-or none on file, has no line.
+meanwhile), and a kept copy saves it. The page carries no Splits line:
+the owner had it removed in v1.36, and the only word of the splits is the
+chart's units line, `splitText` reading the ratio as EODHD wrote it ("the
+4 for 1 split of 31 August 2020").
 
 The Watchlists view (`#watchlists`, `#watchlists/<list id>`) holds named lists
 of companies, each company a name and an EODHD symbol. The lists are kept under
@@ -591,3 +591,4 @@ design are their own release, requested deliberately.
 | v1.33 | Stock splits on file, the price chart restated | Every company now carries its stock splits from EODHD, fetched with its fundamentals, and the share-price chart divides the prices before each split by its ratio, so a four-for-one no longer reads as a crash. The company page lists the splits under the next report date. The per-share figures in the table needed nothing: EODHD restates them already, as your own pull shows. |
 | v1.34 | The month of a split no longer reads as a crash | On the all-time chart the month in which a company split was divided once too often, so Nvidia's June 2024 fell from 109 to 12 and back. Each weekly and monthly bar is now judged by the day its closing price was struck, the end of its week or month, rather than the date the bar is labelled with, and the month of a split reads as it traded. |
 | v1.35 | Search by name, a secret key, five more markets | The company box now takes a name as well as a ticker and suggests companies as you type, from everything on file: the arrows and Enter, or a click, open one at once without spending a call, and a typed ticker still fetches as before. Every account now carries a secret key, shown on the Account page with a Copy button, to say a request is yours in an email or the like; if it leaks, one click makes a new one and the old one stops working at once. Your new pull is on the site too: the companies of the Korea Stock Exchange, KOSDAQ, Shanghai, Shenzhen and Xetra now open from their rows and screen beside London, NASDAQ and New York, 17,609 companies with their latest year in all. |
+| v1.36 | The list of splits leaves the company page | The Splits line under the next report date is gone: a company with a long history of splits filled three lines with them. The splits themselves stay at work behind the price chart, which still restates earlier prices and says so in the note under it. |

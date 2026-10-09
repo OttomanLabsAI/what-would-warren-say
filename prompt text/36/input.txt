@@ -1,5 +1,0 @@
-the search should include company name and predictive searching
-
-every account will need a secret key too btw. one that can be regenerated if it gets leaked. this is for email requests etc.
-
-new data added
