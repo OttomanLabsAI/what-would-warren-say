@@ -1,0 +1,20 @@
+You do not need a key for Regeneron. The page asked for one because a ticker typed into the box and sent with Fetch means "pull a fresh copy from EODHD", and that always spends calls with your token. To open what is on file, pick the suggestion that appears under the box as you type (Regeneron Pharmaceuticals Inc, NASDAQ), type the name instead of the ticker, or tap the company's row on the Screen: all three open it with no key and no call.
+
+What the site holds, from your pulls, for anyone who opens it:
+
+- **The screen rows for 17,609 companies**, pulled up to 8 October 2026: London 3,779, NASDAQ 3,385, Shenzhen 2,814, Shanghai 2,261, New York 2,080, KOSDAQ 1,673, Korea 919, Xetra 692, Paris 3 and United States 3. A row holds one company's latest year: revenue, gross profit and net earnings, the book's ratios from the gross margin to the capex share and the buyback flag, the sector and industry, and the next report date. A company that is only a row opens with that one year, no earlier years, no quarters and no graphs, and says "Not on file" where the description would go, because the rows were written before the pull kept what a company does; a rebuild from the saved replies on the pull page adds it. Regeneron is one of these.
+- **80 companies with their full history**, the watchlist names from Apple to Zscaler and the London, Paris and Xetra ones, pulled 7 October 2026: every year EODHD has, up to 42, and the last 40 quarters, so the table, the graphs and the analytics all work. They were bundled before the pull kept the report history and the split list, so the earnings-call marks and the split-restated chart wait for a fresh fetch.
+- **The name of every company**, for the search box.
+
+What the site does not hold is the rest of your pull: the full history of the other seventeen and a half thousand companies sits in the data folder on your machine, which is EODHD-licensed and never goes into the repository. It reaches the site only through the store, the R2 bucket, which does not exist yet. That is the one thing missing. To fill it:
+
+1. In the Cloudflare dashboard, open R2 Object Storage and create a bucket named wwws-data.
+2. Under Manage R2 API Tokens, make a token with Object Read & Write on that bucket, and note its access key, its secret and the account's S3 endpoint.
+3. On your machine, run `npm run pull-app`, open the second form, "Send to the site", paste the endpoint and the keys, and send. Every company with statements goes up, with the screen files and the index; the raw replies never do.
+4. Tell me the bucket exists. I uncomment the binding line in wrangler.jsonc and release, and from then on every company in your pull opens with its full history and no key, the Screen reads from the store, and the home page says what the store holds.
+
+A key stays needed for two things only: the share price and its chart, which are never stored, and fetching from EODHD a fresh copy, or a company that is not in the pull. If you would rather a typed ticker opened the company on file and fetched only when a token is in the box, say so and I will change it.
+
+**v1.50 is live.** The home page no longer lists the sample companies by venue: under the form it shows the count of what is on file and the companies kept on the device, and a sample company opens from the search box, a watchlist or its address as before. On a phone the Screen's company column is now as wide as the line column of the company table, which puts its edge where your line was: the names wrap under it, a word longer than the column breaks at the edge, and more of the figures sit beside the names.
+
+Verified: all seventeen browser suites pass against the finished page, the three that asserted the sample list rewritten to assert its absence; the Screen measured on 390 and 360 pixel phones, London and Xetra included, with the column at 143 pixels, no cell overflowing and no sideways page scroll; the wrangler dry run and the render check clean; the home page and the Screen screenshots inspected at desktop and phone widths.

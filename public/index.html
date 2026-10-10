@@ -154,8 +154,6 @@
     .kept { font-family: var(--sans); font-size: .82rem; color: var(--ink-60); margin: 0 0 1rem; }
     .kept a { color: var(--teal); text-decoration: none; }
     .kept a:hover { text-decoration: underline; }
-    .kept.samples { margin-top: -.6rem; }
-    .kept.samples b { margin-right: .4rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .kept.store { color: var(--ink); }
     .kept.store b { margin: 0 .2rem 0 .4rem; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--claret); }
     .units { font-family: var(--sans); font-size: .75rem; color: var(--ink-60); margin: 0 0 .4rem; }
@@ -502,6 +500,8 @@
       .ntable { font-size: .74rem; }
       .ntable th, .ntable td { padding: .3rem .45rem; }
       .ntable th.item, .ntable td.item { min-width: 8rem; width: 8rem; max-width: 8rem; }
+      /* the Screen's company column at the same 8rem on a phone, where the owner drew the line; a word longer than that breaks at the edge */
+      .ntable.screen th.item, .ntable.screen td.item { min-width: 8rem; width: 8rem; max-width: 8rem; overflow-wrap: anywhere; }
       .ntable thead th.todate, .ntable thead th.todate button.yr { white-space: normal; }
       .ntable thead th.todate { max-width: 4.5rem; }
       .rule { font-size: .7rem; }
@@ -2533,21 +2533,6 @@
         '. Type a name or a ticker above to open one, or sort and filter them in the <a href="#screen">Screen</a>.</p>';
     }
 
-    function samplesHtml() {
-      var d = samples.index;
-      if (!d || !d.companies.length) return '';
-      var byVenue = {};
-      d.companies.forEach(function (c) { (byVenue[c.exchange] = byVenue[c.exchange] || []).push(c); });
-      var html = '<p class="kept">Sample data on file for ' + d.companies.length + ' companies, pulled ' + esc(fmtDate(d.pulledUpTo)) + ': no calls needed to open them.</p>';
-      Object.keys(byVenue).sort().forEach(function (venue) {
-        var list = byVenue[venue].slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
-        html += '<p class="kept samples"><b>' + esc(VENUE_NAMES[venue] || venue) + '</b> ' + list.map(function (c) {
-          return '<a href="#companies/' + esc(c.symbol) + '">' + esc(c.name) + ' (' + esc(c.symbol) + ')</a>';
-        }).join(' \u00b7 ') + '</p>';
-      });
-      return html;
-    }
-
     function renderNumbers(fromHash) {
       showView('numbers');
       var symbol = fromHash ? normaliseSymbol(fromHash) : (numbers.last || '');
@@ -2577,7 +2562,7 @@
       var shown = company || stored || sample || rowed;
       app.innerHTML = '<section class="numbers">' + (!shown && !loading ? noticeHtml() : '') + formHtml(symbol) +
         '<p class="status" id="numbers-status" role="status" aria-live="polite"></p>' +
-        (shown ? companyHtml(shown) : (loading ? '<p class="kept">Opening ' + esc(symbol) + '\u2026</p>' : storeHtml() + bundleHtml() + samplesHtml() + keptHtml(''))) + '</section>';
+        (shown ? companyHtml(shown) : (loading ? '<p class="kept">Opening ' + esc(symbol) + '\u2026</p>' : storeHtml() + bundleHtml() + keptHtml(''))) + '</section>';
       currentCompany = shown || null;
       if (company) numbers.last = symbol;
 

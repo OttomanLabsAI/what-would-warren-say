@@ -201,7 +201,11 @@ heading row is a sticky `th.item` plus one empty `td` spanning the value
 columns that carries the rule across, so the heading stays in view while the
 table scrolls sideways (a cell spanning the whole row cannot stick). Under
 40rem the `.item` column is fixed at 8rem and the "to date" heading wraps,
-so two years of figures sit beside the line names on a phone; that media
+so two years of figures sit beside the line names on a phone, and the
+Screen's company column is fixed at the same 8rem there, a word longer
+than that breaking at the edge (`overflow-wrap: anywhere`; v1.50, where
+the owner drew the line on their phone, the names wrapping under it, so
+its own 13rem minimum holds only at wider widths); that media
 block is the last thing in the stylesheet so nothing above it outranks it. Columns run
 newest first: the "to
 date" column, then each year with its quarters, newest first, to its right. A
@@ -313,7 +317,12 @@ page's shape (`tools/bundle-samples.mjs` writes both from `data/`); the page
 loads the index at boot (`loadSamples`), opens a company's file on first view
 (`loadSample`, kept for the session with `sample: true`), and a kept copy
 takes precedence over the sample. A sample company's page says "Sample data
-pulled", offers "Fetch a live copy" and has no Forget. The company page
+pulled", offers "Fetch a live copy" and has no Forget. The home page does
+not list the sample companies: the "Sample data on file" line and the
+lists by venue under it went in v1.50 at the owner's request, so under the
+form the home shows only the store or bundle count line and the kept
+copies, and a sample opens from the search box, a watchlist or its
+address as before. The company page
 carries no "also kept" line and no units paragraph: the owner had them
 removed.
 
@@ -813,3 +822,4 @@ design are their own release, requested deliberately.
 | v1.47 | Warren Buffett's Analytics, the book's tests on one page | A button above a company's table now opens Warren Buffett's Analytics: a dashboard of tiles, one for each line the finished chapters give a rule for, from the gross margin to earnings per share, each with the last ten years drawn with its trend line, the chapter's TL;DR, and a verdict in the chapter's own terms, such as whether earnings per share have climbed steadily as Warren wants. Revenue and the other lines he does not judge on their own are left out, and more tiles join as more chapters are finished. |
 | v1.48 | The analytics as sections, each with its own live graph | Warren Buffett's Analytics now reads section by section, one for each line, with its heading, what Warren looks for in red as under the table's lines, the chapter's TL;DR, and then the graph and the conclusion. Every graph is now as interactive as the ones behind the table: a line or bars, the trend line or the mean band, the last ten years or every year on file with a two-thumb slider to narrow them, and the conclusion follows the years you show. |
 | v1.49 | A word at the top, and today's tax rate throughout | The home page now opens by saying what the site is: built on the book, Warren Buffett and the Interpretation of Financial Statements by Mary Buffett and David Clark, analysing companies by the strategy it sets out, and not associated with Warren Buffett or Berkshire Hathaway. Every tax figure now uses today's United States corporate rate of 21% rather than the 35% of the book's day: the check in chapter 18 is worked at 21%, the rule under the table's tax line names it, and the analytics judge a company's tax bill against it. |
+| v1.50 | The sample list goes, the Screen's company column narrows | The Companies home page no longer lists the eighty sample companies by venue under the counts of what is on file: they still open from the search box, a watchlist or their address, and the page simply opens shorter. On a phone the Screen's company column is narrower, the names wrapping beneath it, so more of the figures sit beside them. |

@@ -1,0 +1,5 @@
+Remove this list on the homepage. We don’t need it
+
+Reduce the width of this first column to there
+
+Why do I need an api key? I gave you the data. Tell me what data you have and what I need
